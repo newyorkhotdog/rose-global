@@ -455,6 +455,13 @@ textarea { resize: vertical; min-height: 70px; }
       <button class="tab" onclick="setTaskFilter('open',this)">פתוח</button>
       <button class="tab" onclick="setTaskFilter('done',this)">טופל</button>
     </div>
+    <select id="task-prop-filter" onchange="renderTasks()" style="width:auto;font-size:13px">
+      <option value="">כל הנכסים</option>
+      <option>לבנדה 32</option>
+      <option>עזאי 38</option>
+      <option>נתן הנביא 42</option>
+      <option>הירקון 41 ב&quot;ב</option>
+    </select>
     <button class="btn btn-primary btn-sm" onclick="toggleTaskForm()">+ משימה חדשה</button>
   </div>
   <div id="task-add-form" style="display:none" class="card" style="margin-bottom:16px">
@@ -1623,6 +1630,8 @@ function renderTasks(){
   const props=['לבנדה 32','עזאי 38','נתן הנביא 42','הירקון 41 ב"ב'];
   let html='';
   props.forEach(prop=>{
+    const propFilter = (document.getElementById('task-prop-filter')||{}).value||'';
+    if (propFilter && prop !== propFilter) return;
     let tasks=TASKS.filter(t=>t.prop===prop);
     if(taskFilter==='urgent') tasks=tasks.filter(t=>!t.done&&t.priority==='urgent');
     else if(taskFilter==='open') tasks=tasks.filter(t=>!t.done);
