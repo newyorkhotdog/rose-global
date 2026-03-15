@@ -2133,15 +2133,28 @@ function renderAIAnalysis(text, snapshot) {
 }
 
 function extractSection(text, title) {
-  const patterns = [
-    new RegExp('\['+title+'\]\s*([\s\S]*?)(?=\[|$)', 'i'),
-    new RegExp(title+'[:\s]+([\s\S]*?)(?=\n\n|\[|$)', 'i'),
-  ];
-  for (const re of patterns) {
-    const m = text.match(re);
-    if (m && m[1].trim()) return m[1].trim().replace(/\n/g,'<br>');
+  // Simple string-based extraction, no regex with brackets
+  const marker = '[' + title + ']';
+  const idx = text.indexOf(marker);
+  if (idx >= 0) {
+    const start = idx + marker.length;
+    const nextBracket = text.indexOf('[', start);
+    const section = nextBracket > 0 ? text.slice(start, nextBracket) : text.slice(start);
+    return section.trim().replace(/
+/g,'<br>');
   }
-  return '';
+  // Fallback: find by title followed by colon or newline
+  const lines = text.split('
+');
+  let capture = false, result = [];
+  for (const line of lines) {
+    if (line.includes(title)) { capture = true; continue; }
+    if (capture) {
+      if (line.startsWith('[') && line.includes(']')) break;
+      result.push(line);
+    }
+  }
+  return result.join('<br>').trim();
 }
 
 function formatList(text) {
