@@ -861,6 +861,18 @@ function getPropCost(prop) {
 
 function getPropRevenue(prop) {
   if (FIXED_COSTS[prop]) return FIXED_COSTS[prop].income || 0;
+  // Use MAP_DATA prices per room (each room can have different price)
+  if (MAP_DATA[prop]) {
+    let total = 0;
+    Object.values(MAP_DATA[prop].floors||{}).forEach(rooms => {
+      rooms.forEach(r => {
+        if (r.company && r.people > 0) {
+          total += r.people * (r.price || PRICE);
+        }
+      });
+    });
+    return total;
+  }
   return TENANTS.filter(t => t.prop===prop && !t.to).reduce((s,t) => s + t.people * PRICE, 0);
 }
 
@@ -1083,10 +1095,10 @@ const MAP_DATA = {
   'לבנדה 32': {
     floors: {
       1: [
-        {r:1,company:'יער',people:6,price:1250,cost:5350,note:''},
+        {r:1,company:'יער',people:6,price:1280,cost:5350,note:''},
         {r:2,company:'',people:0,price:1250,cost:0,note:''},
-        {r:3,company:'יער',people:6,price:1250,cost:5350,note:''},
-        {r:4,company:'יער',people:6,price:1250,cost:5350,note:''},
+        {r:3,company:'יער',people:6,price:1280,cost:5350,note:''},
+        {r:4,company:'יער',people:6,price:1280,cost:5350,note:''},
         {r:5,company:'שירות',people:0,price:0,cost:3600,note:'חדר שירות — יער'},
       ],
       2: [
@@ -1095,25 +1107,25 @@ const MAP_DATA = {
         {r:3,company:'קורפו',people:3,price:1250,cost:5350,note:''},
         {r:4,company:'משביר יעקב',people:4,price:1250,cost:5350,note:''},
         {r:5,company:'שמרית',people:5,price:1250,cost:5350,note:''},
-        {r:6,company:'יער',people:6,price:1250,cost:5350,note:''},
-        {r:7,company:'יער',people:6,price:1250,cost:5350,note:''},
+        {r:6,company:'יער',people:6,price:1280,cost:5350,note:''},
+        {r:7,company:'יער',people:6,price:1280,cost:5350,note:''},
         {r:8,company:'שמרית',people:3,price:1250,cost:5350,note:''},
-        {r:9,company:'יער',people:5,price:1250,cost:5350,note:''},
-        {r:10,company:'יער',people:6,price:1250,cost:5350,note:''},
+        {r:9,company:'יער',people:5,price:1280,cost:5350,note:''},
+        {r:10,company:'יער',people:6,price:1280,cost:5350,note:''},
         {r:11,company:'בינה',people:6,price:1250,cost:5350,note:''},
-        {r:12,company:'יער',people:6,price:1250,cost:5350,note:''},
+        {r:12,company:'יער',people:6,price:1280,cost:5350,note:''},
       ],
       3: [
         {r:1,company:'',people:0,price:1250,cost:5350,note:''},
         {r:2,company:'שיק סין',people:2,price:1250,cost:3600,note:''},
         {r:3,company:'ח.ח.א',people:3,price:1250,cost:5350,note:''},
         {r:4,company:'',people:0,price:1250,cost:3000,note:''},
-        {r:5,company:'יער',people:6,price:1250,cost:5350,note:''},
+        {r:5,company:'יער',people:6,price:1280,cost:5350,note:''},
         {r:6,company:'ניו פאוור',people:5,price:1250,cost:5350,note:''},
         {r:7,company:'ניו פאוור',people:8,price:1250,cost:5350,note:''},
         {r:8,company:'ח.ח.א',people:5,price:1250,cost:5350,note:''},
         {r:9,company:'שיק סין',people:5,price:1250,cost:5350,note:''},
-        {r:10,company:'יער',people:2,price:1250,cost:5350,note:''},
+        {r:10,company:'יער',people:2,price:1280,cost:5350,note:''},
         {r:11,company:'בינה',people:6,price:1250,cost:5350,note:''},
         {r:13,company:'משביר',people:6,price:1250,cost:5350,note:''},
       ]
