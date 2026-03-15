@@ -483,33 +483,10 @@ textarea { resize: vertical; min-height: 70px; }
 </div>
 
 <!-- MAP LAVANDA -->
-<div id="page-map-lavanda" class="page">
-  <div class="page-title">לבנדה 32 — מפת קומות</div>
-  <div class="page-sub">לחץ על חדר לעריכה</div>
-  <div class="metrics" id="lav-summary" style="margin-bottom:16px"></div>
-  <div style="display:flex;gap:14px;margin-bottom:16px;flex-wrap:wrap">
-    <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)"><div style="width:12px;height:12px;border-radius:3px;background:#a8d9be"></div>רווחי</div>
-    <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)"><div style="width:12px;height:12px;border-radius:3px;background:#f0d98a"></div>מדשדש</div>
-    <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)"><div style="width:12px;height:12px;border-radius:3px;background:#e8b0aa"></div>הפסדי</div>
-    <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)"><div style="width:12px;height:12px;border-radius:3px;background:#e0e0e0"></div>ריק</div>
-  </div>
-  <div id="lav-floors"></div>
-</div>
+
 
 <!-- MAP HIRKON -->
-<div id="page-map-hirkon" class="page">
-  <div class="page-title">הירקון 41 — בני ברק</div>
-  <div class="page-sub">קומה 2 — לחץ על חדר לעריכה</div>
-  <div class="metrics" id="hir-summary" style="margin-bottom:16px"></div>
-  <div style="display:flex;gap:14px;margin-bottom:16px;flex-wrap:wrap">
-    <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)"><div style="width:12px;height:12px;border-radius:3px;background:#a8d9be"></div>רווחי</div>
-    <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)"><div style="width:12px;height:12px;border-radius:3px;background:#f0d98a"></div>מדשדש</div>
-    <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)"><div style="width:12px;height:12px;border-radius:3px;background:#e8b0aa"></div>הפסדי</div>
-    <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)"><div style="width:12px;height:12px;border-radius:3px;background:#e0e0e0"></div>ריק</div>
-    <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)"><div style="width:12px;height:12px;border-radius:3px;background:#d4a8e0"></div>שיפוץ</div>
-  </div>
-  <div id="hir-floors"></div>
-</div>
+
 
 <!-- ROOM EDIT MODAL -->
 <div id="room-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.35);display:none;align-items:center;justify-content:center;z-index:200;padding:1rem">
@@ -2743,151 +2720,10 @@ initApp();
 
 // ============ MAPS ============
 const LAV_FLOORS = { 1:[1,2,3,4,5], 2:[1,2,3,4,5,6,7,8,9,10,11,12], 3:[1,2,3,4,5,6,7,8,9,10,11,12,13] };
-const LAV_ROOMS = {
-  '1-1':{company:'יער',people:6,price:1250,cost:5350,note:''},'1-2':{company:'',people:0,price:1250,cost:0,note:''},'1-3':{company:'יער',people:6,price:1250,cost:5350,note:''},'1-4':{company:'יער',people:6,price:1250,cost:5350,note:''},'1-5':{company:'',people:0,price:1250,cost:3600,note:''},
-  '2-1':{company:'בינה',people:2,price:1250,cost:3600,note:''},'2-2':{company:'',people:0,price:1250,cost:0,note:''},'2-3':{company:'קורפו',people:3,price:1250,cost:5350,note:''},'2-4':{company:'משביר יעקב',people:4,price:1250,cost:5350,note:''},'2-5':{company:'שמרית',people:5,price:1250,cost:5350,note:''},'2-6':{company:'יער',people:6,price:1250,cost:5350,note:''},'2-7':{company:'יער',people:6,price:1250,cost:5350,note:''},'2-8':{company:'שמרית',people:3,price:1250,cost:5350,note:''},'2-9':{company:'יער',people:5,price:1250,cost:5350,note:''},'2-10':{company:'יער',people:6,price:1250,cost:5350,note:''},'2-11':{company:'בינה',people:6,price:1250,cost:5350,note:''},'2-12':{company:'יער',people:6,price:1250,cost:5350,note:''},
-  '3-1':{company:'',people:0,price:1250,cost:5350,note:''},'3-2':{company:'שיק סין',people:2,price:1250,cost:3600,note:''},'3-3':{company:'ח.ח.א',people:3,price:1250,cost:5350,note:''},'3-4':{company:'',people:0,price:1250,cost:3000,note:''},'3-5':{company:'יער',people:6,price:1250,cost:5350,note:''},'3-6':{company:'ניו פאוור',people:5,price:1250,cost:5350,note:''},'3-7':{company:'ניו פאוור',people:8,price:1250,cost:5350,note:''},'3-8':{company:'ח.ח.א',people:5,price:1250,cost:5350,note:''},'3-9':{company:'שיק סין',people:5,price:1250,cost:5350,note:''},'3-10':{company:'יער',people:2,price:1250,cost:5350,note:''},'3-11':{company:'בינה',people:6,price:1250,cost:5350,note:''},'3-12':{company:'',people:0,price:1250,cost:5350,note:''},'3-13':{company:'משביר',people:6,price:1250,cost:5350,note:''},
-};
 
-const HIR_ROOMS = {
-  5:{company:'שיק צין',people:3,price:1250,cost:5100,note:''},
-  6:{company:'שמרית',people:2,price:1250,cost:5100,note:''},
-  7:{company:'שמרית',people:4,price:1250,cost:5100,note:''},
-  9:{company:'',people:0,price:1250,cost:5100,note:''},
-  10:{company:'ח.ח.א',people:5,price:1250,cost:5100,note:'מוכן לכניסה'},
-  11:{company:'ניו פאוור',people:8,price:1250,cost:5100,note:'8 אנשים נכון ל-21.2.26'},
-  13:{company:'',people:0,price:1250,cost:5100,note:''},
-  14:{company:'',people:0,price:1250,cost:0,note:'דורש שיפוץ — אין ניקוז ואין איטום'},
-};
 
-let mapEditKey=null, mapEditProp=null;
 
-function roomColor(r){
-  if(!r.company){
-    if(r.note&&r.note.includes('שיפוץ')) return {bg:'#f5eef8',border:'#d4a8e0',text:'#8a5aa0'};
-    return {bg:'#f0ede8',border:'#d8d4ce',text:'#a09890'};
-  }
-  const p=r.people*r.price-r.cost;
-  if(p>500) return {bg:'#e8f5ef',border:'#a8d9be',text:'#2d8a5e'};
-  if(p>=-500) return {bg:'#fef9e7',border:'#f0d98a',text:'#a07830'};
-  return {bg:'#faeae8',border:'#e8b0aa',text:'#b85a50'};
-}
 
-function roomCard(key, r, onclick){
-  const c=roomColor(r);
-  const p=r.people*r.price-r.cost;
-  const inc=r.people*r.price;
-  const roomNum = key.toString().includes('-') ? key.split('-')[1] : key;
-  const profitStr = r.company ? (p>=0?'+':'')+Math.round(p).toLocaleString('he-IL')+' ₪' : '—';
-  const incStr = Math.round(inc).toLocaleString('he-IL');
-  const incLine = r.company ? '<div style="font-size:11px;color:#a09890">'+incStr+' ₪ הכנסה</div>' : '';
-  const noteLine = r.note ? '<div style="font-size:10px;background:rgba(0,0,0,0.06);padding:2px 6px;border-radius:8px;color:#6b6560;margin-top:4px;display:inline-block">'+r.note.slice(0,24)+(r.note.length>24?'…':'')+'</div>' : '';
-  const peopleStr = r.people>0 ? r.people+' אנשים' : '—';
-  return '<div onclick="'+onclick+'" style="background:'+c.bg+';border:1.5px solid '+c.border+';border-radius:8px;padding:12px;cursor:pointer;transition:transform 0.15s" onmouseover="this.style.transform=\'translateY(-2px)\'" onmouseout="this.style.transform=\'\'">'+
-    '<div style="font-size:11px;font-weight:600;color:#a09890;margin-bottom:3px">חדר '+roomNum+'</div>'+
-    '<div style="font-size:13px;font-weight:600;color:#2d2a26;margin-bottom:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(r.company||'ריק')+'</div>'+
-    '<div style="font-size:12px;color:#6b6560;margin-bottom:3px">'+peopleStr+'</div>'+
-    '<div style="font-size:13px;font-weight:600;color:'+c.text+'">'+profitStr+'</div>'+
-    incLine + noteLine +
-  '</div>';
-}
-
-function renderLavandaInto(containerId) {
-  let html = '<div style="display:flex;gap:14px;margin-bottom:14px;flex-wrap:wrap">';
-  html += '<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)"><div style="width:12px;height:12px;border-radius:3px;background:#a8d9be"></div>רווחי</div>';
-  html += '<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)"><div style="width:12px;height:12px;border-radius:3px;background:#f0d98a"></div>מדשדש</div>';
-  html += '<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)"><div style="width:12px;height:12px;border-radius:3px;background:#e8b0aa"></div>הפסדי</div>';
-  html += '<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)"><div style="width:12px;height:12px;border-radius:3px;background:#e0e0e0"></div>ריק</div></div>';
-  [1,2,3].forEach(f => {
-    const rms = LAV_FLOORS[f];
-    html += '<div style="margin-bottom:1.5rem"><div style="font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border)">קומה '+f+'</div>';
-    html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px">';
-    rms.forEach(r => {
-      const key = f+'-'+r;
-      const room = LAV_ROOMS[key]||{company:'',people:0,price:1250,cost:0,note:''};
-      html += roomCard(key, room, "openRoomModal('lav','"+key+"')");
-    });
-    html += '</div></div>';
-  });
-  document.getElementById(containerId).innerHTML = html;
-}
-
-function renderHirkonInto(containerId) {
-  const roomNums = [5,6,7,9,10,11,13,14];
-  let html = '<div style="display:flex;gap:14px;margin-bottom:14px;flex-wrap:wrap">';
-  html += '<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)"><div style="width:12px;height:12px;border-radius:3px;background:#a8d9be"></div>רווחי</div>';
-  html += '<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)"><div style="width:12px;height:12px;border-radius:3px;background:#f0d98a"></div>מדשדש</div>';
-  html += '<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)"><div style="width:12px;height:12px;border-radius:3px;background:#e8b0aa"></div>הפסדי</div>';
-  html += '<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)"><div style="width:12px;height:12px;border-radius:3px;background:#e0e0e0"></div>ריק</div>';
-  html += '<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)"><div style="width:12px;height:12px;border-radius:3px;background:#d4a8e0"></div>שיפוץ</div></div>';
-  html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px">';
-  roomNums.forEach(r => { html += roomCard(r, HIR_ROOMS[r], "openRoomModal('hir',"+r+")"); });
-  html += '</div>';
-  document.getElementById(containerId).innerHTML = html;
-}
-
-function renderLavanda(){
-  let totalRev=0,totalCost=0,totalPpl=0,green=0,yellow=0,red=0,empty=0;
-  Object.values(LAV_ROOMS).forEach(r=>{totalRev+=r.people*r.price;totalCost+=r.cost;totalPpl+=r.people;const c=roomColor(r);if(!r.company)empty++;else if(c.bg==='#e8f5ef')green++;else if(c.bg==='#fef9e7')yellow++;else red++;});
-  const profit=totalRev-totalCost;
-  document.getElementById('lav-summary').innerHTML=`
-    <div class="metric"><div class="metric-label">רווח גולמי</div><div class="metric-value ${profit>=0?'green':'red'}">${Math.round(profit).toLocaleString('he-IL')} ₪</div></div>
-    <div class="metric"><div class="metric-label">הכנסות</div><div class="metric-value">${Math.round(totalRev).toLocaleString('he-IL')} ₪</div></div>
-    <div class="metric"><div class="metric-label">עלות חדרים</div><div class="metric-value">${Math.round(totalCost).toLocaleString('he-IL')} ₪</div></div>
-    <div class="metric"><div class="metric-label">דיירים</div><div class="metric-value">${totalPpl}</div></div>
-    <div class="metric"><div class="metric-label">🟢 רווחיים</div><div class="metric-value green">${green}</div></div>
-    <div class="metric"><div class="metric-label">🟡 מדשדשים</div><div class="metric-value amber">${yellow}</div></div>
-    <div class="metric"><div class="metric-label">🔴 הפסדיים/ריקים</div><div class="metric-value red">${red+empty}</div></div>
-  `;
-  let html='';
-  [1,2,3].forEach(f=>{
-    const rms=LAV_FLOORS[f];
-    html+=`<div style="margin-bottom:1.5rem"><div style="font-size:12px;font-weight:600;color:#a09890;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid #e8e4de">קומה ${f}</div>`;
-    html+=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px">`;
-    rms.forEach(r=>{
-      const key=`${f}-${r}`;
-      const room=LAV_ROOMS[key]||{company:'',people:0,price:1250,cost:0,note:''};
-      html+=roomCard(key,room,"openRoomModal('lav','"+key+"')");
-    });
-    html+=`</div></div>`;
-  });
-  document.getElementById('lav-floors').innerHTML=html;
-}
-
-function renderHirkon(){
-  const roomNums=[5,6,7,9,10,11,13,14];
-  let totalRev=0,totalCost=0,totalPpl=0,green=0,yellow=0,red=0,empty=0;
-  roomNums.forEach(r=>{const room=HIR_ROOMS[r];totalRev+=room.people*room.price;totalCost+=room.cost;totalPpl+=room.people;const c=roomColor(room);if(!room.company)empty++;else if(c.bg==='#e8f5ef')green++;else if(c.bg==='#fef9e7')yellow++;else red++;});
-  const profit=totalRev-totalCost;
-  document.getElementById('hir-summary').innerHTML=`
-    <div class="metric"><div class="metric-label">רווח גולמי</div><div class="metric-value ${profit>=0?'green':'red'}">${Math.round(profit).toLocaleString('he-IL')} ₪</div></div>
-    <div class="metric"><div class="metric-label">הכנסות</div><div class="metric-value">${Math.round(totalRev).toLocaleString('he-IL')} ₪</div></div>
-    <div class="metric"><div class="metric-label">עלות חדרים</div><div class="metric-value">${Math.round(totalCost).toLocaleString('he-IL')} ₪</div></div>
-    <div class="metric"><div class="metric-label">דיירים</div><div class="metric-value">${totalPpl}</div></div>
-    <div class="metric"><div class="metric-label">🟢 רווחיים</div><div class="metric-value green">${green}</div></div>
-    <div class="metric"><div class="metric-label">🟡 מדשדשים</div><div class="metric-value amber">${yellow}</div></div>
-    <div class="metric"><div class="metric-label">🔴 הפסדיים/ריקים</div><div class="metric-value red">${red+empty}</div></div>
-  `;
-  let html=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px">`;
-  roomNums.forEach(r=>{html+=roomCard(r,HIR_ROOMS[r],"openRoomModal('hir',"+r+")");});
-  html+=`</div>`;
-  document.getElementById('hir-floors').innerHTML=html;
-}
-
-function openRoomModal(prop, key){
-  mapEditKey=key; mapEditProp=prop;
-  const r=prop==='lav'?LAV_ROOMS[key]:HIR_ROOMS[key];
-  const floorRoom=prop==='lav'?`קומה ${key.split('-')[0]} חדר ${key.split('-')[1]}`:`חדר ${key}`;
-  document.getElementById('rm-title').textContent=`${prop==='lav'?'לבנדה 32':'הירקון 41'} — ${floorRoom}`;
-  document.getElementById('rm-company').value=r.company||'';
-  document.getElementById('rm-people').value=r.people;
-  document.getElementById('rm-price').value=r.price;
-  document.getElementById('rm-cost').value=r.cost;
-  document.getElementById('rm-note').value=r.note||'';
-  updateRoomPreview();
-  const m=document.getElementById('room-modal');
-  m.style.display='flex';
-}
 
 function updateRoomPreview(){
   const people=parseInt(document.getElementById('rm-people').value)||0;
@@ -2899,14 +2735,6 @@ function updateRoomPreview(){
 }
 ['rm-people','rm-price','rm-cost'].forEach(id=>document.getElementById(id).addEventListener('input',updateRoomPreview));
 
-function saveRoomMap(){
-  if(!mapEditKey) return;
-  const data={company:document.getElementById('rm-company').value,people:parseInt(document.getElementById('rm-people').value)||0,price:parseInt(document.getElementById('rm-price').value)||1250,cost:parseInt(document.getElementById('rm-cost').value)||0,note:document.getElementById('rm-note').value};
-  if(mapEditProp==='lav') LAV_ROOMS[mapEditKey]={...LAV_ROOMS[mapEditKey],...data};
-  else HIR_ROOMS[mapEditKey]={...HIR_ROOMS[mapEditKey],...data};
-  closeRoomModal();
-  if(mapEditProp==='lav') renderLavanda(); else renderHirkon();
-}
 
 
 function openAddRoomModal() {
@@ -2989,7 +2817,7 @@ function deleteMapRoom(propRaw, floor, roomNum) {
   renderTenantMap();
 }
 
-function closeRoomModal(){document.getElementById('room-modal').style.display='none';mapEditKey=null;}
+
 document.getElementById('room-modal').addEventListener('click',e=>{if(e.target===document.getElementById('room-modal'))closeRoomModal();});
 </script>
 </body>
