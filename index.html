@@ -197,6 +197,7 @@ textarea { resize: vertical; min-height: 70px; }
   <div class="nav-item" onclick="nav('tasks',this)" id="nav-tasks"><span class="nav-icon">🔧</span> תקלות ומשימות <span class="nav-badge" id="tasks-badge">0</span></div>
   <div class="nav-item" onclick="nav('expenses',this)"><span class="nav-icon">📋</span> הוצאות</div>
   <div class="nav-item" onclick="nav('clients',this)"><span class="nav-icon">👥</span> לקוחות</div>
+  <div class="nav-item" onclick="nav('ai',this)"><span class="nav-icon">🤖</span> יועץ AI</div>
 </nav>
 
 <!-- MAIN -->
@@ -506,6 +507,37 @@ textarea { resize: vertical; min-height: 70px; }
     </div>
   </div>
 </div>
+<!-- AI ADVISOR -->
+<div id="page-ai" class="page">
+  <div class="page-title">יועץ AI — רוז גלובל</div>
+  <div class="page-sub">ניתוח חכם של העסק והמלצות לרווחיות</div>
+
+  <!-- Auto analysis button -->
+  <div class="card" style="margin-bottom:16px">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+      <div>
+        <div style="font-size:14px;font-weight:500;margin-bottom:3px">ניתוח אוטומטי של העסק</div>
+        <div style="font-size:12px;color:var(--text2)">ה-AI מנתח את כל הנתונים ומייצר המלצות מותאמות אישית</div>
+      </div>
+      <button onclick="runAIAnalysis()" class="btn btn-primary" id="ai-analyze-btn">🤖 נתח את העסק</button>
+    </div>
+  </div>
+
+  <!-- Results area -->
+  <div id="ai-results"></div>
+
+  <!-- Chat with AI -->
+  <div class="card" style="margin-top:16px">
+    <div class="card-title">שאל את היועץ</div>
+    <div id="ai-chat-history" style="max-height:320px;overflow-y:auto;margin-bottom:12px;display:flex;flex-direction:column;gap:10px"></div>
+    <div style="display:flex;gap:8px">
+      <input id="ai-question" placeholder="שאל שאלה על העסק... למשל: איך אפשר למלא את החדרים הריקים בלבנדה?" style="flex:1" onkeydown="if(event.key==='Enter')askAI()">
+      <button onclick="askAI()" class="btn btn-primary" id="ai-ask-btn">שלח</button>
+    </div>
+    <div style="font-size:11px;color:var(--text3);margin-top:6px">מופעל על ידי Claude AI — מנתח את הנתונים האמיתיים של העסק שלך</div>
+  </div>
+</div>
+
 </main>
 </div>
 
@@ -651,6 +683,7 @@ function nav(page, el) {
   if (page==='tasks') renderTasks();
   if (page==='expenses') renderExpenses();
   if (page==='clients') renderClients();
+  if (page==='ai') renderAIPage();
   if (page==='map-lavanda') renderLavanda();
   if (page==='map-hirkon') renderHirkon();
 }
@@ -1620,6 +1653,243 @@ document.getElementById('client-modal').addEventListener('click', e => {
     document.getElementById('client-modal').style.display = 'none';
 });
 
+
+// ============ AI ADVISOR ============
+function getBusinessSnapshot() {
+  const props = ['לבנדה 32','עזאי 38','נתן הנביא 42','הירקון 41 ב"ב'];
+  const snapshot = {
+    properties: props.map(p => {
+      const isFixed = !!FIXED_COSTS[p];
+      const rev = getPropRevenue(p);
+      const cost = getPropCost(p);
+      const tenants = TENANTS.filter(t=>t.prop===p&&!t.to);
+      const people = tenants.reduce((s,t)=>s+t.people,0);
+      const mapRooms = MAP_DATA[p] ? Object.values(MAP_DATA[p].floors).flat() : [];
+      const emptyRooms = mapRooms.filter(r=>!r.company).length;
+      const totalRooms = mapRooms.length;
+      return {
+        name: p, revenue: rev, cost, profit: rev-cost,
+        people, model: isFixed?'פיקס פרייס':'לפי ראש',
+        emptyRooms, totalRooms,
+        occupancyPct: totalRooms>0 ? Math.round((totalRooms-emptyRooms)/totalRooms*100) : 0
+      };
+    }),
+    totalRevenue: props.reduce((s,p)=>s+getPropRevenue(p),0),
+    totalCost: props.reduce((s,p)=>s+getPropCost(p),0),
+    totalPeople: TENANTS.filter(t=>!t.to).reduce((s,t)=>s+t.people,0),
+    fixedExpenses: 12000+1054.75+1500,
+    openTasks: TASKS.filter(t=>!t.done).length,
+    urgentTasks: TASKS.filter(t=>!t.done&&t.priority==='urgent').length,
+    activeClients: CLIENTS.filter(c=>c.status==='active').length,
+    potentialClients: CLIENTS.filter(c=>c.status==='potential').length,
+    pricePerHead: PRICE,
+    movements: MOVEMENTS.length,
+  };
+  snapshot.grossProfit = snapshot.totalRevenue - snapshot.totalCost;
+  snapshot.netProfit = snapshot.grossProfit - snapshot.fixedExpenses;
+  return snapshot;
+}
+
+function buildSystemPrompt(snapshot) {
+  return `אתה יועץ עסקי בכיר המתמחה בניהול נכסים והשכרה לתאגידי כוח אדם. אתה מנתח את נתוני העסק של רוז גלובל שירותי קרקע.
+
+נתונים עדכניים של העסק:
+- הכנסות חודשיות: ${snapshot.totalRevenue.toLocaleString('he-IL')} ₪
+- הוצאות שכירות: ${snapshot.totalCost.toLocaleString('he-IL')} ₪  
+- רווח גולמי: ${snapshot.grossProfit.toLocaleString('he-IL')} ₪
+- הוצאות קבועות (יועד, עו"ד, הנח"ש): ${snapshot.fixedExpenses.toLocaleString('he-IL')} ₪
+- רווח נקי משוער: ${snapshot.netProfit.toLocaleString('he-IL')} ₪
+- סה"כ דיירים: ${snapshot.totalPeople}
+- מחיר לראש: ${snapshot.pricePerHead} ₪/חודש
+
+נכסים:
+snapshot.properties.map(p=>{ const em=p.emptyRooms>0?', '+p.emptyRooms+'/'+p.totalRooms+' חדרים ריקים':''; return '• '+p.name+': הכנסה '+p.revenue.toLocaleString('he-IL')+' ₪, עלות '+p.cost.toLocaleString('he-IL')+' ₪, רווח '+p.profit.toLocaleString('he-IL')+' ₪, '+p.people+' דיירים, מודל: '+p.model+em; }).join('\n')
+תפעול:
+- תקלות פתוחות: ${snapshot.openTasks} (${snapshot.urgentTasks} דחופות)
+- לקוחות פעילים: ${snapshot.activeClients}
+- לקוחות פוטנציאליים: ${snapshot.potentialClients} (מרשימת תאגידים מורשים)
+
+השותפים: צביקה בר חיים, רועי אלקסלסי, אוהד שינה. עובד תפעול: יועד.
+
+ענה בעברית, בצורה מקצועית אך ישירה. תן המלצות ספציפיות ומעשיות.`;
+}
+
+async function runAIAnalysis() {
+  const btn = document.getElementById('ai-analyze-btn');
+  btn.disabled = true;
+  btn.textContent = '⏳ מנתח...';
+  document.getElementById('ai-results').innerHTML = `
+    <div class="card" style="text-align:center;padding:2rem;color:var(--text2)">
+      <div style="font-size:24px;margin-bottom:8px">🤖</div>
+      <div>מנתח את נתוני העסק...</div>
+    </div>`;
+
+  const snapshot = getBusinessSnapshot();
+  const systemPrompt = buildSystemPrompt(snapshot);
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: systemPrompt,
+        messages: [{
+          role: 'user',
+          content: `נתח את העסק וספק: 
+1. סיכום מצב כולל (2-3 משפטים)
+2. 3 בעיות עיקריות שדורשות טיפול מיידי
+3. 3 הזדמנויות לשיפור הרווחיות
+4. המלצה אחת ספציפית לפעולה עכשיו
+
+פורמט התשובה:
+[סיכום]
+...
+
+[בעיות עיקריות]
+1. ...
+2. ...
+3. ...
+
+[הזדמנויות]
+1. ...
+2. ...
+3. ...
+
+[פעולה מיידית]
+...`
+        }]
+      })
+    });
+
+    const data = await response.json();
+    const text = data.content && data.content[0] ? data.content[0].text : 'שגיאה בקבלת תשובה';
+    renderAIAnalysis(text, snapshot);
+  } catch(e) {
+    document.getElementById('ai-results').innerHTML = `<div class="alert alert-red">שגיאה בחיבור ל-AI: ${e.message}</div>`;
+  }
+
+  btn.disabled = false;
+  btn.textContent = '🔄 נתח מחדש';
+}
+
+function renderAIAnalysis(text, snapshot) {
+  // Parse sections
+  const sections = {
+    summary: extractSection(text, 'סיכום'),
+    problems: extractSection(text, 'בעיות עיקריות'),
+    opportunities: extractSection(text, 'הזדמנויות'),
+    action: extractSection(text, 'פעולה מיידית'),
+  };
+
+  const profitColor = snapshot.netProfit >= 0 ? '#2d8a5e' : '#b85a50';
+
+  document.getElementById('ai-results').innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-bottom:14px">
+
+      <div class="card" style="border-right:3px solid #7367c0">
+        <div class="card-title">📊 סיכום מצב</div>
+        <div style="font-size:13px;color:var(--text);line-height:1.7">${sections.summary||text.split('\n').slice(0,3).join('<br>')}</div>
+        <div style="margin-top:12px;padding-top:10px;border-top:0.5px solid var(--border);display:flex;gap:16px">
+          <div><div style="font-size:11px;color:var(--text3)">רווח נקי</div><div style="font-size:16px;font-weight:600;color:${profitColor}">${Math.round(snapshot.netProfit).toLocaleString('he-IL')} ₪</div></div>
+          <div><div style="font-size:11px;color:var(--text3)">תפוסה</div><div style="font-size:16px;font-weight:600">${snapshot.totalPeople} דיירים</div></div>
+        </div>
+      </div>
+
+      <div class="card" style="border-right:3px solid #e8b0aa">
+        <div class="card-title">🔴 בעיות עיקריות</div>
+        <div style="font-size:13px;color:var(--text);line-height:1.8">${formatList(sections.problems)}</div>
+      </div>
+
+      <div class="card" style="border-right:3px solid #a8d9be">
+        <div class="card-title">🟢 הזדמנויות לשיפור</div>
+        <div style="font-size:13px;color:var(--text);line-height:1.8">${formatList(sections.opportunities)}</div>
+      </div>
+
+    </div>
+    <div class="card" style="border-right:3px solid #f0d98a;background:var(--amber-bg)">
+      <div class="card-title">⚡ פעולה מיידית מומלצת</div>
+      <div style="font-size:14px;color:var(--text);line-height:1.7;font-weight:500">${sections.action||''}</div>
+    </div>
+  `;
+}
+
+function extractSection(text, title) {
+  const patterns = [
+    new RegExp('\['+title+'\]\s*([\s\S]*?)(?=\[|$)', 'i'),
+    new RegExp(title+'[:\s]+([\s\S]*?)(?=\n\n|\[|$)', 'i'),
+  ];
+  for (const re of patterns) {
+    const m = text.match(re);
+    if (m && m[1].trim()) return m[1].trim().replace(/\n/g,'<br>');
+  }
+  return '';
+}
+
+function formatList(text) {
+  if (!text) return '';
+  return text.replace(/^(\d+\.\s*)/gm, '<br>$1').replace(/^<br>/, '');
+}
+
+const aiChatHistory = [];
+
+async function askAI() {
+  const input = document.getElementById('ai-question');
+  const question = input.value.trim();
+  if (!question) return;
+
+  const btn = document.getElementById('ai-ask-btn');
+  btn.disabled = true;
+  input.value = '';
+
+  aiChatHistory.push({role:'user', content: question});
+  renderAIChat();
+
+  const snapshot = getBusinessSnapshot();
+  const systemPrompt = buildSystemPrompt(snapshot);
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: systemPrompt,
+        messages: aiChatHistory
+      })
+    });
+
+    const data = await response.json();
+    const answer = data.content && data.content[0] ? data.content[0].text : 'שגיאה';
+    aiChatHistory.push({role:'assistant', content: answer});
+    renderAIChat();
+  } catch(e) {
+    aiChatHistory.push({role:'assistant', content:'שגיאה: '+e.message});
+    renderAIChat();
+  }
+
+  btn.disabled = false;
+}
+
+function renderAIChat() {
+  const container = document.getElementById('ai-chat-history');
+  container.innerHTML = aiChatHistory.map(m => {
+    const isUser = m.role === 'user';
+    return `<div style="display:flex;justify-content:${isUser?'flex-start':'flex-start'};gap:8px">
+      <div style="width:28px;height:28px;border-radius:50%;background:${isUser?'#ede9f8':'#e8f5ef'};display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">${isUser?'👤':'🤖'}</div>
+      <div style="background:${isUser?'var(--bg3)':'var(--bg2)'};border:0.5px solid var(--border);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--text);line-height:1.7;max-width:90%">${m.content.replace(/\n/g,'<br>')}</div>
+    </div>`;
+  }).join('');
+  container.scrollTop = container.scrollHeight;
+}
+
+
+function renderAIPage() {
+  // Page is static, just ensure chat history is rendered if exists
+  if (aiChatHistory.length) renderAIChat();
+}
 // ============ INIT ============
 document.getElementById('mv-date').value = new Date().toISOString().split('T')[0];
 document.getElementById('ef-date').value = new Date().toISOString().split('T')[0];
