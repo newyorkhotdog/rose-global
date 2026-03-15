@@ -382,7 +382,7 @@ textarea { resize: vertical; min-height: 70px; }
 <script>
 // ============ DATA ============
 const PRICE = 1250;
-const FIXED_COSTS = { 'עזאי 38': { cost: 18000, income: 28500, type: 'fixed', note: '' }, 'נתן הנביא 42': { cost: 39000, income: 73400, type: 'fixed', note: '' } };
+const FIXED_COSTS = { 'עזאי 38': { cost: 18000, income: 28500, utilities: null, type: 'fixed', note: '' }, 'נתן הנביא 42': { cost: 39000, income: 73400, utilities: null, type: 'fixed', note: '' } };
 
 const TENANTS = [
   {id:1,prop:'לבנדה 32',floor:1,room:1,company:'יער',people:6,from:'2025-11-01',to:null},
@@ -490,6 +490,12 @@ function getPropRevenue(prop) {
   return TENANTS.filter(t => t.prop===prop && !t.to).reduce((s,t) => s + t.people * PRICE, 0);
 }
 
+function getPropNet(prop) {
+  const rev = getPropRevenue(prop);
+  const util = FIXED_COSTS[prop] ? (FIXED_COSTS[prop].utilities || 0) : 0;
+  return rev - getPropCost(prop) - util;
+}
+
 function calcProrata(dateStr, monthStr, people, isExit) {
   const [yr,mo] = monthStr.split('-').map(Number);
   const d = new Date(dateStr);
@@ -554,6 +560,8 @@ function renderDashboard() {
       <div class="prop-card-body">
         <div class="prop-stat-row"><span>הכנסה</span><span class="green">${isFixed&&!rev?'<span class="badge badge-amber">לבדוק עם צביקה</span>':fmt(rev)+' ₪'}</span></div>
         <div class="prop-stat-row"><span>שכירות</span><span class="red">${fmt(cost)} ₪</span></div>
+        ${isFixed && FIXED_COSTS[p].utilities ? `<div class="prop-stat-row"><span>חשמל/מים/ארנונה</span><span class="red">${fmt(FIXED_COSTS[p].utilities)} ₪</span></div>` : ''}
+        ${isFixed && !FIXED_COSTS[p].utilities ? `<div class="prop-stat-row"><span>חשמל/מים/ארנונה</span><span class="badge badge-amber">לעדכן</span></div>` : ''}
         <div class="prop-stat-row"><span>רווח גולמי</span><span class="${profit>=0?'green':'red'}">${fmt(profit)} ₪</span></div>
         <div class="prop-stat-row"><span>דיירים</span><span>${ppl}</span></div>
         <div class="prop-stat-row"><span>מודל חיוב</span><span>${isFixed?'<span class="badge badge-purple">פיקס פרייס</span>':'<span class="badge badge-blue">לפי ראש</span>'}</span></div>
@@ -606,12 +614,12 @@ function renderTenantTable() {
 
   // View toggle for map-enabled properties
   if (hasMap) {
-    const mapKey = p==='לבנדה 32'?'lav':'hir';
+    const safeP = p.replace(/"/g, '&quot;');
     html += `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
       <div class="section-title">חדרים פעילים (${rows.length})</div>
       <div style="display:flex;gap:6px">
-        <button class="tab ${!showMap?'active':''}" onclick="setTenantView('${p}','table')">📋 טבלה</button>
-        <button class="tab ${showMap?'active':''}" onclick="setTenantView('${p}','map')">🗺️ מפת חדרים</button>
+        <button class="tab ${!showMap?'active':''}" onclick="setTenantView(0)">📋 טבלה</button>
+        <button class="tab ${showMap?'active':''}" onclick="setTenantView(1)">🗺️ מפת חדרים</button>
         <button class="btn btn-primary btn-sm" onclick="showAddTenant()">+ הוסף</button>
       </div>
     </div>`;
@@ -666,8 +674,8 @@ function renderTenantTable() {
 }
 
 const tenantViewState = {};
-function setTenantView(prop, view) {
-  tenantViewState[prop] = view;
+function setTenantView(isMap) {
+  tenantViewState[currentTenantProp] = isMap ? 'map' : 'table';
   renderTenantTable();
 }
 
