@@ -2020,7 +2020,7 @@ function buildSystemPrompt(snapshot) {
 - מחיר לראש: ${snapshot.pricePerHead} ₪/חודש
 
 נכסים:
-snapshot.properties.map(p=>{ const em=p.emptyRooms>0?', '+p.emptyRooms+'/'+p.totalRooms+' חדרים ריקים':''; return '• '+p.name+': הכנסה '+p.revenue.toLocaleString('he-IL')+' ₪, עלות '+p.cost.toLocaleString('he-IL')+' ₪, רווח '+p.profit.toLocaleString('he-IL')+' ₪, '+p.people+' דיירים, מודל: '+p.model+em; }).join('\n')
+${snapshot.properties.map(p=>{ const em=p.emptyRooms>0?', '+p.emptyRooms+'/'+p.totalRooms+' חדרים ריקים':''; return '• '+p.name+': הכנסה '+p.revenue.toLocaleString('he-IL')+' ₪, עלות '+p.cost.toLocaleString('he-IL')+' ₪, רווח '+p.profit.toLocaleString('he-IL')+' ₪, '+p.people+' דיירים, מודל: '+p.model+em; }).join('\n')}
 תפעול:
 - תקלות פתוחות: ${snapshot.openTasks} (${snapshot.urgentTasks} דחופות)
 - לקוחות פעילים: ${snapshot.activeClients}
@@ -2049,7 +2049,7 @@ async function runAIAnalysis() {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-5',
         max_tokens: 1000,
         system: systemPrompt,
         messages: [{
@@ -2081,10 +2081,14 @@ async function runAIAnalysis() {
     });
 
     const data = await response.json();
-    const text = data.content && data.content[0] ? data.content[0].text : 'שגיאה בקבלת תשובה';
+    console.log('AI response:', data);
+    if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
+    if (!data.content || !data.content[0]) throw new Error('תגובה ריקה מה-AI: ' + JSON.stringify(data));
+    const text = data.content[0].text;
     renderAIAnalysis(text, snapshot);
   } catch(e) {
-    document.getElementById('ai-results').innerHTML = `<div class="alert alert-red">שגיאה בחיבור ל-AI: ${e.message}</div>`;
+    document.getElementById('ai-results').innerHTML = `<div class="alert alert-red">שגיאה: ${e.message}</div>`;
+    console.error('AI error:', e);
   }
 
   btn.disabled = false;
@@ -2180,7 +2184,7 @@ async function askAI() {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-5',
         max_tokens: 1000,
         system: systemPrompt,
         messages: aiChatHistory
