@@ -2876,6 +2876,13 @@ function deleteMapRoom(propRaw, floor, roomNum) {
 }
 
 
+
+function closeRoomModal() {
+  document.getElementById('room-modal').style.display = 'none';
+  mapEditRoomRef = null;
+  mapEditPropName = null;
+}
+
 document.getElementById('room-modal').addEventListener('click',e=>{if(e.target===document.getElementById('room-modal'))closeRoomModal();});
 </script>
 </body>
