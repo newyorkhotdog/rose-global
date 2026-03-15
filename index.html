@@ -364,9 +364,7 @@ textarea { resize: vertical; min-height: 70px; }
         <input type="number" id="ar-room" min="1" placeholder="1" style="background:#f5f3ef;border:1px solid #ddd;border-radius:6px;padding:8px 10px;font-size:13px;font-family:inherit"></div>
       <div style="display:flex;flex-direction:column;gap:4px"><label style="font-size:11px;color:#a09890;text-transform:uppercase">תאגיד</label>
         <select id="ar-company" style="background:#f5f3ef;border:1px solid #ddd;border-radius:6px;padding:8px 10px;font-size:13px;font-family:inherit">
-          <option value="">ריק</option><option>יער</option><option>שמרית</option><option>בינה</option>
-          <option>ניו פאוור</option><option>שיק סין</option><option>שיק צין</option><option>ח.ח.א</option>
-          <option>קורפו</option><option>משביר יעקב</option><option>משביר</option><option>מגיק פאוור</option><option>אחר</option>
+          <option value="">ריק</option>
         </select></div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px">
@@ -400,7 +398,7 @@ textarea { resize: vertical; min-height: 70px; }
       <div class="form-group"><label>חדר</label><input type="number" id="mv-room" placeholder="מספר חדר" min="1" oninput="updateProrata()"></div>
     </div>
     <div class="form-grid three">
-      <div class="form-group"><label>תאגיד</label><select id="mv-company"><option>יער</option><option>שמרית</option><option>בינה</option><option>ניו פאוור</option><option>שיק סין</option><option>שיק צין</option><option>ח.ח.א</option><option>קורפו</option><option>משביר יעקב</option><option>משביר</option><option>מגיק פאוור</option><option>אחר</option></select></div>
+      <div class="form-group"><label>תאגיד</label><select id="mv-company"><option value="">בחר לקוח...</option></select></div>
       <div class="form-group"><label>מספר פועלים</label><input type="number" id="mv-people" value="1" min="1" oninput="updateProrata()"></div>
       <div class="form-group"><label>תאריך</label><input type="date" id="mv-date" onchange="updateProrata()"></div>
     </div>
@@ -626,6 +624,7 @@ textarea { resize: vertical; min-height: 70px; }
       <div class="tab-row" style="margin:0" id="hist-view-tabs">
         <button class="tab active" onclick="setHistView('chart',this)">📊 גרף</button>
         <button class="tab" onclick="setHistView('table',this)">📋 טבלה</button>
+        <button class="tab" onclick="setHistView('props',this)">🏠 גיליון נכסים</button>
         <button class="tab" onclick="setHistView('entry',this)">✏️ הזנת נתונים</button>
         <button class="tab" onclick="setHistView('general',this)">💼 הוצאות כלליות</button>
       </div>
@@ -661,6 +660,10 @@ textarea { resize: vertical; min-height: 70px; }
       </div>
     </div>
     <div class="table-wrap"><div id="hist-table"></div></div>
+  </div>
+
+  <div id="hist-props-view" style="display:none">
+    <div id="hist-props-content"></div>
   </div>
 
   <div id="hist-general-view" style="display:none">
@@ -886,9 +889,9 @@ function nav(page, el) {
     if (n.onclick && n.onclick.toString().includes("'"+page+"'")) n.classList.add('active');
   });
   if (page==='dashboard') renderDashboard();
-  if (page==='tenants') renderTenants();
-  if (page==='movements') renderMovements();
-  if (page==='billing') renderBilling();
+  if (page==='tenants') { renderTenants(); populateClientSelects(); }
+  if (page==='movements') { renderMovements(); populateClientSelects(); }
+  if (page==='billing') { renderBilling(); populateClientSelects(); }
   if (page==='tasks') renderTasks();
   if (page==='expenses') renderExpenses();
   if (page==='clients') renderClients();
@@ -1299,6 +1302,7 @@ function editMapRoom(propRaw, floor, roomNum) {
   document.getElementById('rm-cost').value = room.cost;
   document.getElementById('rm-note').value = room.note || '';
   updateRoomPreview();
+  populateClientSelects();
   document.getElementById('room-modal').style.display = 'flex';
 }
 
@@ -2314,10 +2318,12 @@ function setHistView(view, el) {
   document.getElementById('hist-table-view').style.display = view==='table' ? 'block' : 'none';
   document.getElementById('hist-entry-view').style.display = view==='entry' ? 'block' : 'none';
   document.getElementById('hist-general-view').style.display = view==='general' ? 'block' : 'none';
+  document.getElementById('hist-props-view').style.display = view==='props' ? 'block' : 'none';
   if (view==='chart') renderHistChart();
   if (view==='table') renderHistTable();
   if (view==='entry') renderHistExisting();
   if (view==='general') renderHgExisting();
+  if (view==='props') renderPropsSheet();
 }
 
 function renderHistory() {
@@ -2724,6 +2730,108 @@ function renderQuarterly() {
   document.getElementById('hist-quarterly').innerHTML = html;
 }
 
+
+// ============ POPULATE CLIENT SELECTS ============
+function getActiveClientOptions(includeEmpty=true) {
+  const active = CLIENTS.filter(c=>c.status==='active').sort((a,b)=>a.name.localeCompare(b.name));
+  let opts = includeEmpty ? '<option value="">בחר לקוח...</option>' : '';
+  opts += active.map(c=>`<option value="${c.name}">${c.name}</option>`).join('');
+  return opts;
+}
+
+function populateClientSelects() {
+  const opts = getActiveClientOptions(true);
+  const optsNoEmpty = getActiveClientOptions(false);
+  
+  // Movements company select
+  const mvSel = document.getElementById('mv-company');
+  if(mvSel) { const v=mvSel.value; mvSel.innerHTML=opts; mvSel.value=v||''; }
+  
+  // Room modal company select
+  const rmSel = document.getElementById('rm-company');
+  if(rmSel) { const v=rmSel.value; rmSel.innerHTML='<option value="">ריק</option>'+optsNoEmpty; rmSel.value=v||''; }
+  
+  // Add room modal company select
+  const arSel = document.getElementById('ar-company');
+  if(arSel) { const v=arSel.value; arSel.innerHTML='<option value="">ריק</option>'+optsNoEmpty; arSel.value=v||''; }
+
+  // Billing client filter
+  populateBillClientFilter();
+}
+
+// ============ PROPERTY SHEET ============
+const PROP_MONTHS = ['2025-11','2025-12','2026-01','2026-02','2026-03'];
+const PROP_NAMES_LIST = ['לבנדה 32','עזאי 38','נתן הנביא 42','הירקון 41 ב"ב'];
+
+function getMonthShort(m) {
+  const [yr,mo] = m.split('-');
+  const names = ['','ינו','פבר','מרץ','אפר','מאי','יוני','יולי','אוג','ספט','אוק','נוב','דצמ'];
+  return names[parseInt(mo)]+" '"+yr.slice(2);
+}
+
+function renderPropsSheet() {
+  const months = [...new Set([...PROP_MONTHS, ...HISTORY.map(h=>h.month)])].sort();
+  
+  // Build table: rows = props, cols = months
+  // For each prop+month: income, rent, utilities, profit
+  let html = '<div style="overflow-x:auto">';
+  
+  PROP_NAMES_LIST.forEach(prop => {
+    html += `<div style="margin-bottom:24px">
+      <div style="font-size:14px;font-weight:600;margin-bottom:10px;padding:8px 12px;background:var(--bg3);border-radius:var(--radius-sm)">${prop}</div>
+      <table style="min-width:600px">
+        <thead><tr>
+          <th style="text-align:right;min-width:140px">סעיף</th>
+          ${months.map(m=>`<th style="text-align:left;min-width:90px">${getMonthShort(m)}</th>`).join('')}
+          <th style="text-align:left;min-width:90px">סה"כ</th>
+        </tr></thead>
+        <tbody>`;
+    
+    const rows = [
+      { label: '📥 הכנסות', key: 'income', color: '#3a8a68', bold: true },
+      { label: '🏠 שכירות', key: 'rent', color: '#b85a50' },
+      { label: '⚡ חשמל', key: 'electric', color: '#b85a50' },
+      { label: '💧 מים', key: 'water', color: '#b85a50' },
+      { label: '🏛️ ארנונה', key: 'arnona', color: '#b85a50' },
+      { label: '📊 רווח גולמי', key: 'profit', color: null, bold: true, calc: true },
+    ];
+
+    rows.forEach(row => {
+      const vals = months.map(m => {
+        const h = HISTORY.find(x=>x.month===m&&x.prop===prop);
+        if (!h) return null;
+        if (row.calc) {
+          return h.income - h.rent - h.electric - h.water - h.arnona - h.other;
+        }
+        return h[row.key] || 0;
+      });
+      
+      const total = vals.reduce((s,v)=>s+(v||0), 0);
+      const hasData = vals.some(v=>v!==null);
+      if (!hasData && !row.calc) return;
+
+      const color = row.calc
+        ? (total >= 0 ? '#3a8a68' : '#b85a50')
+        : row.color;
+
+      html += `<tr style="${row.bold?'font-weight:600;background:var(--bg3)':''}">
+        <td style="color:var(--text2);padding:7px 12px">${row.label}</td>
+        ${vals.map(v => {
+          if (v === null) return `<td style="color:var(--text3);padding:7px 8px;text-align:right">—</td>`;
+          const c = row.calc ? (v>=0?'#3a8a68':'#b85a50') : color;
+          return `<td style="color:${c};padding:7px 8px;text-align:right">${v!==0?Math.round(v).toLocaleString('he-IL')+' ₪':'—'}</td>`;
+        }).join('')}
+        <td style="color:${color||''};padding:7px 8px;text-align:right;font-weight:600">${total?Math.round(total).toLocaleString('he-IL')+' ₪':'—'}</td>
+      </tr>`;
+    });
+
+    html += '</tbody></table></div>';
+  });
+
+  html += '</div>';
+  document.getElementById('hist-props-content').innerHTML = html;
+}
+
 // ============ INIT ============
 document.getElementById('mv-date').value = new Date().toISOString().split('T')[0];
 document.getElementById('ef-date').value = new Date().toISOString().split('T')[0];
@@ -2808,6 +2916,7 @@ function openAddRoomModal() {
   document.getElementById('ar-cost').value = 5100;
   document.getElementById('ar-company').value = '';
   document.getElementById('ar-note').value = '';
+  populateClientSelects();
   document.getElementById('add-room-modal').style.display = 'flex';
 }
 
