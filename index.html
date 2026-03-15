@@ -2045,7 +2045,7 @@ async function runAIAnalysis() {
   const systemPrompt = buildSystemPrompt(snapshot);
 
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const response = await fetch('https://rose-ai.ohadsheena.workers.dev', {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
       body: JSON.stringify({
@@ -2167,7 +2167,7 @@ async function askAI() {
   const systemPrompt = buildSystemPrompt(snapshot);
 
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const response = await fetch('https://rose-ai.ohadsheena.workers.dev', {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
       body: JSON.stringify({
