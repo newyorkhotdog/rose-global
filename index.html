@@ -180,6 +180,8 @@ textarea { resize: vertical; min-height: 70px; }
 .mobile-nav .nav-item { border-right: none; border-bottom: 2px solid transparent; padding: 6px 12px; white-space: nowrap; font-size: 12px; }
 .mobile-nav .nav-item.active { border-bottom-color: var(--accent); }
 </style>
+<!-- Chart.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <!-- Firebase -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -253,6 +255,7 @@ textarea { resize: vertical; min-height: 70px; }
   <div class="nav-item" onclick="nav('tasks',this)" id="nav-tasks"><span class="nav-icon">🔧</span> תקלות ומשימות <span class="nav-badge" id="tasks-badge">0</span></div>
   <div class="nav-item" onclick="nav('expenses',this)"><span class="nav-icon">📋</span> הוצאות</div>
   <div class="nav-item" onclick="nav('clients',this)"><span class="nav-icon">👥</span> לקוחות</div>
+  <div class="nav-item" onclick="nav('history',this)"><span class="nav-icon">📈</span> היסטוריה</div>
   </div>
   <div style="margin-top:auto;padding:16px 20px;border-top:1px solid var(--border)">
     <div style="font-size:11px;color:var(--text3);margin-bottom:8px">נתונים מסונכרנים בענן ☁️</div>
@@ -621,6 +624,87 @@ textarea { resize: vertical; min-height: 70px; }
   </div>
 </div>
 
+<!-- HISTORY -->
+<div id="page-history" class="page">
+  <div class="page-title">היסטוריה חודשית</div>
+  <div class="page-sub">נתונים מנובמבר 2025 ואילך</div>
+
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+    <div class="tab-row" style="margin:0" id="hist-view-tabs">
+      <button class="tab active" onclick="setHistView('chart',this)">📊 גרף</button>
+      <button class="tab" onclick="setHistView('table',this)">📋 טבלה</button>
+      <button class="tab" onclick="setHistView('entry',this)">✏️ הזנת נתונים</button>
+    </div>
+  </div>
+
+  <div id="hist-chart-view">
+    <div id="hist-chart-container" class="card" style="margin-bottom:16px">
+      <canvas id="hist-chart" style="max-height:320px"></canvas>
+    </div>
+    <div id="hist-summary-cards" class="metrics"></div>
+  </div>
+
+  <div id="hist-table-view" style="display:none">
+    <div class="table-wrap"><div id="hist-table"></div></div>
+  </div>
+
+  <div id="hist-entry-view" style="display:none">
+    <div class="card">
+      <div class="card-title">הזנת נתונים חודשיים</div>
+      <div class="form-grid" style="margin-bottom:12px">
+        <div class="form-group"><label>חודש</label>
+          <select id="he-month">
+            <option value="2025-11">נובמבר 2025</option>
+            <option value="2025-12">דצמבר 2025</option>
+            <option value="2026-01">ינואר 2026</option>
+            <option value="2026-02">פברואר 2026</option>
+            <option value="2026-03" selected>מרץ 2026</option>
+          </select>
+        </div>
+        <div class="form-group"><label>נכס</label>
+          <select id="he-prop">
+            <option>לבנדה 32</option>
+            <option>עזאי 38</option>
+            <option>נתן הנביא 42</option>
+            <option>הירקון 41 ב"ב</option>
+          </select>
+        </div>
+      </div>
+      <div style="font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">הכנסות</div>
+      <div class="form-grid three" style="margin-bottom:14px">
+        <div class="form-group"><label>הכנסת שכירות (₪)</label><input type="number" id="he-income" placeholder="0"></div>
+        <div class="form-group"><label>מספר דיירים</label><input type="number" id="he-tenants" placeholder="0"></div>
+        <div class="form-group"><label>הכנסה פר ראש</label><input type="number" id="he-pph" placeholder="1250"></div>
+      </div>
+      <div style="font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">הוצאות</div>
+      <div class="form-grid three" style="margin-bottom:14px">
+        <div class="form-group"><label>שכירות לבעל נכס (₪)</label><input type="number" id="he-rent" placeholder="0"></div>
+        <div class="form-group"><label>חשמל (₪)</label><input type="number" id="he-electric" placeholder="0"></div>
+        <div class="form-group"><label>מים (₪)</label><input type="number" id="he-water" placeholder="0"></div>
+      </div>
+      <div class="form-grid" style="margin-bottom:14px">
+        <div class="form-group"><label>ארנונה (₪)</label><input type="number" id="he-arnona" placeholder="0"></div>
+        <div class="form-group"><label>הוצאות אחרות (₪)</label><input type="number" id="he-other" placeholder="0"></div>
+      </div>
+      <div id="he-preview" style="background:var(--bg3);border-radius:var(--radius-sm);padding:12px;margin-bottom:14px;font-size:13px;display:none">
+        <div style="display:flex;gap:24px;flex-wrap:wrap">
+          <div><div style="font-size:11px;color:var(--text3)">הכנסה</div><div id="he-prev-income" style="font-weight:600;color:#3a8a68"></div></div>
+          <div><div style="font-size:11px;color:var(--text3)">הוצאות</div><div id="he-prev-expenses" style="font-weight:600;color:#b85a50"></div></div>
+          <div><div style="font-size:11px;color:var(--text3)">רווח גולמי</div><div id="he-prev-profit" style="font-weight:600"></div></div>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="saveHistEntry()">שמור רשומה</button>
+        <button class="btn" onclick="clearHistForm()">נקה</button>
+      </div>
+    </div>
+    <div style="margin-top:16px">
+      <div class="section-title" style="margin-bottom:10px">רשומות קיימות</div>
+      <div id="he-existing"></div>
+    </div>
+  </div>
+</div>
+
 </main>
 </div>
 
@@ -766,6 +850,7 @@ function nav(page, el) {
   if (page==='tasks') renderTasks();
   if (page==='expenses') renderExpenses();
   if (page==='clients') renderClients();
+  if (page==='history') renderHistory();
   if (page==='map-lavanda') renderLavanda();
   if (page==='map-hirkon') renderHirkon();
 }
@@ -1990,6 +2075,7 @@ window._isSaving = false;
 
 function getDataSnapshot() {
   return {
+    HISTORY: JSON.parse(JSON.stringify(HISTORY)),
     TENANTS: JSON.parse(JSON.stringify(TENANTS)),
     MOVEMENTS: JSON.parse(JSON.stringify(MOVEMENTS)),
     TASKS: JSON.parse(JSON.stringify(TASKS)),
@@ -2005,6 +2091,7 @@ function getDataSnapshot() {
 function applyData(data) {
   if (!data) return false;
   try {
+    if (data.HISTORY) { HISTORY.length=0; HISTORY.push(...data.HISTORY); }
     if (data.TENANTS) { TENANTS.length=0; TENANTS.push(...data.TENANTS); }
     if (data.MOVEMENTS) { MOVEMENTS.length=0; MOVEMENTS.push(...data.MOVEMENTS); }
     if (data.TASKS) { TASKS.length=0; TASKS.push(...data.TASKS); }
@@ -2071,6 +2158,243 @@ function refreshUI() {
   else if (id==='tasks') renderTasks();
   else if (id==='expenses') renderExpenses();
   else if (id==='clients') renderClients();
+}
+
+
+// ============ HISTORY ============
+const HISTORY = [
+  // Pre-loaded from Excel data
+  {month:'2025-11',prop:'עזאי 38',income:28500,tenants:21,pph:0,rent:18000,electric:1251,water:1500,arnona:0,other:0},
+  {month:'2025-11',prop:'נתן הנביא 42',income:73400,tenants:65,pph:0,rent:39000,electric:5272,water:726,arnona:2826,other:0},
+  {month:'2025-11',prop:'לבנדה 32',income:80200,tenants:0,pph:1250,rent:105000,electric:0,water:0,arnona:0,other:0},
+  {month:'2025-12',prop:'עזאי 38',income:28500,tenants:21,pph:0,rent:18000,electric:1500,water:1500,arnona:0,other:0},
+  {month:'2025-12',prop:'נתן הנביא 42',income:73400,tenants:65,pph:0,rent:39000,electric:5272,water:874,arnona:2826,other:0},
+  {month:'2025-12',prop:'לבנדה 32',income:86650,tenants:0,pph:1250,rent:105000,electric:0,water:0,arnona:0,other:0},
+  {month:'2026-01',prop:'עזאי 38',income:28500,tenants:21,pph:0,rent:18000,electric:1750,water:1500,arnona:0,other:0},
+  {month:'2026-01',prop:'נתן הנביא 42',income:73400,tenants:65,pph:0,rent:39000,electric:0,water:0,arnona:2714,other:0},
+  {month:'2026-01',prop:'לבנדה 32',income:106650,tenants:0,pph:1250,rent:133250,electric:0,water:0,arnona:0,other:0},
+  {month:'2026-02',prop:'עזאי 38',income:28500,tenants:21,pph:0,rent:18000,electric:2350,water:1750,arnona:0,other:0},
+  {month:'2026-02',prop:'נתן הנביא 42',income:73400,tenants:65,pph:0,rent:39000,electric:0,water:0,arnona:2714,other:0},
+  {month:'2026-02',prop:'לבנדה 32',income:70400,tenants:0,pph:1250,rent:105000,electric:0,water:0,arnona:0,other:0},
+  {month:'2026-02',prop:'הירקון 41 ב"ב',income:31885,tenants:22,pph:1250,rent:25500,electric:0,water:0,arnona:0,other:0},
+];
+let histView = 'chart';
+let histChart = null;
+
+function setHistView(view, el) {
+  histView = view;
+  document.querySelectorAll('#hist-view-tabs .tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('hist-chart-view').style.display = view==='chart' ? 'block' : 'none';
+  document.getElementById('hist-table-view').style.display = view==='table' ? 'block' : 'none';
+  document.getElementById('hist-entry-view').style.display = view==='entry' ? 'block' : 'none';
+  if (view==='chart') renderHistChart();
+  if (view==='table') renderHistTable();
+  if (view==='entry') renderHistExisting();
+}
+
+function renderHistory() {
+  renderHistChart();
+}
+
+function getMonthLabel(m) {
+  const [yr,mo] = m.split('-');
+  const names = ['','ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
+  return names[parseInt(mo)] + ' ' + yr;
+}
+
+function getMonthTotals(month) {
+  const rows = HISTORY.filter(h=>h.month===month);
+  const income = rows.reduce((s,h)=>s+h.income,0);
+  const expenses = rows.reduce((s,h)=>s+h.rent+h.electric+h.water+h.arnona+h.other,0);
+  return { income, expenses, profit: income - expenses };
+}
+
+function renderHistChart() {
+  const months = [...new Set(HISTORY.map(h=>h.month))].sort();
+  const incomes = months.map(m=>getMonthTotals(m).income);
+  const expenses = months.map(m=>getMonthTotals(m).expenses);
+  const profits = months.map(m=>getMonthTotals(m).profit);
+  const labels = months.map(getMonthLabel);
+
+  const ctx = document.getElementById('hist-chart');
+  if (!ctx) return;
+  if (histChart) histChart.destroy();
+
+  histChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: 'הכנסות', data: incomes, backgroundColor: 'rgba(52,211,153,0.7)', borderColor: '#34d399', borderWidth: 1 },
+        { label: 'הוצאות', data: expenses, backgroundColor: 'rgba(248,113,113,0.7)', borderColor: '#f87171', borderWidth: 1 },
+        { label: 'רווח גולמי', data: profits, type: 'line', borderColor: '#8b7fd4', backgroundColor: 'rgba(139,127,212,0.1)', tension: 0.3, borderWidth: 2, pointRadius: 4 },
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: 'top', labels: { font: { family: 'Heebo' } } },
+        tooltip: { callbacks: { label: ctx => ctx.dataset.label+': '+Math.round(ctx.raw).toLocaleString('he-IL')+' ₪' } }
+      },
+      scales: {
+        y: { ticks: { callback: v => Math.round(v/1000)+'K ₪' } }
+      }
+    }
+  });
+
+  // Summary cards
+  const lastMonth = months[months.length-1];
+  const totals = getMonthTotals(lastMonth);
+  const avgProfit = Math.round(profits.reduce((s,p)=>s+p,0)/profits.length);
+  document.getElementById('hist-summary-cards').innerHTML = `
+    <div class="metric"><div class="metric-label">חודש אחרון — ${getMonthLabel(lastMonth)}</div><div class="metric-value ${totals.profit>=0?'green':'red'}">${Math.round(totals.profit).toLocaleString('he-IL')} ₪</div><div class="metric-sub">רווח גולמי</div></div>
+    <div class="metric"><div class="metric-label">ממוצע רווח חודשי</div><div class="metric-value ${avgProfit>=0?'green':'red'}">${avgProfit.toLocaleString('he-IL')} ₪</div></div>
+    <div class="metric"><div class="metric-label">סה"כ הכנסות (מצטבר)</div><div class="metric-value">${incomes.reduce((s,v)=>s+v,0).toLocaleString('he-IL')} ₪</div></div>
+    <div class="metric"><div class="metric-label">חודשים מתועדים</div><div class="metric-value">${months.length}</div></div>
+  `;
+}
+
+function renderHistTable() {
+  const months = [...new Set(HISTORY.map(h=>h.month))].sort().reverse();
+  let html = '<table><thead><tr><th>חודש</th><th>נכס</th><th>הכנסה</th><th>שכירות</th><th>חשמל</th><th>מים</th><th>ארנונה</th><th>רווח גולמי</th></tr></thead><tbody>';
+  months.forEach(m => {
+    const rows = HISTORY.filter(h=>h.month===m);
+    rows.forEach(h => {
+      const totalExp = h.rent+h.electric+h.water+h.arnona+h.other;
+      const profit = h.income - totalExp;
+      html += `<tr>
+        <td>${getMonthLabel(m)}</td>
+        <td><strong>${h.prop}</strong></td>
+        <td class="green">${h.income.toLocaleString('he-IL')} ₪</td>
+        <td class="red">${h.rent.toLocaleString('he-IL')} ₪</td>
+        <td>${h.electric?h.electric.toLocaleString('he-IL')+' ₪':'-'}</td>
+        <td>${h.water?h.water.toLocaleString('he-IL')+' ₪':'-'}</td>
+        <td>${h.arnona?h.arnona.toLocaleString('he-IL')+' ₪':'-'}</td>
+        <td class="${profit>=0?'green':'red'}" style="font-weight:600">${profit.toLocaleString('he-IL')} ₪</td>
+      </tr>`;
+    });
+    // Month total row
+    const totals = getMonthTotals(m);
+    html += `<tr class="total-row"><td colspan="2">${getMonthLabel(m)} — סה"כ</td>
+      <td class="green">${totals.income.toLocaleString('he-IL')} ₪</td>
+      <td colspan="4"></td>
+      <td class="${totals.profit>=0?'green':'red'}">${totals.profit.toLocaleString('he-IL')} ₪</td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  document.getElementById('hist-table').innerHTML = html;
+}
+
+// Live preview in entry form
+['he-income','he-rent','he-electric','he-water','he-arnona','he-other'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('input', updateHistPreview);
+});
+
+function updateHistPreview() {
+  const income = parseFloat(document.getElementById('he-income').value)||0;
+  const rent = parseFloat(document.getElementById('he-rent').value)||0;
+  const electric = parseFloat(document.getElementById('he-electric').value)||0;
+  const water = parseFloat(document.getElementById('he-water').value)||0;
+  const arnona = parseFloat(document.getElementById('he-arnona').value)||0;
+  const other = parseFloat(document.getElementById('he-other').value)||0;
+  const expenses = rent+electric+water+arnona+other;
+  const profit = income - expenses;
+  const prev = document.getElementById('he-preview');
+  if (income||expenses) {
+    prev.style.display='block';
+    document.getElementById('he-prev-income').textContent = income.toLocaleString('he-IL')+' ₪';
+    document.getElementById('he-prev-expenses').textContent = expenses.toLocaleString('he-IL')+' ₪';
+    const profEl = document.getElementById('he-prev-profit');
+    profEl.textContent = (profit>=0?'+':'')+profit.toLocaleString('he-IL')+' ₪';
+    profEl.style.color = profit>=0?'#3a8a68':'#b85a50';
+  } else {
+    prev.style.display='none';
+  }
+}
+
+function saveHistEntry() {
+  const month = document.getElementById('he-month').value;
+  const prop = document.getElementById('he-prop').value;
+  const income = parseFloat(document.getElementById('he-income').value)||0;
+  const tenants = parseInt(document.getElementById('he-tenants').value)||0;
+  const pph = parseFloat(document.getElementById('he-pph').value)||0;
+  const rent = parseFloat(document.getElementById('he-rent').value)||0;
+  const electric = parseFloat(document.getElementById('he-electric').value)||0;
+  const water = parseFloat(document.getElementById('he-water').value)||0;
+  const arnona = parseFloat(document.getElementById('he-arnona').value)||0;
+  const other = parseFloat(document.getElementById('he-other').value)||0;
+
+  // Remove existing entry for same month+prop
+  const idx = HISTORY.findIndex(h=>h.month===month&&h.prop===prop);
+  const entry = {month,prop,income,tenants,pph,rent,electric,water,arnona,other};
+  if (idx>=0) HISTORY[idx]=entry; else HISTORY.push(entry);
+  HISTORY.sort((a,b)=>a.month.localeCompare(b.month)||a.prop.localeCompare(b.prop));
+
+  autosave();
+  clearHistForm();
+  renderHistExisting();
+  showSaveIndicator('✓ רשומה נשמרה');
+}
+
+function clearHistForm() {
+  ['he-income','he-tenants','he-pph','he-rent','he-electric','he-water','he-arnona','he-other'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.value='';
+  });
+  const prev = document.getElementById('he-preview');
+  if(prev) prev.style.display='none';
+}
+
+function deleteHistEntry(month, prop) {
+  const idx = HISTORY.findIndex(h=>h.month===month&&h.prop===prop);
+  if(idx>=0){HISTORY.splice(idx,1);autosave();renderHistExisting();}
+}
+
+function renderHistExisting() {
+  const months = [...new Set(HISTORY.map(h=>h.month))].sort().reverse();
+  let html='';
+  months.forEach(m=>{
+    const rows = HISTORY.filter(h=>h.month===m);
+    html+=`<div style="margin-bottom:1rem"><div style="font-size:13px;font-weight:600;color:var(--text2);margin-bottom:6px;padding-bottom:4px;border-bottom:0.5px solid var(--border)">${getMonthLabel(m)}</div>`;
+    rows.forEach(h=>{
+      const exp=h.rent+h.electric+h.water+h.arnona+h.other;
+      const profit=h.income-exp;
+      html+=`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius-sm);margin-bottom:4px;font-size:13px">
+        <div><strong>${h.prop}</strong></div>
+        <div style="display:flex;gap:16px;align-items:center">
+          <span class="green">${h.income.toLocaleString('he-IL')} ₪</span>
+          <span class="red">${exp.toLocaleString('he-IL')} ₪</span>
+          <span style="font-weight:600;color:${profit>=0?'#3a8a68':'#b85a50'}">${profit>=0?'+':''}${profit.toLocaleString('he-IL')} ₪</span>
+          <button onclick="loadHistEntry('${m}','${h.prop.replace(/"/g,'\\"')}')" class="btn btn-sm">ערוך</button>
+          <button onclick="deleteHistEntry('${m}','${h.prop.replace(/"/g,'\\"')}')" class="btn btn-sm btn-danger">מחק</button>
+        </div>
+      </div>`;
+    });
+    html+='</div>';
+  });
+  document.getElementById('he-existing').innerHTML=html||'<div style="color:var(--text3);font-size:13px;padding:1rem">אין רשומות עדיין</div>';
+}
+
+function loadHistEntry(month, prop) {
+  const h = HISTORY.find(x=>x.month===month&&x.prop===prop);
+  if(!h) return;
+  document.getElementById('he-month').value=h.month;
+  // Set prop select
+  const sel=document.getElementById('he-prop');
+  for(let i=0;i<sel.options.length;i++) if(sel.options[i].text===h.prop){sel.selectedIndex=i;break;}
+  document.getElementById('he-income').value=h.income||'';
+  document.getElementById('he-tenants').value=h.tenants||'';
+  document.getElementById('he-pph').value=h.pph||'';
+  document.getElementById('he-rent').value=h.rent||'';
+  document.getElementById('he-electric').value=h.electric||'';
+  document.getElementById('he-water').value=h.water||'';
+  document.getElementById('he-arnona').value=h.arnona||'';
+  document.getElementById('he-other').value=h.other||'';
+  updateHistPreview();
+  // Switch to entry view
+  setHistView('entry', document.querySelector('#hist-view-tabs .tab:nth-child(3)'));
 }
 
 // ============ INIT ============
