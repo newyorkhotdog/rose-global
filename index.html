@@ -1439,20 +1439,55 @@ function renderMovements(){
 function delMv(id){MOVEMENTS.splice(MOVEMENTS.findIndex(m=>m.id===id),1);autosave();renderMovements();}
 
 // ============ BILLING ============
+// Map from short name in MAP_DATA to full client name in CLIENTS
+const COMPANY_MAP = {
+  'יער': 'י.ע.ר 2023 עובדים זרים בע"מ',
+  'שמרית': 'שמרית שרותי עובדים 2023 בע"מ',
+  'בינה': 'בינה עובדים זרים לבניין בע"מ',
+  'ניו פאוור': 'ניו פאוור עובדים זרים בע"מ',
+  'שיק סין': 'שיק סין 26 בע"מ',
+  'שיק צין': 'שיק צין',
+  'ח.ח.א': 'ח.ח.א',
+  'קורפו': 'קורפו בניה בע"מ',
+  'משביר יעקב': 'משביר יעקב בע"מ',
+  'משביר': 'משביר יעקב בע"מ',
+  'מגיק פאוור': 'מגיק פאוור בע"מ',
+  'שירות': null, // חדר שירות - לא לקוח
+};
+
+// Reverse map: full name → short name
+function getShortName(fullName) {
+  for (const [short, full] of Object.entries(COMPANY_MAP)) {
+    if (full === fullName) return short;
+  }
+  return fullName; // fallback - same name
+}
+
 function populateBillClientFilter() {
   const sel = document.getElementById('bill-client');
   if (!sel) return;
   const current = sel.value;
-  // Pull unique company names directly from MAP_DATA
-  const companies = new Set();
+  // Show only active clients that have rooms in MAP_DATA
+  const mapCompanies = new Set();
   Object.values(MAP_DATA).forEach(prop => {
     Object.values(prop.floors||{}).forEach(rooms => {
-      rooms.forEach(r => { if(r.company) companies.add(r.company); });
+      rooms.forEach(r => { if(r.company && r.company !== 'שירות') mapCompanies.add(r.company); });
     });
   });
-  const sorted = [...companies].filter(Boolean).sort((a,b)=>a.localeCompare(b));
+  // Get matching active clients
+  const activeClients = CLIENTS.filter(c => c.status === 'active');
+  const shown = [];
+  mapCompanies.forEach(shortName => {
+    const fullName = COMPANY_MAP[shortName] || shortName;
+    const client = activeClients.find(c => c.name === fullName || c.name === shortName);
+    const displayName = client ? client.name : fullName;
+    if (!shown.find(s => s.value === shortName)) {
+      shown.push({value: shortName, label: displayName});
+    }
+  });
+  shown.sort((a,b) => a.label.localeCompare(b.label));
   sel.innerHTML = '<option value="">כל הלקוחות</option>' +
-    sorted.map(c=>`<option value="${c}" ${c===current?'selected':''}>${c}</option>`).join('');
+    shown.map(s=>`<option value="${s.value}" ${s.value===current?'selected':''}>${s.label}</option>`).join('');
 }
 
 function renderBilling(){
