@@ -2577,6 +2577,24 @@ function addGeneralExpenseRow() {
   document.getElementById('hg-extra-rows').appendChild(div);
 }
 
+
+function loadGeneralExpenses(month) {
+  const g = GENERAL_EXPENSES.find(x=>x.month===month);
+  if (!g) return;
+  document.getElementById('hg-month').value = month;
+  document.getElementById('hg-yoad').value = g.yoad || 12000;
+  // Clear and repopulate extra rows
+  document.getElementById('hg-extra-rows').innerHTML = '';
+  extraRowCount = 0;
+  (g.extra||[]).forEach(e => {
+    addGeneralExpenseRow();
+    document.getElementById('extra-desc-'+extraRowCount).value = e.desc;
+    document.getElementById('extra-amt-'+extraRowCount).value = e.amount;
+  });
+  // Scroll to form
+  document.getElementById('hg-month').scrollIntoView({behavior:'smooth', block:'center'});
+}
+
 function saveGeneralExpenses() {
   const month = document.getElementById('hg-month').value;
   const yoad = parseFloat(document.getElementById('hg-yoad').value)||0;
@@ -2619,7 +2637,10 @@ function renderHgExisting() {
     html += `<div class="card" style="margin-bottom:10px;padding:14px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
         <div style="font-size:14px;font-weight:500">${getMonthLabel(m)}</div>
-        <div style="font-weight:600;color:#b85a50">${total.toLocaleString('he-IL')} ₪ סה"כ</div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-weight:600;color:#b85a50">${total.toLocaleString('he-IL')} ₪</span>
+          <button onclick="loadGeneralExpenses('${m}')" class="btn btn-sm">✏️ ערוך</button>
+        </div>
       </div>
       <div style="font-size:13px;color:var(--text2);display:flex;flex-direction:column;gap:4px">
         <div style="display:flex;justify-content:space-between"><span>שכר יועד</span><span>${(g.yoad||0).toLocaleString('he-IL')} ₪</span></div>
