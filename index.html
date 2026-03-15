@@ -423,9 +423,24 @@ textarea { resize: vertical; min-height: 70px; }
   <div class="page-title">חשבוניות חודשיות</div>
   <div class="page-sub">חישוב אוטומטי לפי ראש + פרו-ראטה לכניסות/יציאות באמצע חודש</div>
   <div style="display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap">
-    <select id="bill-month" onchange="renderBilling()" style="width:auto"><option value="2026-03">מרץ 2026</option><option value="2026-02">פברואר 2026</option><option value="2026-01">ינואר 2026</option></select>
-    <select id="bill-prop" onchange="renderBilling()" style="width:auto"><option value="">כל הנכסים (לפי ראש)</option><option>לבנדה 32</option><option>הירקון 41 ב"ב</option></select>
-    <button class="btn btn-primary" onclick="renderBilling()">חשב חשבוניות</button>
+    <select id="bill-month" onchange="renderBilling()" style="width:auto">
+      <option value="2026-03">מרץ 2026</option>
+      <option value="2026-02">פברואר 2026</option>
+      <option value="2026-01">ינואר 2026</option>
+      <option value="2025-12">דצמבר 2025</option>
+      <option value="2025-11">נובמבר 2025</option>
+    </select>
+    <select id="bill-prop" onchange="renderBilling()" style="width:auto">
+      <option value="">כל הנכסים</option>
+      <option>לבנדה 32</option>
+      <option>הירקון 41 ב"ב</option>
+      <option>עזאי 38</option>
+      <option>נתן הנביא 42</option>
+    </select>
+    <select id="bill-client" onchange="renderBilling()" style="width:auto">
+      <option value="">כל הלקוחות</option>
+    </select>
+    <button class="btn btn-primary" onclick="renderBilling()">חשב</button>
   </div>
   <div id="bill-alerts"></div>
   <div class="metrics" id="bill-metrics" style="margin-bottom:16px"></div>
@@ -489,7 +504,7 @@ textarea { resize: vertical; min-height: 70px; }
 
 
 <!-- ROOM EDIT MODAL -->
-<div id="room-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.35);display:none;align-items:center;justify-content:center;z-index:200;padding:1rem">
+<div id="room-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.35);align-items:center;justify-content:center;z-index:200;padding:1rem">
   <div style="background:#fff;border-radius:12px;padding:20px;width:100%;max-width:340px;border:1px solid #e0ddd8">
     <div style="font-size:15px;font-weight:600;margin-bottom:16px" id="rm-title">עריכת חדר</div>
     <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:10px"><label style="font-size:11px;color:#a09890;text-transform:uppercase">תאגיד</label>
@@ -1410,36 +1425,75 @@ function renderMovements(){
 function delMv(id){MOVEMENTS.splice(MOVEMENTS.findIndex(m=>m.id===id),1);renderMovements();}
 
 // ============ BILLING ============
+function populateBillClientFilter() {
+  const sel = document.getElementById('bill-client');
+  if (!sel) return;
+  // Get all unique companies from MAP_DATA
+  const companies = new Set();
+  Object.keys(MAP_DATA).forEach(prop => {
+    Object.values(MAP_DATA[prop].floors||{}).forEach(rooms => {
+      rooms.forEach(r => { if(r.company) companies.add(r.company); });
+    });
+  });
+  const current = sel.value;
+  sel.innerHTML = '<option value="">כל הלקוחות</option>' + 
+    [...companies].sort().map(c => `<option ${c===current?'selected':''}>${c}</option>`).join('');
+}
+
 function renderBilling(){
-  const month=document.getElementById('bill-month').value;
-  const filterProp=document.getElementById('bill-prop').value;
-  const [yr,mo]=month.split('-').map(Number);
-  const days=dim(yr,mo);
-  const mStart=new Date(yr,mo-1,1);
-  const mEnd=new Date(yr,mo,0);
+  populateBillClientFilter();
+  const month = document.getElementById('bill-month').value;
+  const filterProp = document.getElementById('bill-prop').value;
+  const filterClient = (document.getElementById('bill-client')||{}).value||'';
+  const [yr,mo] = month.split('-').map(Number);
+  const days = dim(yr,mo);
+  const mStart = new Date(yr,mo-1,1);
+  const mEnd = new Date(yr,mo,0);
 
-  const relevant=TENANTS.filter(t=>!filterProp||t.prop===filterProp);
-  const byCompany={};
+  // Build billing from MAP_DATA (current state) + MOVEMENTS (for pro-rata)
+  const byCompany = {};
 
-  relevant.forEach(t=>{
-    if(FIXED_COSTS[t.prop]) return;
-    const from=new Date(t.from);
-    if(from>mEnd) return;
-    const to=t.to?new Date(t.to):null;
-    if(to&&to<mStart) return;
-    const startDay=from>=mStart?from.getDate():1;
-    const endDay=to&&to<=mEnd?to.getDate():days;
-    const d=endDay-startDay+1;
-    const isPartial=d<days;
-    const amount=Math.round(t.people*PRICE*d/days);
-    if(!byCompany[t.company]) byCompany[t.company]={company:t.company,lines:[],total:0};
-    byCompany[t.company].lines.push({label:`ק${t.floor} ח${t.room} — ${t.prop}`,people:t.people,d,days,amount,isPartial});
-    byCompany[t.company].total+=amount;
+  // Get all rooms from MAP_DATA that are occupied
+  Object.keys(MAP_DATA).forEach(prop => {
+    if (filterProp && prop !== filterProp) return;
+    if (FIXED_COSTS[prop]) {
+      // Fixed price props — show as single entry
+      const inc = FIXED_COSTS[prop].income || 0;
+      if (!inc) return;
+      const key = prop + ' (פיקס)';
+      if (!filterClient || prop.includes(filterClient)) {
+        if (!byCompany[key]) byCompany[key] = {company: prop+' (פיקס)', lines:[], total:0, isFixed:true};
+        byCompany[key].lines.push({label: prop, people:0, d:days, days, amount:inc, isPartial:false});
+        byCompany[key].total += inc;
+      }
+      return;
+    }
+    Object.entries(MAP_DATA[prop].floors||{}).forEach(([floor, rooms]) => {
+      rooms.forEach(r => {
+        if (!r.company || r.people <= 0) return;
+        if (filterClient && r.company !== filterClient) return;
+        // Check if this tenant existed in this month via TENANTS array
+        const tenant = TENANTS.find(t=>t.prop===prop&&t.room===r.r&&t.company===r.company&&!t.to);
+        let entryDate = tenant ? new Date(tenant.from) : mStart;
+        if (entryDate > mEnd) return;
+        const startDay = entryDate >= mStart ? entryDate.getDate() : 1;
+        const d = days - startDay + 1;
+        const isPartial = d < days;
+        const amount = Math.round(r.people * r.price * d / days);
+        if (!byCompany[r.company]) byCompany[r.company] = {company:r.company, lines:[], total:0, isFixed:false};
+        byCompany[r.company].lines.push({
+          label:`ק${floor} ח${r.room} — ${prop}`,
+          people:r.people, d, days, amount, isPartial
+        });
+        byCompany[r.company].total += amount;
+      });
+    });
   });
 
-  const companies=Object.values(byCompany).sort((a,b)=>b.total-a.total);
-  const grand=companies.reduce((s,c)=>s+c.total,0);
-  const totalPpl=relevant.filter(t=>!FIXED_COSTS[t.prop]&&!t.to).reduce((s,t)=>s+t.people,0);
+  const companies = Object.values(byCompany).sort((a,b)=>b.total-a.total);
+  const grand = companies.reduce((s,c)=>s+c.total,0);
+  const totalPpl = Object.values(MAP_DATA).flatMap(p=>Object.values(p.floors||{}).flat())
+    .filter(r=>r.company&&r.people>0).reduce((s,r)=>s+r.people,0);
 
   document.getElementById('bill-metrics').innerHTML=`
     <div class="metric"><div class="metric-label">סה"כ לגבייה</div><div class="metric-value green">${fmt(grand)} ₪</div></div>
@@ -1448,25 +1502,29 @@ function renderBilling(){
   `;
 
   let alerts='';
-  if(!filterProp||filterProp==='לבנדה 32'){
-    const lRev=getPropRevenue('לבנדה 32');
-    const lCost=getPropCost('לבנדה 32');
-    if(lRev<lCost) alerts+=`<div class="alert alert-red" style="margin-bottom:12px">לבנדה 32 — הפסד של ${fmt(lCost-lRev)} ₪ החודש. חסרים ${Math.ceil((lCost-lRev)/PRICE)} דיירים לאיזון.</div>`;
+  const lavData = MAP_DATA['לבנדה 32'];
+  if(lavData&&!filterProp){
+    const lavRev=companies.filter(c=>!c.isFixed).reduce((s,c)=>s+c.total,0);
+    const lavCost=getPropCost('לבנדה 32');
+    if(lavRev<lavCost) alerts+=`<div class="alert alert-red" style="margin-bottom:12px">לבנדה 32 — הפסד של ${fmt(lavCost-lavRev)} ₪ החודש</div>`;
   }
-  if(!filterProp&&FIXED_COSTS['עזאי 38'].income===null) alerts+=`<div class="alert alert-amber" style="margin-bottom:8px">עזאי 38 — הכנסה לא מוגדרת. לבדוק עם צביקה.</div>`;
-  if(!filterProp&&FIXED_COSTS['נתן הנביא 42'].income===null) alerts+=`<div class="alert alert-amber" style="margin-bottom:8px">נתן הנביא 42 — הכנסה לא מוגדרת. לבדוק עם צביקה.</div>`;
   document.getElementById('bill-alerts').innerHTML=alerts;
 
-  document.getElementById('bill-content').innerHTML=companies.map(c=>`
+  document.getElementById('bill-content').innerHTML = companies.map(c=>`
     <div class="invoice-block">
-      <div class="invoice-header"><div class="invoice-company">${c.company}</div><div class="invoice-total">${fmt(c.total)} ₪</div></div>
+      <div class="invoice-header">
+        <div class="invoice-company">${c.company}</div>
+        <div class="invoice-total">${fmt(c.total)} ₪</div>
+      </div>
       ${c.lines.map(l=>`<div class="invoice-row">
-        <div><div>${l.label}</div><div class="invoice-note">${l.isPartial?`${l.people} פועלים × ${l.d}/${l.days} ימים (פרו-ראטה)`:`${l.people} פועלים × חודש מלא`}</div></div>
+        <div><div>${l.label}</div>
+        <div class="invoice-note">${l.isPartial?l.people+' פועלים × '+l.d+'/'+l.days+' ימים (פרו-ראטה)':l.people>0?l.people+' פועלים × חודש מלא':'חודש מלא (פיקס)'}</div></div>
         <div style="font-weight:600">${fmt(l.amount)} ₪</div>
       </div>`).join('')}
       <div class="invoice-row invoice-subtotal"><strong>סה"כ ${c.company}</strong><strong>${fmt(c.total)} ₪</strong></div>
-    </div>`).join('')||'<div style="padding:2rem;text-align:center;color:var(--text3)">אין נתונים</div>';
+    </div>`).join('')||'<div style="padding:2rem;text-align:center;color:var(--text2)">אין נתונים</div>';
 }
+
 
 // ============ TASKS ============
 function setTaskFilter(f,el){
