@@ -1197,7 +1197,7 @@ function renderTenantMap() {
       const p2 = room.people * room.price - room.cost;
       const profitStr = (!isFixed && room.company && room.company !== 'שירות') ? ((p2>=0?'+':'')+fmt(p2)+' ₪') : '';
       const incStr = (!isFixed && room.people > 0 && room.price > 0) ? fmt(room.people*room.price)+' ₪ הכנסה' : '';
-      html += buildRoomCard(p, f, room, bg, profitStr, incStr);
+      html += buildRoomCard(p, Number(f), room, bg, profitStr, incStr);
     });
     html += '</div></div>';
   });
@@ -1241,8 +1241,13 @@ function getRoomBg(room, isFixed) {
 function editMapRoom(propRaw, floor, roomNum) {
   const prop = propRaw.replace(/__/g, '"');
   const data = MAP_DATA[prop];
-  if (!data || !data.floors[floor]) return;
-  const room = data.floors[floor].find(r => r.r === roomNum);
+  if (!data) return;
+  // Normalize floor key — try both number and string
+  const floorKey = data.floors[floor] !== undefined ? floor :
+                   data.floors[String(floor)] !== undefined ? String(floor) :
+                   data.floors[Number(floor)] !== undefined ? Number(floor) : null;
+  if (floorKey === null) { console.warn('Floor not found:', floor, Object.keys(data.floors)); return; }
+  const room = data.floors[floorKey].find(r => r.r === roomNum);
   if (!room) return;
   mapEditRoomRef = room;
   mapEditPropName = prop;
@@ -2653,8 +2658,9 @@ function saveAddRoom() {
 
   // Check if room already exists
   if (!MAP_DATA[prop]) MAP_DATA[prop] = { floors: {} };
-  if (!MAP_DATA[prop].floors[floor]) MAP_DATA[prop].floors[floor] = [];
-  const exists = MAP_DATA[prop].floors[floor].find(r => r.r === roomNum);
+  const floorKey = floor; // use as-is (integer from parseInt)
+  if (!MAP_DATA[prop].floors[floorKey]) MAP_DATA[prop].floors[floorKey] = [];
+  const exists = MAP_DATA[prop].floors[floorKey].find(r => r.r === roomNum);
   if (exists) { errEl.textContent = 'חדר '+roomNum+' כבר קיים בקומה '+floor; errEl.style.display = 'block'; return; }
 
   MAP_DATA[prop].floors[floor].push({ r: roomNum, company, people, price, cost, note });
@@ -2679,8 +2685,12 @@ function deleteMapRoom(propRaw, floor, roomNum) {
   const prop = propRaw.replace(/__/g, '"');
   if (!confirm('למחוק את חדר ' + roomNum + ' מקומה ' + floor + '?')) return;
   const floors = MAP_DATA[prop] && MAP_DATA[prop].floors;
-  if (!floors || !floors[floor]) return;
-  floors[floor] = floors[floor].filter(r => r.r !== roomNum);
+  if (!floors) return;
+  const floorKey = floors[floor] !== undefined ? floor :
+                   floors[String(floor)] !== undefined ? String(floor) :
+                   floors[Number(floor)] !== undefined ? Number(floor) : null;
+  if (floorKey === null) return;
+  floors[floorKey] = floors[floorKey].filter(r => r.r !== roomNum);
   if (floors[floor].length === 0) delete floors[floor];
   autosave();
   renderTenantMap();
