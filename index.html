@@ -224,8 +224,14 @@ textarea { resize: vertical; min-height: 70px; }
 <div id="page-tenants" class="page">
   <div class="page-title">דיירים וחדרים</div>
   <div class="page-sub">מצב עדכני לפי נכס</div>
-  <div class="tab-row" id="tenant-tabs"></div>
-  <div id="tenant-content"></div>
+  <div class="tab-row" id="tenant-tabs">
+    <button class="tab active" data-idx="0" onclick="selectTab(this)">לבנדה 32</button>
+    <button class="tab" data-idx="1" onclick="selectTab(this)">עזאי 38</button>
+    <button class="tab" data-idx="2" onclick="selectTab(this)">נתן הנביא 42</button>
+    <button class="tab" data-idx="3" onclick="selectTab(this)">הירקון 41 ב&quot;ב</button>
+  </div>
+  <div id="tenant-metrics"></div>
+  <div id="tenant-map"></div>
 </div>
 
 <!-- MOVEMENTS -->
@@ -577,130 +583,249 @@ function renderDashboard() {
 }
 
 // ============ TENANTS ============
-function renderTenants() {
-  const props = ['לבנדה 32','עזאי 38','נתן הנביא 42','הירקון 41 ב"ב'];
-  document.getElementById('tenant-tabs').innerHTML = props.map((p,i) =>
-    `<button class="tab ${p===currentTenantProp?'active':''}" onclick="selectTenantPropByIndex(${i},this)">${p}</button>`
-  ).join('');
-  renderTenantTable();
-}
+const PROP_NAMES = ['לבנדה 32','עזאי 38','נתן הנביא 42','הירקון 41 ב"ב'];
 
-function selectTenantPropByIndex(i, el) {
-  const props = ['לבנדה 32','עזאי 38','נתן הנביא 42','הירקון 41 ב"ב'];
-  currentTenantProp = props[i];
-  document.querySelectorAll('#tenant-tabs .tab').forEach(t=>t.classList.remove('active'));
+// Map data for all 4 properties
+const MAP_DATA = {
+  'לבנדה 32': {
+    floors: {
+      1: [
+        {r:1,company:'יער',people:6,price:1250,cost:5350,note:''},
+        {r:2,company:'',people:0,price:1250,cost:0,note:''},
+        {r:3,company:'יער',people:6,price:1250,cost:5350,note:''},
+        {r:4,company:'יער',people:6,price:1250,cost:5350,note:''},
+        {r:5,company:'שירות',people:0,price:0,cost:3600,note:'חדר שירות — יער'},
+      ],
+      2: [
+        {r:1,company:'בינה',people:2,price:1250,cost:3600,note:''},
+        {r:2,company:'',people:0,price:1250,cost:0,note:''},
+        {r:3,company:'קורפו',people:3,price:1250,cost:5350,note:''},
+        {r:4,company:'משביר יעקב',people:4,price:1250,cost:5350,note:''},
+        {r:5,company:'שמרית',people:5,price:1250,cost:5350,note:''},
+        {r:6,company:'יער',people:6,price:1250,cost:5350,note:''},
+        {r:7,company:'יער',people:6,price:1250,cost:5350,note:''},
+        {r:8,company:'שמרית',people:3,price:1250,cost:5350,note:''},
+        {r:9,company:'יער',people:5,price:1250,cost:5350,note:''},
+        {r:10,company:'יער',people:6,price:1250,cost:5350,note:''},
+        {r:11,company:'בינה',people:6,price:1250,cost:5350,note:''},
+        {r:12,company:'יער',people:6,price:1250,cost:5350,note:''},
+      ],
+      3: [
+        {r:1,company:'',people:0,price:1250,cost:5350,note:''},
+        {r:2,company:'שיק סין',people:2,price:1250,cost:3600,note:''},
+        {r:3,company:'ח.ח.א',people:3,price:1250,cost:5350,note:''},
+        {r:4,company:'',people:0,price:1250,cost:3000,note:''},
+        {r:5,company:'יער',people:6,price:1250,cost:5350,note:''},
+        {r:6,company:'ניו פאוור',people:5,price:1250,cost:5350,note:''},
+        {r:7,company:'ניו פאוור',people:8,price:1250,cost:5350,note:''},
+        {r:8,company:'ח.ח.א',people:5,price:1250,cost:5350,note:''},
+        {r:9,company:'שיק סין',people:5,price:1250,cost:5350,note:''},
+        {r:10,company:'יער',people:2,price:1250,cost:5350,note:''},
+        {r:11,company:'בינה',people:6,price:1250,cost:5350,note:''},
+        {r:12,company:'',people:0,price:1250,cost:5350,note:''},
+        {r:13,company:'משביר',people:6,price:1250,cost:5350,note:''},
+      ]
+    }
+  },
+  'עזאי 38': {
+    floors: {
+      1: [
+        {r:4,company:'יער',people:6,price:0,cost:0,note:'פיקס פרייס'},
+        {r:5,company:'יער',people:5,price:0,cost:0,note:'פיקס פרייס'},
+        {r:6,company:'יער',people:6,price:0,cost:0,note:'פיקס פרייס'},
+      ],
+      0: [
+        {r:1,company:'יער',people:1,price:0,cost:0,note:'מרתף ימני'},
+        {r:2,company:'',people:0,price:0,cost:0,note:'מרתף אמצעי — מטבח'},
+        {r:3,company:'יער',people:3,price:0,cost:0,note:'מרתף שמאלי'},
+      ]
+    }
+  },
+  'נתן הנביא 42': {
+    floors: {
+      1: [
+        {r:1,company:'תאגיד',people:4,price:0,cost:0,note:'פיקס פרייס'},
+        {r:2,company:'תאגיד',people:6,price:0,cost:0,note:'פיקס פרייס'},
+        {r:3,company:'תאגיד',people:4,price:0,cost:0,note:'פיקס פרייס'},
+        {r:4,company:'תאגיד',people:6,price:0,cost:0,note:'פיקס פרייס'},
+        {r:5,company:'תאגיד',people:6,price:0,cost:0,note:'פיקס פרייס'},
+        {r:6,company:'תאגיד',people:6,price:0,cost:0,note:'פיקס פרייס'},
+        {r:7,company:'גייקוב',people:0,price:0,cost:0,note:'מנהל מתחם'},
+        {r:8,company:'תאגיד',people:5,price:0,cost:0,note:'פיקס פרייס'},
+        {r:9,company:'תאגיד',people:5,price:0,cost:0,note:'פיקס פרייס'},
+        {r:10,company:'תאגיד',people:1,price:0,cost:0,note:'מפסידים — צריך עוד אנשים'},
+        {r:11,company:'תאגיד',people:4,price:0,cost:0,note:'פיקס פרייס'},
+        {r:12,company:'תאגיד',people:6,price:0,cost:0,note:'פיקס פרייס'},
+        {r:13,company:'ששי',people:1,price:0,cost:0,note:'מנהל מתחם'},
+        {r:14,company:'תאגיד',people:3,price:0,cost:0,note:'פיקס פרייס'},
+        {r:15,company:'תאגיד',people:2,price:0,cost:0,note:'פיקס פרייס'},
+        {r:16,company:'תאגיד',people:6,price:0,cost:0,note:'ארון קטן להשלים'},
+        {r:17,company:'תאגיד',people:6,price:0,cost:0,note:'ארון קטן להשלים'},
+      ]
+    }
+  },
+  'הירקון 41 ב"ב': {
+    floors: {
+      2: [
+        {r:5,company:'שיק צין',people:3,price:1250,cost:5100,note:''},
+        {r:6,company:'שמרית',people:2,price:1250,cost:5100,note:''},
+        {r:7,company:'שמרית',people:4,price:1250,cost:5100,note:''},
+        {r:9,company:'',people:0,price:1250,cost:5100,note:''},
+        {r:10,company:'ח.ח.א',people:5,price:1250,cost:5100,note:'מוכן לכניסה'},
+        {r:11,company:'ניו פאוור',people:8,price:1250,cost:5100,note:''},
+        {r:13,company:'',people:0,price:1250,cost:5100,note:''},
+        {r:14,company:'',people:0,price:1250,cost:0,note:'דורש שיפוץ'},
+      ]
+    }
+  }
+};
+
+function selectTab(el) {
+  document.querySelectorAll('#tenant-tabs .tab').forEach(t => t.classList.remove('active'));
   el.classList.add('active');
-  renderTenantTable();
+  currentTenantProp = PROP_NAMES[parseInt(el.dataset.idx)];
+  renderTenantMap();
 }
 
-function renderTenantTable() {
+function renderTenants() {
+  currentTenantProp = currentTenantProp || 'לבנדה 32';
+  // Sync active tab
+  document.querySelectorAll('#tenant-tabs .tab').forEach((t,i) => {
+    t.classList.toggle('active', PROP_NAMES[i] === currentTenantProp);
+  });
+  renderTenantMap();
+}
+
+function renderTenantMap() {
   const p = currentTenantProp;
-  const rows = TENANTS.filter(t=>t.prop===p&&!t.to);
   const isFixed = !!FIXED_COSTS[p];
   const rev = getPropRevenue(p);
   const cost = getPropCost(p);
-  const profit = rev - cost;
-  const ppl = rows.reduce((s,t)=>s+t.people,0);
-  const hasMap = (p==='לבנדה 32' || p==='הירקון 41 ב"ב');
-  const showMap = hasMap && tenantViewState[p] === 'map';
+  const util = isFixed ? (FIXED_COSTS[p].utilities || 0) : 0;
+  const profit = rev - cost - util;
+  const ppl = isFixed
+    ? Object.values(MAP_DATA[p].floors).flat().reduce((s,r) => s+r.people, 0)
+    : TENANTS.filter(t=>t.prop===p&&!t.to).reduce((s,t)=>s+t.people,0);
 
-  let html = `<div class="metrics">
-    <div class="metric"><div class="metric-label">הכנסה</div><div class="metric-value green">${isFixed&&!rev?'לבדוק':fmt(rev)+' ₪'}</div></div>
-    <div class="metric"><div class="metric-label">שכירות</div><div class="metric-value red">${fmt(cost)} ₪</div></div>
-    <div class="metric"><div class="metric-label">רווח גולמי</div><div class="metric-value ${profit>=0?'green':'red'}">${fmt(profit)} ₪</div></div>
-    <div class="metric"><div class="metric-label">סה"כ דיירים</div><div class="metric-value">${ppl}</div></div>
-  </div>`;
-
-  if (isFixed) html += `<div class="alert alert-amber" style="margin-bottom:16px">נכס זה בתשלום פיקס פרייס — ${FIXED_COSTS[p].note}</div>`;
-
-  // View toggle for map-enabled properties
-  if (hasMap) {
-    const safeP = p.replace(/"/g, '&quot;');
-    html += `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-      <div class="section-title">חדרים פעילים (${rows.length})</div>
-      <div style="display:flex;gap:6px">
-        <button class="tab ${!showMap?'active':''}" onclick="setTenantView(0)">📋 טבלה</button>
-        <button class="tab ${showMap?'active':''}" onclick="setTenantView(1)">🗺️ מפת חדרים</button>
-        <button class="btn btn-primary btn-sm" onclick="showAddTenant()">+ הוסף</button>
-      </div>
+  // Metrics
+  document.getElementById('tenant-metrics').innerHTML = `
+    <div class="metrics" style="margin-bottom:16px">
+      <div class="metric"><div class="metric-label">הכנסה</div><div class="metric-value green">${isFixed?fmt(rev)+' ₪ (פיקס)':fmt(rev)+' ₪'}</div></div>
+      <div class="metric"><div class="metric-label">שכירות</div><div class="metric-value red">${fmt(cost)} ₪</div></div>
+      <div class="metric"><div class="metric-label">רווח גולמי</div><div class="metric-value ${profit>=0?'green':'red'}">${fmt(profit)} ₪</div></div>
+      <div class="metric"><div class="metric-label">דיירים</div><div class="metric-value">${ppl}</div></div>
     </div>`;
-  } else {
-    html += `<div class="section-header"><div class="section-title">חדרים פעילים (${rows.length})</div>
-      <button class="btn btn-primary btn-sm" onclick="showAddTenant()">+ הוסף</button></div>`;
-  }
 
-  html += `<div id="add-tenant-form" style="display:none" class="card" style="margin-bottom:12px">
-    <div class="card-title">דייר/תאגיד חדש</div>
-    <div class="form-grid three">
-      <div class="form-group"><label>קומה</label><input type="number" id="tn-floor" placeholder="1" min="1"></div>
-      <div class="form-group"><label>חדר</label><input type="number" id="tn-room" placeholder="1" min="1"></div>
-      <div class="form-group"><label>תאגיד</label><select id="tn-company"><option>יער</option><option>שמרית</option><option>בינה</option><option>ניו פאוור</option><option>שיק סין</option><option>שיק צין</option><option>ח.ח.א</option><option>קורפו</option><option>משביר יעקב</option><option>משביר</option><option>מגיק פאוור</option><option>אחר</option></select></div>
-    </div>
-    <div class="form-grid">
-      <div class="form-group"><label>מספר אנשים</label><input type="number" id="tn-people" placeholder="1" min="1"></div>
-      <div class="form-group"><label>תאריך כניסה</label><input type="date" id="tn-entry"></div>
-    </div>
-    <div class="btn-row"><button class="btn btn-primary" onclick="addTenant()">שמור</button><button class="btn" onclick="document.getElementById('add-tenant-form').style.display='none'">ביטול</button></div>
-  </div>`;
+  // Map
+  const data = MAP_DATA[p];
+  if (!data) { document.getElementById('tenant-map').innerHTML = '<div style="color:var(--text2);padding:1rem">אין נתוני מפה</div>'; return; }
 
-  if (hasMap && showMap) {
-    // MAP VIEW
-    const mapKey = p==='לבנדה 32'?'lav':'hir';
-    html += `<div id="tenant-map-container"></div>`;
-    document.getElementById('tenant-content').innerHTML = html;
-    // Render the map into the container
-    if (p==='לבנדה 32') renderLavandaInto('tenant-map-container');
-    else renderHirkonInto('tenant-map-container');
-    return;
-  }
+  // Legend
+  let html = '<div style="display:flex;gap:14px;margin-bottom:14px;flex-wrap:wrap">';
+  html += '<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)"><div style="width:12px;height:12px;border-radius:3px;background:#a8d9be"></div>רווחי</div>';
+  html += '<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)"><div style="width:12px;height:12px;border-radius:3px;background:#f0d98a"></div>מדשדש</div>';
+  html += '<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)"><div style="width:12px;height:12px;border-radius:3px;background:#e8b0aa"></div>הפסדי/ריק</div>';
+  html += '<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)"><div style="width:12px;height:12px;border-radius:3px;background:#e8eaf6"></div>פיקס/שירות</div>';
+  html += '</div>';
 
-  // TABLE VIEW
-  html += `<div class="table-wrap"><table><thead><tr><th>קומה</th><th>חדר</th><th>תאגיד</th><th>אנשים</th><th>הכנסה/חודש</th><th>כניסה</th><th>פעולות</th></tr></thead><tbody>`;
-  rows.sort((a,b)=>a.floor-b.floor||a.room-b.room).forEach(t => {
-    const monthly = isFixed ? '-' : fmt(t.people*PRICE)+' ₪';
-    html += `<tr>
-      <td>${t.floor}</td><td>${t.room}</td>
-      <td><strong>${t.company}</strong></td>
-      <td><span class="badge badge-blue">${t.people}</span></td>
-      <td>${monthly}</td>
-      <td style="font-size:12px">${t.from}</td>
-      <td><div class="btn-row">
-        <button class="btn btn-sm" onclick="editPeople(${t.id})">עדכן</button>
-        <button class="btn btn-sm btn-danger" onclick="exitTenant(${t.id})">יציאה</button>
-      </div></td>
-    </tr>`;
+  const floorNums = Object.keys(data.floors).map(Number).sort((a,b)=>a-b);
+  floorNums.forEach(f => {
+    const floorLabel = f === 0 ? 'מרתף' : f < 0 ? 'קומה '+f : 'קומה '+f;
+    html += '<div style="margin-bottom:1.5rem">';
+    html += '<div style="font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border)">'+floorLabel+'</div>';
+    html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px">';
+    data.floors[f].forEach(room => {
+      const bg = getRoomBg(room, isFixed);
+      const p2 = room.people * room.price - room.cost;
+      const profitStr = (!isFixed && room.company && room.company !== 'שירות') ? ((p2>=0?'+':'')+fmt(p2)+' ₪') : '';
+      const incStr = (!isFixed && room.people > 0 && room.price > 0) ? fmt(room.people*room.price)+' ₪ הכנסה' : '';
+      html += buildRoomCard(p, f, room, bg, profitStr, incStr);
+    });
+    html += '</div></div>';
   });
-  html += `</tbody></table></div>`;
-  document.getElementById('tenant-content').innerHTML = html;
+
+  document.getElementById('tenant-map').innerHTML = html;
 }
 
-const tenantViewState = {};
-function setTenantView(isMap) {
-  tenantViewState[currentTenantProp] = isMap ? 'map' : 'table';
-  renderTenantTable();
+function buildRoomCard(propName, floor, room, bg, profitStr, incStr) {
+  const safeProp = propName.replace(/"/g, '__');
+  const noteHtml = room.note
+    ? '<div style="font-size:10px;background:rgba(0,0,0,0.06);padding:2px 6px;border-radius:8px;color:#5a5a60;margin-top:4px;display:inline-block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+room.note.slice(0,28)+(room.note.length>28?'\u2026':'')+'</div>'
+    : '';
+  const peopleHtml = room.people > 0 ? '<div style="font-size:12px;color:#6b6560;margin-bottom:3px">'+room.people+' אנשים</div>' : '';
+  const profitHtml = profitStr ? '<div style="font-size:12px;font-weight:600;color:'+bg.text+'">'+profitStr+'</div>' : '';
+  const incHtml = incStr ? '<div style="font-size:11px;color:#a09890">'+incStr+'</div>' : '';
+  return [
+    '<div onclick="editMapRoom(\''+safeProp+'\','+floor+','+room.r+')"',
+    ' style="background:'+bg.bg+';border:1.5px solid '+bg.border+';border-radius:8px;padding:11px;cursor:pointer;transition:transform 0.15s"',
+    ' onmouseover="this.style.transform=\'translateY(-2px)\'"',
+    ' onmouseout="this.style.transform=\'\'"',
+    '>',
+    '<div style="font-size:11px;font-weight:600;color:#a09890;margin-bottom:2px">חדר '+room.r+'</div>',
+    '<div style="font-size:13px;font-weight:600;color:#2d2a26;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(room.company||'ריק')+'</div>',
+    peopleHtml, profitHtml, incHtml, noteHtml,
+    '</div>'
+  ].join('');
 }
 
-function showAddTenant() { document.getElementById('add-tenant-form').style.display='block'; }
-function addTenant() {
-  const floor=parseInt(document.getElementById('tn-floor').value)||1;
-  const room=parseInt(document.getElementById('tn-room').value)||1;
-  const company=document.getElementById('tn-company').value;
-  const people=parseInt(document.getElementById('tn-people').value)||1;
-  const entry=document.getElementById('tn-entry').value||new Date().toISOString().split('T')[0];
-  TENANTS.push({id:nextId++,prop:currentTenantProp,floor,room,company,people,from:entry,to:null});
-  renderTenantTable();
+
+function getRoomBg(room, isFixed) {
+  if (isFixed || room.company === 'שירות') return {bg:'#eef0fb',border:'#c5caee',text:'#5a5fd4'};
+  if (!room.company) {
+    if (room.note && room.note.includes('שיפוץ')) return {bg:'#f5eef8',border:'#d4a8e0',text:'#8a5aa0'};
+    return {bg:'#f0ede8',border:'#d8d4ce',text:'#a09890'};
+  }
+  const p = room.people * room.price - room.cost;
+  if (p > 500) return {bg:'#e8f5ef',border:'#a8d9be',text:'#2d8a5e'};
+  if (p >= -500) return {bg:'#fef9e7',border:'#f0d98a',text:'#a07830'};
+  return {bg:'#faeae8',border:'#e8b0aa',text:'#b85a50'};
 }
+
+function editMapRoom(propRaw, floor, roomNum) {
+  const prop = propRaw.replace(/__/g, '"');
+  const data = MAP_DATA[prop];
+  if (!data || !data.floors[floor]) return;
+  const room = data.floors[floor].find(r => r.r === roomNum);
+  if (!room) return;
+  mapEditRoomRef = room;
+  mapEditPropName = prop;
+  document.getElementById('rm-title').textContent = 'קומה '+floor+' חדר '+roomNum+' — '+prop;
+  document.getElementById('rm-company').value = room.company || '';
+  document.getElementById('rm-people').value = room.people;
+  document.getElementById('rm-price').value = room.price;
+  document.getElementById('rm-cost').value = room.cost;
+  document.getElementById('rm-note').value = room.note || '';
+  updateRoomPreview();
+  document.getElementById('room-modal').style.display = 'flex';
+}
+
+let mapEditRoomRef = null;
+let mapEditPropName = null;
+
+function saveRoomMap() {
+  if (!mapEditRoomRef) return;
+  mapEditRoomRef.company = document.getElementById('rm-company').value;
+  mapEditRoomRef.people = parseInt(document.getElementById('rm-people').value)||0;
+  mapEditRoomRef.price = parseInt(document.getElementById('rm-price').value)||0;
+  mapEditRoomRef.cost = parseInt(document.getElementById('rm-cost').value)||0;
+  mapEditRoomRef.note = document.getElementById('rm-note').value;
+  closeRoomModal();
+  renderTenantMap();
+}
+
+function showAddTenant() {}
+function addTenant() {}
 function editPeople(id) {
-  const t=TENANTS.find(x=>x.id===id);
+  const t = TENANTS.find(x=>x.id===id);
   if(!t) return;
-  const n=parseInt(prompt(`כמה אנשים בחדר ${t.room} (${t.company})?`,t.people));
-  if(!isNaN(n)&&n>=0){t.people=n;renderTenantTable();}
+  const n = parseInt(prompt('כמה אנשים?', t.people));
+  if(!isNaN(n)&&n>=0){t.people=n;renderTenantMap();}
 }
 function exitTenant(id) {
-  const t=TENANTS.find(x=>x.id===id);
+  const t = TENANTS.find(x=>x.id===id);
   if(!t) return;
-  const d=prompt(`תאריך יציאה מחדר ${t.room} (${t.company}):`,new Date().toISOString().split('T')[0]);
-  if(d){t.to=d;renderTenantTable();}
+  const d = prompt('תאריך יציאה:', new Date().toISOString().split('T')[0]);
+  if(d){t.to=d;renderTenantMap();}
 }
 
 // ============ MOVEMENTS ============
