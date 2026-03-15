@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>רוז גלובל — מערכת ניהול</title>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f0f11;
+  --bg2: #17171a;
+  --bg3: #1e1e22;
+  --bg4: #26262b;
+  --border: rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.14);
+  --text: #f0f0f0;
+  --text2: #9a9a9e;
+  --text3: #5a5a60;
+  --accent: #7c6af7;
+  --accent2: #5a4fd4;
+  --green: #34d399;
+  --green-bg: rgba(52,211,153,0.1);
+  --red: #f87171;
+  --red-bg: rgba(248,113,113,0.1);
+  --amber: #fbbf24;
+  --amber-bg: rgba(251,191,36,0.1);
+  --blue: #60a5fa;
+  --blue-bg: rgba(96,165,250,0.1);
+  --radius: 10px;
+  --radius-sm: 6px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Heebo', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 14px; }
+
+/* LAYOUT */
+.shell { display: flex; min-height: 100vh; }
+.sidebar { width: 220px; background: var(--bg2); border-left: 1px solid var(--border); padding: 20px 0; display: flex; flex-direction: column; flex-shrink: 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+.main { flex: 1; padding: 24px; overflow-y: auto; min-width: 0; }
+
+/* SIDEBAR */
+.logo { padding: 0 20px 24px; border-bottom: 1px solid var(--border); margin-bottom: 12px; }
+.logo-name { font-size: 15px; font-weight: 700; color: var(--text); letter-spacing: -0.3px; }
+.logo-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 20px; cursor: pointer; color: var(--text2); font-size: 13px; font-weight: 400; transition: all 0.15s; border-right: 2px solid transparent; }
+.nav-item:hover { color: var(--text); background: var(--bg3); }
+.nav-item.active { color: var(--text); background: var(--bg3); border-right-color: var(--accent); font-weight: 500; }
+.nav-icon { font-size: 16px; width: 20px; text-align: center; }
+.nav-badge { margin-right: auto; background: var(--red-bg); color: var(--red); font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 10px; }
+
+/* PAGES */
+.page { display: none; }
+.page.active { display: block; }
+
+/* TYPOGRAPHY */
+.page-title { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 4px; }
+.page-sub { font-size: 13px; color: var(--text2); margin-bottom: 24px; }
+
+/* CARDS */
+.card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 20px; }
+.card-title { font-size: 13px; font-weight: 500; color: var(--text2); margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.5px; font-size: 11px; }
+
+/* METRIC GRID */
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 20px; }
+.metric { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
+.metric-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+.metric-value { font-size: 24px; font-weight: 700; letter-spacing: -0.5px; }
+.metric-sub { font-size: 11px; color: var(--text2); margin-top: 4px; }
+.green { color: var(--green); }
+.red { color: var(--red); }
+.amber { color: var(--amber); }
+.blue { color: var(--blue); }
+
+/* GRID 2COL */
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+
+/* TABLE */
+.table-wrap { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 16px; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { padding: 10px 14px; text-align: right; color: var(--text3); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); background: var(--bg3); }
+td { padding: 10px 14px; text-align: right; border-bottom: 1px solid var(--border); color: var(--text2); }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--bg3); color: var(--text); }
+td strong { color: var(--text); font-weight: 500; }
+.total-row td { background: var(--bg3); color: var(--text); font-weight: 600; border-top: 1px solid var(--border2); }
+
+/* BADGES */
+.badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 500; }
+.badge-green { background: var(--green-bg); color: var(--green); }
+.badge-red { background: var(--red-bg); color: var(--red); }
+.badge-amber { background: var(--amber-bg); color: var(--amber); }
+.badge-blue { background: var(--blue-bg); color: var(--blue); }
+.badge-purple { background: rgba(124,106,247,0.15); color: var(--accent); }
+
+/* BUTTONS */
+.btn { padding: 8px 16px; border: 1px solid var(--border2); border-radius: var(--radius-sm); background: transparent; color: var(--text); cursor: pointer; font-size: 13px; font-family: 'Heebo', sans-serif; transition: all 0.15s; }
+.btn:hover { background: var(--bg3); border-color: var(--border2); }
+.btn-primary { background: var(--accent); border-color: var(--accent); color: white; }
+.btn-primary:hover { background: var(--accent2); border-color: var(--accent2); }
+.btn-sm { padding: 4px 10px; font-size: 12px; }
+.btn-danger { color: var(--red); border-color: rgba(248,113,113,0.3); }
+.btn-danger:hover { background: var(--red-bg); }
+.btn-row { display: flex; gap: 8px; }
+
+/* FORMS */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+.form-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+.form-grid.four { grid-template-columns: 1fr 1fr 1fr 1fr; }
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-group label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; }
+input, select, textarea { background: var(--bg3); border: 1px solid var(--border2); border-radius: var(--radius-sm); padding: 8px 12px; color: var(--text); font-size: 13px; font-family: 'Heebo', sans-serif; width: 100%; }
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); }
+select option { background: var(--bg3); }
+textarea { resize: vertical; min-height: 70px; }
+
+/* SECTION HEADER */
+.section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.section-title { font-size: 14px; font-weight: 600; }
+
+/* TABS */
+.tab-row { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+.tab { padding: 6px 14px; border: 1px solid var(--border); border-radius: 20px; background: transparent; cursor: pointer; font-size: 12px; color: var(--text2); font-family: 'Heebo', sans-serif; transition: all 0.15s; }
+.tab:hover { color: var(--text); border-color: var(--border2); }
+.tab.active { background: var(--accent); border-color: var(--accent); color: white; font-weight: 500; }
+
+/* ALERTS */
+.alert { padding: 10px 14px; border-radius: var(--radius-sm); font-size: 13px; margin-bottom: 10px; }
+.alert-red { background: var(--red-bg); border: 1px solid rgba(248,113,113,0.2); color: var(--red); }
+.alert-amber { background: var(--amber-bg); border: 1px solid rgba(251,191,36,0.2); color: var(--amber); }
+.alert-green { background: var(--green-bg); border: 1px solid rgba(52,211,153,0.2); color: var(--green); }
+
+/* TASK ITEM */
+.task-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px 16px; background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-sm); margin-bottom: 6px; transition: opacity 0.2s; }
+.task-item.done { opacity: 0.4; }
+.task-item.done .task-desc { text-decoration: line-through; }
+.task-check { width: 18px; height: 18px; border: 1.5px solid var(--border2); border-radius: 4px; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; margin-top: 1px; background: transparent; transition: all 0.15s; }
+.task-check.checked { background: var(--green); border-color: var(--green); }
+.task-check.checked::after { content: '✓'; color: #0f0f11; font-size: 11px; font-weight: 700; }
+.task-body { flex: 1; }
+.task-desc { font-size: 13px; color: var(--text); margin-bottom: 4px; }
+.task-meta { font-size: 11px; color: var(--text3); display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.priority-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+.p-urgent { background: var(--red); }
+.p-normal { background: var(--amber); }
+.p-low { background: var(--green); }
+
+/* PROP CARD */
+.prop-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.prop-card-header { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+.prop-card-name { font-size: 14px; font-weight: 600; }
+.prop-card-body { padding: 14px 18px; }
+.prop-stat-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; font-size: 13px; color: var(--text2); border-bottom: 1px solid var(--border); }
+.prop-stat-row:last-child { border-bottom: none; }
+.prop-stat-row span:last-child { font-weight: 500; color: var(--text); }
+
+/* INVOICE BLOCK */
+.invoice-block { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 12px; overflow: hidden; }
+.invoice-header { padding: 12px 18px; background: var(--bg3); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
+.invoice-company { font-size: 15px; font-weight: 600; }
+.invoice-total { font-size: 18px; font-weight: 700; color: var(--green); }
+.invoice-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 18px; border-bottom: 1px solid var(--border); font-size: 13px; }
+.invoice-row:last-child { border-bottom: none; }
+.invoice-note { font-size: 11px; color: var(--text3); margin-top: 2px; }
+.invoice-subtotal { background: var(--bg3); font-weight: 600; color: var(--text); }
+
+/* PRORATA BOX */
+.prorata-box { background: var(--blue-bg); border: 1px solid rgba(96,165,250,0.2); border-radius: var(--radius-sm); padding: 10px 14px; font-size: 13px; color: var(--blue); margin-bottom: 12px; }
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  .main { padding: 16px; }
+  .form-grid.four { grid-template-columns: 1fr 1fr; }
+  .form-grid.three { grid-template-columns: 1fr 1fr; }
+  .grid2 { grid-template-columns: 1fr; }
+  .metrics { grid-template-columns: 1fr 1fr; }
+  table { font-size: 12px; }
+  th, td { padding: 8px 10px; }
+  .mobile-nav { display: flex !important; }
+}
+.mobile-nav { display: none; gap: 0; overflow-x: auto; background: var(--bg2); border-bottom: 1px solid var(--border); margin: -16px -16px 16px; padding: 8px 12px; }
+.mobile-nav .nav-item { border-right: none; border-bottom: 2px solid transparent; padding: 6px 12px; white-space: nowrap; font-size: 12px; }
+.mobile-nav .nav-item.active { border-bottom-color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="logo">
+    <div class="logo-name">🌹 רוז גלובל</div>
+    <div class="logo-sub">שירותי קרקע</div>
+  </div>
+  <div class="nav-item active" onclick="nav('dashboard',this)"><span class="nav-icon">📊</span> דשבורד</div>
+  <div class="nav-item" onclick="nav('tenants',this)"><span class="nav-icon">🏠</span> דיירים וחדרים</div>
+  <div class="nav-item" onclick="nav('movements',this)"><span class="nav-icon">🔄</span> תנועות</div>
+  <div class="nav-item" onclick="nav('billing',this)"><span class="nav-icon">💳</span> חשבוניות</div>
+  <div class="nav-item" onclick="nav('tasks',this)" id="nav-tasks"><span class="nav-icon">🔧</span> תקלות ומשימות <span class="nav-badge" id="tasks-badge">0</span></div>
+  <div class="nav-item" onclick="nav('expenses',this)"><span class="nav-icon">📋</span> הוצאות</div>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+
+<!-- MOBILE NAV -->
+<div class="mobile-nav">
+  <div class="nav-item active" onclick="nav('dashboard',this)">📊 דשבורד</div>
+  <div class="nav-item" onclick="nav('tenants',this)">🏠 דיירים</div>
+  <div class="nav-item" onclick="nav('movements',this)">🔄 תנועות</div>
+  <div class="nav-item" onclick="nav('billing',this)">💳 חשבוניות</div>
+  <div class="nav-item" onclick="nav('tasks',this)">🔧 תקלות</div>
+  <div class="nav-item" onclick="nav('expenses',this)">📋 הוצאות</div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="page-dashboard" class="page active">
+  <div class="page-title">דשבורד</div>
+  <div class="page-sub" id="dash-date"></div>
+  <div class="metrics" id="dash-metrics"></div>
+  <div class="grid2" id="dash-props"></div>
+  <div id="dash-alerts"></div>
+</div>
+
+<!-- TENANTS -->
+<div id="page-tenants" class="page">
+  <div class="page-title">דיירים וחדרים</div>
+  <div class="page-sub">מצב עדכני לפי נכס</div>
+  <div class="tab-row" id="tenant-tabs"></div>
+  <div id="tenant-content"></div>
+</div>
+
+<!-- MOVEMENTS -->
+<div id="page-movements" class="page">
+  <div class="page-title">תנועות כניסה / יציאה</div>
+  <div class="page-sub">כל תנועה נרשמת עם תאריך לחישוב פרו-ראטה אוטומטי</div>
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">רשום תנועה חדשה</div>
+    <div class="form-grid four">
+      <div class="form-group"><label>סוג</label><select id="mv-type" onchange="updateProrata()"><option value="entry">כניסה</option><option value="exit">יציאה</option></select></div>
+      <div class="form-group"><label>נכס</label><select id="mv-prop"><option>לבנדה 32</option><option>עזאי 38</option><option>נתן הנביא 42</option><option>הירקון 41 ב"ב</option></select></div>
+      <div class="form-group"><label>קומה</label><select id="mv-floor"><option>1</option><option>2</option><option>3</option></select></div>
+      <div class="form-group"><label>חדר</label><input type="number" id="mv-room" placeholder="מספר חדר" min="1" oninput="updateProrata()"></div>
+    </div>
+    <div class="form-grid three">
+      <div class="form-group"><label>תאגיד</label><select id="mv-company"><option>יער</option><option>שמרית</option><option>בינה</option><option>ניו פאוור</option><option>שיק סין</option><option>שיק צין</option><option>ח.ח.א</option><option>קורפו</option><option>משביר יעקב</option><option>משביר</option><option>מגיק פאוור</option><option>אחר</option></select></div>
+      <div class="form-group"><label>מספר פועלים</label><input type="number" id="mv-people" value="1" min="1" oninput="updateProrata()"></div>
+      <div class="form-group"><label>תאריך</label><input type="date" id="mv-date" onchange="updateProrata()"></div>
+    </div>
+    <div class="form-group" style="margin-bottom:12px"><label>הערה</label><input id="mv-note" placeholder="הערה אופציונלית"></div>
+    <div id="prorata-preview"></div>
+    <div class="btn-row"><button class="btn btn-primary" onclick="addMovement()">רשום תנועה</button><button class="btn" onclick="clearMvForm()">נקה</button></div>
+  </div>
+  <div class="section-header">
+    <div class="section-title">יומן תנועות</div>
+    <div style="display:flex;gap:8px">
+      <select id="mv-filter-prop" onchange="renderMovements()" style="width:auto;font-size:12px"><option value="">כל הנכסים</option><option>לבנדה 32</option><option>הירקון 41 ב"ב</option><option>עזאי 38</option><option>נתן הנביא 42</option></select>
+      <select id="mv-filter-type" onchange="renderMovements()" style="width:auto;font-size:12px"><option value="">הכל</option><option value="entry">כניסות</option><option value="exit">יציאות</option></select>
+    </div>
+  </div>
+  <div class="table-wrap"><div id="mv-table"></div></div>
+</div>
+
+<!-- BILLING -->
+<div id="page-billing" class="page">
+  <div class="page-title">חשבוניות חודשיות</div>
+  <div class="page-sub">חישוב אוטומטי לפי ראש + פרו-ראטה לכניסות/יציאות באמצע חודש</div>
+  <div style="display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap">
+    <select id="bill-month" onchange="renderBilling()" style="width:auto"><option value="2026-03">מרץ 2026</option><option value="2026-02">פברואר 2026</option><option value="2026-01">ינואר 2026</option></select>
+    <select id="bill-prop" onchange="renderBilling()" style="width:auto"><option value="">כל הנכסים (לפי ראש)</option><option>לבנדה 32</option><option>הירקון 41 ב"ב</option></select>
+    <button class="btn btn-primary" onclick="renderBilling()">חשב חשבוניות</button>
+  </div>
+  <div id="bill-alerts"></div>
+  <div class="metrics" id="bill-metrics" style="margin-bottom:16px"></div>
+  <div id="bill-content"></div>
+</div>
+
+<!-- TASKS -->
+<div id="page-tasks" class="page">
+  <div class="page-title">תקלות ומשימות</div>
+  <div class="page-sub">לכל הנכסים — ממוין לפי עדיפות</div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+    <div class="tab-row" style="margin:0" id="task-filters">
+      <button class="tab active" onclick="setTaskFilter('all',this)">הכל</button>
+      <button class="tab" onclick="setTaskFilter('urgent',this)">דחוף</button>
+      <button class="tab" onclick="setTaskFilter('open',this)">פתוח</button>
+      <button class="tab" onclick="setTaskFilter('done',this)">טופל</button>
+    </div>
+    <button class="btn btn-primary btn-sm" onclick="toggleTaskForm()">+ משימה חדשה</button>
+  </div>
+  <div id="task-add-form" style="display:none" class="card" style="margin-bottom:16px">
+    <div class="card-title">משימה חדשה</div>
+    <div class="form-grid three">
+      <div class="form-group"><label>נכס</label><select id="tf-prop"><option>לבנדה 32</option><option>עזאי 38</option><option>נתן הנביא 42</option><option>הירקון 41 ב"ב</option></select></div>
+      <div class="form-group"><label>עדיפות</label><select id="tf-priority"><option value="urgent">דחוף</option><option value="normal" selected>רגיל</option><option value="low">נמוך</option></select></div>
+      <div class="form-group"><label>פתח</label><select id="tf-opener"><option>יועד</option><option>צביקה</option><option>רועי</option><option>אוהד</option></select></div>
+    </div>
+    <div class="form-group" style="margin-bottom:12px"><label>תיאור</label><textarea id="tf-desc" placeholder="תאר את התקלה או המשימה..."></textarea></div>
+    <div class="btn-row"><button class="btn btn-primary" onclick="addTask()">שמור</button><button class="btn" onclick="toggleTaskForm()">ביטול</button></div>
+  </div>
+  <div id="tasks-board"></div>
+</div>
+
+<!-- EXPENSES -->
+<div id="page-expenses" class="page">
+  <div class="page-title">ניהול הוצאות</div>
+  <div class="page-sub">הוצאות תפעוליות (לא כולל שכירות נכסים)</div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+    <div class="metrics" id="exp-metrics" style="margin:0;flex:1"></div>
+    <button class="btn btn-primary btn-sm" style="margin-right:12px;flex-shrink:0" onclick="toggleExpForm()">+ הוצאה</button>
+  </div>
+  <div id="exp-add-form" style="display:none" class="card" style="margin-bottom:16px">
+    <div class="card-title">הוצאה חדשה</div>
+    <div class="form-grid three">
+      <div class="form-group"><label>נכס</label><select id="ef-prop"><option>כללי</option><option>לבנדה 32</option><option>עזאי 38</option><option>נתן הנביא 42</option><option>הירקון 41 ב"ב</option></select></div>
+      <div class="form-group"><label>תאריך</label><input type="date" id="ef-date"></div>
+      <div class="form-group"><label>סכום כולל מע"מ</label><input type="number" id="ef-total" placeholder="0"></div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group"><label>תיאור</label><input id="ef-desc" placeholder="תיאור ההוצאה"></div>
+      <div class="form-group"><label>מספר חשבונית</label><input id="ef-invoice" placeholder="אופציונלי"></div>
+    </div>
+    <div class="btn-row"><button class="btn btn-primary" onclick="addExpense()">שמור</button><button class="btn" onclick="toggleExpForm()">ביטול</button></div>
+  </div>
+  <div class="table-wrap"><div id="exp-table"></div></div>
+</div>
+
+</main>
+</div>
+
+<script>
+// ============ DATA ============
+const PRICE = 1250;
+const FIXED_COSTS = { 'עזאי 38': { cost: 18000, income: null, type: 'fixed', note: 'לבדוק עם צביקה' }, 'נתן הנביא 42': { cost: 39000, income: null, type: 'fixed', note: 'לבדוק עם צביקה' } };
+
+const TENANTS = [
+  {id:1,prop:'לבנדה 32',floor:1,room:1,company:'יער',people:6,from:'2025-11-01',to:null},
+  {id:2,prop:'לבנדה 32',floor:1,room:3,company:'יער',people:6,from:'2025-11-01',to:null},
+  {id:3,prop:'לבנדה 32',floor:1,room:4,company:'יער',people:6,from:'2025-11-01',to:null},
+  {id:4,prop:'לבנדה 32',floor:2,room:1,company:'בינה',people:2,from:'2025-11-01',to:null},
+  {id:5,prop:'לבנדה 32',floor:2,room:3,company:'קורפו',people:3,from:'2025-11-01',to:null},
+  {id:6,prop:'לבנדה 32',floor:2,room:4,company:'משביר יעקב',people:4,from:'2026-01-28',to:null},
+  {id:7,prop:'לבנדה 32',floor:2,room:5,company:'שמרית',people:5,from:'2025-11-01',to:null},
+  {id:8,prop:'לבנדה 32',floor:2,room:6,company:'יער',people:6,from:'2025-11-01',to:null},
+  {id:9,prop:'לבנדה 32',floor:2,room:7,company:'יער',people:6,from:'2025-11-01',to:null},
+  {id:10,prop:'לבנדה 32',floor:2,room:8,company:'שמרית',people:3,from:'2026-01-31',to:null},
+  {id:11,prop:'לבנדה 32',floor:2,room:9,company:'יער',people:5,from:'2025-11-01',to:null},
+  {id:12,prop:'לבנדה 32',floor:2,room:10,company:'יער',people:6,from:'2025-11-01',to:null},
+  {id:13,prop:'לבנדה 32',floor:2,room:11,company:'בינה',people:6,from:'2025-11-01',to:null},
+  {id:14,prop:'לבנדה 32',floor:2,room:12,company:'יער',people:6,from:'2025-11-01',to:null},
+  {id:15,prop:'לבנדה 32',floor:3,room:2,company:'שיק סין',people:2,from:'2026-01-01',to:null},
+  {id:16,prop:'לבנדה 32',floor:3,room:3,company:'ח.ח.א',people:3,from:'2025-11-01',to:null},
+  {id:17,prop:'לבנדה 32',floor:3,room:5,company:'יער',people:6,from:'2025-11-01',to:null},
+  {id:18,prop:'לבנדה 32',floor:3,room:6,company:'ניו פאוור',people:5,from:'2025-11-01',to:null},
+  {id:19,prop:'לבנדה 32',floor:3,room:7,company:'ניו פאוור',people:8,from:'2026-01-28',to:null},
+  {id:20,prop:'לבנדה 32',floor:3,room:8,company:'ח.ח.א',people:5,from:'2025-11-01',to:null},
+  {id:21,prop:'לבנדה 32',floor:3,room:9,company:'שיק סין',people:5,from:'2025-11-01',to:null},
+  {id:22,prop:'לבנדה 32',floor:3,room:10,company:'יער',people:2,from:'2025-11-01',to:null},
+  {id:23,prop:'לבנדה 32',floor:3,room:11,company:'בינה',people:6,from:'2025-11-01',to:null},
+  {id:24,prop:'לבנדה 32',floor:3,room:13,company:'משביר',people:6,from:'2025-11-01',to:null},
+  {id:25,prop:'הירקון 41 ב"ב',floor:2,room:5,company:'שיק צין',people:3,from:'2026-01-18',to:null},
+  {id:26,prop:'הירקון 41 ב"ב',floor:2,room:6,company:'שמרית',people:2,from:'2026-01-24',to:null},
+  {id:27,prop:'הירקון 41 ב"ב',floor:2,room:7,company:'שמרית',people:4,from:'2026-01-24',to:null},
+  {id:28,prop:'הירקון 41 ב"ב',floor:2,room:10,company:'ח.ח.א',people:5,from:'2026-02-19',to:null},
+  {id:29,prop:'הירקון 41 ב"ב',floor:2,room:11,company:'ניו פאוור',people:8,from:'2026-01-16',to:null},
+];
+
+const ROOM_COSTS = {
+  'לבנדה 32': [ {f:1,r:1,c:5350},{f:1,r:3,c:5350},{f:1,r:4,c:5350},{f:1,r:5,c:3600}, {f:2,r:1,c:3600},{f:2,r:3,c:5350},{f:2,r:4,c:5350},{f:2,r:5,c:5350},{f:2,r:6,c:5350},{f:2,r:7,c:5350},{f:2,r:8,c:5350},{f:2,r:9,c:5350},{f:2,r:10,c:5350},{f:2,r:11,c:5350},{f:2,r:12,c:5350}, {f:3,r:2,c:3600},{f:3,r:3,c:5350},{f:3,r:4,c:3000},{f:3,r:5,c:5350},{f:3,r:6,c:5350},{f:3,r:7,c:5350},{f:3,r:8,c:5350},{f:3,r:9,c:5350},{f:3,r:10,c:5350},{f:3,r:11,c:5350},{f:3,r:12,c:5350},{f:3,r:13,c:5350} ],
+  'הירקון 41 ב"ב': [ {f:2,r:5,c:5100},{f:2,r:6,c:5100},{f:2,r:7,c:5100},{f:2,r:10,c:5100},{f:2,r:11,c:5100} ]
+};
+
+const MOVEMENTS = [
+  {id:1,type:'entry',prop:'לבנדה 32',floor:2,room:4,company:'משביר יעקב',people:4,date:'2026-01-28',note:''},
+  {id:2,type:'entry',prop:'לבנדה 32',floor:2,room:8,company:'שמרית',people:3,date:'2026-01-31',note:''},
+  {id:3,type:'entry',prop:'הירקון 41 ב"ב',floor:2,room:5,company:'שיק צין',people:3,date:'2026-01-18',note:''},
+  {id:4,type:'entry',prop:'הירקון 41 ב"ב',floor:2,room:10,company:'ח.ח.א',people:5,date:'2026-02-19',note:''},
+  {id:5,type:'entry',prop:'לבנדה 32',floor:2,room:1,company:'בינה',people:1,date:'2026-02-18',note:'תוספת מולדובני'},
+];
+
+const TASKS = [
+  {id:1,prop:'לבנדה 32',desc:'נזילת מים מהמזגן + אריח שבור בחדר הרחצה — חדר 1 קומה 1',priority:'urgent',done:false,opener:'צביקה'},
+  {id:2,prop:'לבנדה 32',desc:'נזילה מניקוז הכיור + אריח שבור — חדר 3 קומה 1',priority:'urgent',done:false,opener:'צביקה'},
+  {id:3,prop:'לבנדה 32',desc:'נזילת מים מהמזגן, מזגן לא מקרר — חדר 4 קומה 1',priority:'urgent',done:false,opener:'יועד'},
+  {id:4,prop:'לבנדה 32',desc:'מזגן לא עובד — חדר 7 קומה 2',priority:'normal',done:false,opener:'צביקה'},
+  {id:5,prop:'לבנדה 32',desc:'מזגן לא מקרר + נוזל — חדרים 9, 10, 11 קומה 2',priority:'normal',done:false,opener:''},
+  {id:6,prop:'לבנדה 32',desc:'נזילת מים בשירותים — חדר 12 קומה 2',priority:'normal',done:false,opener:''},
+  {id:7,prop:'לבנדה 32',desc:'לקחת צילומי דרכון ואישורי עבודה מכל מי שגר בנכס',priority:'urgent',done:false,opener:'צביקה'},
+  {id:8,prop:'לבנדה 32',desc:'ללכת לתאגיד המים ולשנות כמות אנשים בנכס',priority:'normal',done:false,opener:'צביקה'},
+  {id:9,prop:'לבנדה 32',desc:'גג לא מנקז בצורה טובה',priority:'low',done:false,opener:''},
+  {id:10,prop:'לבנדה 32',desc:'לבדוק חיסכון בחשמל',priority:'low',done:false,opener:'צביקה'},
+  {id:11,prop:'עזאי 38',desc:'גג לא מנקז, בדיקת תקינות מזגנים, נזילה מצינור חדר מרתף ימיני',priority:'urgent',done:false,opener:'יועד'},
+  {id:12,prop:'עזאי 38',desc:'קניית מספרים והדבקה על הדלתות + ציון חדרי מטבח',priority:'normal',done:false,opener:'יועד'},
+  {id:13,prop:'עזאי 38',desc:'לקחת צילומי דרכון ואישורי עבודה מכל מי שגר בנכס',priority:'urgent',done:false,opener:'צביקה'},
+  {id:14,prop:'עזאי 38',desc:'ללכת לתאגיד המים ולשנות כמות אנשים בנכס',priority:'normal',done:false,opener:'צביקה'},
+  {id:15,prop:'עזאי 38',desc:'לבדוק חיסכון בחשמל',priority:'low',done:false,opener:'צביקה'},
+  {id:16,prop:'נתן הנביא 42',desc:'מעקה מדרגות בין חדר 9-10 — לתקן (בטיחות!)',priority:'urgent',done:false,opener:'יועד'},
+  {id:17,prop:'נתן הנביא 42',desc:'החלפת לשונית בדלת כניסה ראשית למתחם',priority:'normal',done:false,opener:'יועד'},
+  {id:18,prop:'נתן הנביא 42',desc:'חדר 8 — מקרר לא עובד, להזמין חדש 500 ליטר',priority:'urgent',done:false,opener:'רועי'},
+  {id:19,prop:'הירקון 41 ב"ב',desc:'חדר 14 — דרוש שיפוץ, אין ניקוז ואין איטום נגד מים',priority:'urgent',done:false,opener:''},
+];
+
+const EXPENSES = [
+  {id:1,prop:'כללי',date:'2025-12-08',total:169.90,desc:'ציוד כללי',invoice:'4002002615'},
+  {id:2,prop:'כללי',date:'2026-01-01',total:815,desc:'תשלום שונות',invoice:'264019554'},
+  {id:3,prop:'לבנדה 32',date:'2026-01-07',total:383,desc:'שיפוץ',invoice:'13919'},
+  {id:4,prop:'לבנדה 32',date:'2026-01-14',total:6500,desc:'ציוד ורהיטים',invoice:'977'},
+  {id:5,prop:'כללי',date:'2026-02-03',total:1577.5,desc:'אחזקה כללית',invoice:'266018062'},
+  {id:6,prop:'הירקון 41 ב"ב',date:'2026-02-02',total:550,desc:'ניקוי',invoice:'מזומן'},
+  {id:7,prop:'לבנדה 32',date:'2026-02-03',total:450,desc:'שיפוץ חדר 1 קומה 2',invoice:'מזומן'},
+  {id:8,prop:'לבנדה 32',date:'2026-02-11',total:2200,desc:'תיקונים שונים',invoice:'26502896'},
+  {id:9,prop:'כללי',date:'2026-03-09',total:5000,desc:'טיפול+ביטוח+טסט לטוסטוס',invoice:'מזומן'},
+];
+
+let nextId = 100;
+let taskFilter = 'all';
+let currentTenantProp = 'לבנדה 32';
+
+// ============ HELPERS ============
+const fmt = n => Math.round(n).toLocaleString('he-IL');
+const dim = (yr,mo) => new Date(yr,mo,0).getDate();
+
+function getRoomCost(prop, floor, room) {
+  const list = ROOM_COSTS[prop];
+  if (!list) return 0;
+  const r = list.find(x => x.f == floor && x.r == room);
+  return r ? r.c : 0;
+}
+
+function getPropCost(prop) {
+  if (FIXED_COSTS[prop]) return FIXED_COSTS[prop].cost;
+  const list = ROOM_COSTS[prop];
+  if (!list) return 0;
+  return list.reduce((s,r) => s+r.c, 0);
+}
+
+function getPropRevenue(prop) {
+  if (FIXED_COSTS[prop]) return FIXED_COSTS[prop].income || 0;
+  return TENANTS.filter(t => t.prop===prop && !t.to).reduce((s,t) => s + t.people * PRICE, 0);
+}
+
+function calcProrata(dateStr, monthStr, people, isExit) {
+  const [yr,mo] = monthStr.split('-').map(Number);
+  const d = new Date(dateStr);
+  if (d.getFullYear()!==yr || d.getMonth()!==mo-1) return null;
+  const days = isExit ? d.getDate() : dim(yr,mo) - d.getDate() + 1;
+  const total = dim(yr,mo);
+  return { days, total, amount: Math.round(people * PRICE * days / total) };
+}
+
+// ============ NAV ============
+function nav(page, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  // activate all matching nav items (sidebar + mobile)
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.onclick && n.onclick.toString().includes("'"+page+"'")) n.classList.add('active');
+  });
+  if (page==='dashboard') renderDashboard();
+  if (page==='tenants') renderTenants();
+  if (page==='movements') renderMovements();
+  if (page==='billing') renderBilling();
+  if (page==='tasks') renderTasks();
+  if (page==='expenses') renderExpenses();
+}
+
+// ============ DASHBOARD ============
+function renderDashboard() {
+  const now = new Date();
+  document.getElementById('dash-date').textContent = now.toLocaleDateString('he-IL',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+  const props = ['לבנדה 32','עזאי 38','נתן הנביא 42','הירקון 41 ב"ב'];
+  let totalRev=0, totalCost=0, totalPeople=0;
+  props.forEach(p => { totalRev += getPropRevenue(p); totalCost += getPropCost(p); });
+  totalPeople = TENANTS.filter(t=>!t.to).reduce((s,t)=>s+t.people,0);
+  const gross = totalRev - totalCost;
+  const fixed = 12000 + 1054.75 + 1500;
+  const net = gross - fixed;
+  const openTasks = TASKS.filter(t=>!t.done).length;
+
+  document.getElementById('dash-metrics').innerHTML = `
+    <div class="metric"><div class="metric-label">הכנסות חודשיות</div><div class="metric-value green">${fmt(totalRev)} ₪</div><div class="metric-sub">${totalPeople} דיירים פעילים</div></div>
+    <div class="metric"><div class="metric-label">הוצאות שכירות</div><div class="metric-value red">${fmt(totalCost)} ₪</div><div class="metric-sub">4 נכסים</div></div>
+    <div class="metric"><div class="metric-label">רווח גולמי</div><div class="metric-value ${gross>=0?'green':'red'}">${fmt(gross)} ₪</div><div class="metric-sub">לפני הוצ' קבועות</div></div>
+    <div class="metric"><div class="metric-label">רווח נקי משוער</div><div class="metric-value ${net>=0?'green':'red'}">${fmt(net)} ₪</div><div class="metric-sub">אחרי יועד + עו"ד + הנח"ש</div></div>
+    <div class="metric"><div class="metric-label">תקלות פתוחות</div><div class="metric-value ${openTasks>5?'red':'amber'}">${openTasks}</div><div class="metric-sub">${TASKS.filter(t=>!t.done&&t.priority==='urgent').length} דחופות</div></div>
+  `;
+
+  document.getElementById('dash-props').innerHTML = props.map(p => {
+    const rev = getPropRevenue(p);
+    const cost = getPropCost(p);
+    const profit = rev - cost;
+    const ppl = TENANTS.filter(t=>t.prop===p&&!t.to).reduce((s,t)=>s+t.people,0);
+    const isFixed = !!FIXED_COSTS[p];
+    return `<div class="prop-card">
+      <div class="prop-card-header">
+        <div class="prop-card-name">${p}</div>
+        <span class="badge ${profit>=0?'badge-green':'badge-red'}">${profit>=0?'רווח':'הפסד'}</span>
+      </div>
+      <div class="prop-card-body">
+        <div class="prop-stat-row"><span>הכנסה</span><span class="green">${isFixed&&!rev?'<span class="badge badge-amber">לבדוק עם צביקה</span>':fmt(rev)+' ₪'}</span></div>
+        <div class="prop-stat-row"><span>שכירות</span><span class="red">${fmt(cost)} ₪</span></div>
+        <div class="prop-stat-row"><span>רווח גולמי</span><span class="${profit>=0?'green':'red'}">${fmt(profit)} ₪</span></div>
+        <div class="prop-stat-row"><span>דיירים</span><span>${ppl}</span></div>
+        <div class="prop-stat-row"><span>מודל חיוב</span><span>${isFixed?'<span class="badge badge-purple">פיקס פרייס</span>':'<span class="badge badge-blue">לפי ראש</span>'}</span></div>
+        ${profit<0&&!isFixed?`<div style="margin-top:8px" class="alert alert-red">חסרים ${Math.ceil(Math.abs(profit)/PRICE)} דיירים לאיזון</div>`:''}
+      </div>
+    </div>`;
+  }).join('');
+
+  const alerts = [];
+  if (FIXED_COSTS['עזאי 38'].income===null) alerts.push(`<div class="alert alert-amber">עזאי 38 — הכנסה חודשית לא מוגדרת. לבדוק עם צביקה.</div>`);
+  if (FIXED_COSTS['נתן הנביא 42'].income===null) alerts.push(`<div class="alert alert-amber">נתן הנביא 42 — הכנסה חודשית לא מוגדרת. לבדוק עם צביקה.</div>`);
+  document.getElementById('dash-alerts').innerHTML = alerts.join('');
+}
+
+// ============ TENANTS ============
+function renderTenants() {
+  const props = ['לבנדה 32','עזאי 38','נתן הנביא 42','הירקון 41 ב"ב'];
+  document.getElementById('tenant-tabs').innerHTML = props.map(p =>
+    `<button class="tab ${p===currentTenantProp?'active':''}" onclick="selectTenantProp('${p}',this)">${p}</button>`
+  ).join('');
+  renderTenantTable();
+}
+
+function selectTenantProp(p,el) {
+  currentTenantProp = p;
+  document.querySelectorAll('#tenant-tabs .tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderTenantTable();
+}
+
+function renderTenantTable() {
+  const p = currentTenantProp;
+  const rows = TENANTS.filter(t=>t.prop===p&&!t.to);
+  const isFixed = !!FIXED_COSTS[p];
+  const rev = getPropRevenue(p);
+  const cost = getPropCost(p);
+  const profit = rev - cost;
+  const ppl = rows.reduce((s,t)=>s+t.people,0);
+
+  let html = `<div class="metrics">
+    <div class="metric"><div class="metric-label">הכנסה</div><div class="metric-value green">${isFixed&&!rev?'לבדוק':fmt(rev)+' ₪'}</div></div>
+    <div class="metric"><div class="metric-label">שכירות</div><div class="metric-value red">${fmt(cost)} ₪</div></div>
+    <div class="metric"><div class="metric-label">רווח גולמי</div><div class="metric-value ${profit>=0?'green':'red'}">${fmt(profit)} ₪</div></div>
+    <div class="metric"><div class="metric-label">סה"כ דיירים</div><div class="metric-value">${ppl}</div></div>
+  </div>`;
+
+  if (isFixed) {
+    html += `<div class="alert alert-amber" style="margin-bottom:16px">נכס זה בתשלום פיקס פרייס — ${FIXED_COSTS[p].note}</div>`;
+  }
+
+  html += `<div class="section-header"><div class="section-title">חדרים פעילים (${rows.length})</div>
+    <button class="btn btn-primary btn-sm" onclick="showAddTenant()">+ הוסף</button></div>`;
+
+  html += `<div id="add-tenant-form" style="display:none" class="card" style="margin-bottom:12px">
+    <div class="card-title">דייר/תאגיד חדש</div>
+    <div class="form-grid three">
+      <div class="form-group"><label>קומה</label><input type="number" id="tn-floor" placeholder="1" min="1"></div>
+      <div class="form-group"><label>חדר</label><input type="number" id="tn-room" placeholder="1" min="1"></div>
+      <div class="form-group"><label>תאגיד</label><select id="tn-company"><option>יער</option><option>שמרית</option><option>בינה</option><option>ניו פאוור</option><option>שיק סין</option><option>שיק צין</option><option>ח.ח.א</option><option>קורפו</option><option>משביר יעקב</option><option>משביר</option><option>מגיק פאוור</option><option>אחר</option></select></div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group"><label>מספר אנשים</label><input type="number" id="tn-people" placeholder="1" min="1"></div>
+      <div class="form-group"><label>תאריך כניסה</label><input type="date" id="tn-entry"></div>
+    </div>
+    <div class="btn-row"><button class="btn btn-primary" onclick="addTenant()">שמור</button><button class="btn" onclick="document.getElementById('add-tenant-form').style.display='none'">ביטול</button></div>
+  </div>`;
+
+  html += `<div class="table-wrap"><table><thead><tr><th>קומה</th><th>חדר</th><th>תאגיד</th><th>אנשים</th><th>הכנסה/חודש</th><th>כניסה</th><th>פעולות</th></tr></thead><tbody>`;
+  rows.sort((a,b)=>a.floor-b.floor||a.room-b.room).forEach(t => {
+    const monthly = isFixed ? '-' : fmt(t.people*PRICE)+' ₪';
+    html += `<tr>
+      <td>${t.floor}</td><td>${t.room}</td>
+      <td><strong>${t.company}</strong></td>
+      <td><span class="badge badge-blue">${t.people}</span></td>
+      <td>${monthly}</td>
+      <td style="font-size:12px">${t.from}</td>
+      <td><div class="btn-row">
+        <button class="btn btn-sm" onclick="editPeople(${t.id})">עדכן</button>
+        <button class="btn btn-sm btn-danger" onclick="exitTenant(${t.id})">יציאה</button>
+      </div></td>
+    </tr>`;
+  });
+  html += `</tbody></table></div>`;
+  document.getElementById('tenant-content').innerHTML = html;
+}
+
+function showAddTenant() { document.getElementById('add-tenant-form').style.display='block'; }
+function addTenant() {
+  const floor=parseInt(document.getElementById('tn-floor').value)||1;
+  const room=parseInt(document.getElementById('tn-room').value)||1;
+  const company=document.getElementById('tn-company').value;
+  const people=parseInt(document.getElementById('tn-people').value)||1;
+  const entry=document.getElementById('tn-entry').value||new Date().toISOString().split('T')[0];
+  TENANTS.push({id:nextId++,prop:currentTenantProp,floor,room,company,people,from:entry,to:null});
+  renderTenantTable();
+}
+function editPeople(id) {
+  const t=TENANTS.find(x=>x.id===id);
+  if(!t) return;
+  const n=parseInt(prompt(`כמה אנשים בחדר ${t.room} (${t.company})?`,t.people));
+  if(!isNaN(n)&&n>=0){t.people=n;renderTenantTable();}
+}
+function exitTenant(id) {
+  const t=TENANTS.find(x=>x.id===id);
+  if(!t) return;
+  const d=prompt(`תאריך יציאה מחדר ${t.room} (${t.company}):`,new Date().toISOString().split('T')[0]);
+  if(d){t.to=d;renderTenantTable();}
+}
+
+// ============ MOVEMENTS ============
+function updateProrata() {
+  const type=document.getElementById('mv-type').value;
+  const date=document.getElementById('mv-date').value;
+  const people=parseInt(document.getElementById('mv-people').value)||0;
+  if(!date||!people){document.getElementById('prorata-preview').innerHTML='';return;}
+  const now=new Date();
+  const monthStr=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  const pr=calcProrata(date,monthStr,people,type==='exit');
+  if(!pr){document.getElementById('prorata-preview').innerHTML='';return;}
+  document.getElementById('prorata-preview').innerHTML=`<div class="prorata-box">${people} פועלים × ${pr.days}/${pr.total} ימים = <strong>${fmt(pr.amount)} ₪</strong> (חודש מלא: ${fmt(people*PRICE)} ₪)</div>`;
+}
+
+function addMovement() {
+  const type=document.getElementById('mv-type').value;
+  const prop=document.getElementById('mv-prop').value;
+  const floor=parseInt(document.getElementById('mv-floor').value)||1;
+  const room=parseInt(document.getElementById('mv-room').value)||0;
+  const company=document.getElementById('mv-company').value;
+  const people=parseInt(document.getElementById('mv-people').value)||0;
+  const date=document.getElementById('mv-date').value;
+  const note=document.getElementById('mv-note').value;
+  if(!room||!date||!people){alert('נא למלא חדר, פועלים ותאריך');return;}
+  MOVEMENTS.unshift({id:nextId++,type,prop,floor,room,company,people,date,note});
+  if(type==='entry'){
+    const existing=TENANTS.find(t=>t.prop===prop&&t.floor===floor&&t.room===room&&!t.to);
+    if(existing) existing.people+=people;
+    else TENANTS.push({id:nextId++,prop,floor,room,company,people,from:date,to:null});
+  } else {
+    const existing=TENANTS.find(t=>t.prop===prop&&t.floor===floor&&t.room===room&&!t.to&&t.company===company);
+    if(existing){existing.people=Math.max(0,existing.people-people);if(existing.people===0)existing.to=date;}
+  }
+  clearMvForm();
+  renderMovements();
+}
+
+function clearMvForm(){
+  document.getElementById('mv-room').value='';
+  document.getElementById('mv-people').value=1;
+  document.getElementById('mv-note').value='';
+  document.getElementById('prorata-preview').innerHTML='';
+}
+
+function renderMovements(){
+  const fp=document.getElementById('mv-filter-prop').value;
+  const ft=document.getElementById('mv-filter-type').value;
+  const list=MOVEMENTS.filter(m=>(!fp||m.prop===fp)&&(!ft||m.type===ft)).sort((a,b)=>b.date.localeCompare(a.date));
+  if(!list.length){document.getElementById('mv-table').innerHTML='<div style="padding:2rem;text-align:center;color:var(--text3)">אין תנועות</div>';return;}
+  let html='<table><thead><tr><th>תאריך</th><th>סוג</th><th>נכס</th><th>קומה/חדר</th><th>תאגיד</th><th>פועלים</th><th>הערה</th><th></th></tr></thead><tbody>';
+  list.forEach(m=>{html+=`<tr><td>${m.date}</td><td><span class="badge ${m.type==='entry'?'badge-green':'badge-red'}">${m.type==='entry'?'כניסה':'יציאה'}</span></td><td>${m.prop}</td><td>ק${m.floor} ח${m.room}</td><td><strong>${m.company}</strong></td><td>${m.people}</td><td style="color:var(--text3)">${m.note||'—'}</td><td><button class="btn btn-sm btn-danger" onclick="delMv(${m.id})">מחק</button></td></tr>`;});
+  html+='</tbody></table>';
+  document.getElementById('mv-table').innerHTML=html;
+}
+
+function delMv(id){MOVEMENTS.splice(MOVEMENTS.findIndex(m=>m.id===id),1);renderMovements();}
+
+// ============ BILLING ============
+function renderBilling(){
+  const month=document.getElementById('bill-month').value;
+  const filterProp=document.getElementById('bill-prop').value;
+  const [yr,mo]=month.split('-').map(Number);
+  const days=dim(yr,mo);
+  const mStart=new Date(yr,mo-1,1);
+  const mEnd=new Date(yr,mo,0);
+
+  const relevant=TENANTS.filter(t=>!filterProp||t.prop===filterProp);
+  const byCompany={};
+
+  relevant.forEach(t=>{
+    if(FIXED_COSTS[t.prop]) return;
+    const from=new Date(t.from);
+    if(from>mEnd) return;
+    const to=t.to?new Date(t.to):null;
+    if(to&&to<mStart) return;
+    const startDay=from>=mStart?from.getDate():1;
+    const endDay=to&&to<=mEnd?to.getDate():days;
+    const d=endDay-startDay+1;
+    const isPartial=d<days;
+    const amount=Math.round(t.people*PRICE*d/days);
+    if(!byCompany[t.company]) byCompany[t.company]={company:t.company,lines:[],total:0};
+    byCompany[t.company].lines.push({label:`ק${t.floor} ח${t.room} — ${t.prop}`,people:t.people,d,days,amount,isPartial});
+    byCompany[t.company].total+=amount;
+  });
+
+  const companies=Object.values(byCompany).sort((a,b)=>b.total-a.total);
+  const grand=companies.reduce((s,c)=>s+c.total,0);
+  const totalPpl=relevant.filter(t=>!FIXED_COSTS[t.prop]&&!t.to).reduce((s,t)=>s+t.people,0);
+
+  document.getElementById('bill-metrics').innerHTML=`
+    <div class="metric"><div class="metric-label">סה"כ לגבייה</div><div class="metric-value green">${fmt(grand)} ₪</div></div>
+    <div class="metric"><div class="metric-label">תאגידים</div><div class="metric-value">${companies.length}</div></div>
+    <div class="metric"><div class="metric-label">פועלים</div><div class="metric-value">${totalPpl}</div></div>
+  `;
+
+  let alerts='';
+  if(!filterProp||filterProp==='לבנדה 32'){
+    const lRev=getPropRevenue('לבנדה 32');
+    const lCost=getPropCost('לבנדה 32');
+    if(lRev<lCost) alerts+=`<div class="alert alert-red" style="margin-bottom:12px">לבנדה 32 — הפסד של ${fmt(lCost-lRev)} ₪ החודש. חסרים ${Math.ceil((lCost-lRev)/PRICE)} דיירים לאיזון.</div>`;
+  }
+  if(!filterProp&&FIXED_COSTS['עזאי 38'].income===null) alerts+=`<div class="alert alert-amber" style="margin-bottom:8px">עזאי 38 — הכנסה לא מוגדרת. לבדוק עם צביקה.</div>`;
+  if(!filterProp&&FIXED_COSTS['נתן הנביא 42'].income===null) alerts+=`<div class="alert alert-amber" style="margin-bottom:8px">נתן הנביא 42 — הכנסה לא מוגדרת. לבדוק עם צביקה.</div>`;
+  document.getElementById('bill-alerts').innerHTML=alerts;
+
+  document.getElementById('bill-content').innerHTML=companies.map(c=>`
+    <div class="invoice-block">
+      <div class="invoice-header"><div class="invoice-company">${c.company}</div><div class="invoice-total">${fmt(c.total)} ₪</div></div>
+      ${c.lines.map(l=>`<div class="invoice-row">
+        <div><div>${l.label}</div><div class="invoice-note">${l.isPartial?`${l.people} פועלים × ${l.d}/${l.days} ימים (פרו-ראטה)`:`${l.people} פועלים × חודש מלא`}</div></div>
+        <div style="font-weight:600">${fmt(l.amount)} ₪</div>
+      </div>`).join('')}
+      <div class="invoice-row invoice-subtotal"><strong>סה"כ ${c.company}</strong><strong>${fmt(c.total)} ₪</strong></div>
+    </div>`).join('')||'<div style="padding:2rem;text-align:center;color:var(--text3)">אין נתונים</div>';
+}
+
+// ============ TASKS ============
+function setTaskFilter(f,el){
+  taskFilter=f;
+  document.querySelectorAll('#task-filters .tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderTasks();
+}
+function toggleTaskForm(){
+  const f=document.getElementById('task-add-form');
+  f.style.display=f.style.display==='none'?'block':'none';
+}
+function addTask(){
+  const prop=document.getElementById('tf-prop').value;
+  const priority=document.getElementById('tf-priority').value;
+  const opener=document.getElementById('tf-opener').value;
+  const desc=document.getElementById('tf-desc').value.trim();
+  if(!desc) return;
+  TASKS.push({id:nextId++,prop,desc,priority,done:false,opener});
+  document.getElementById('tf-desc').value='';
+  toggleTaskForm();
+  renderTasks();
+  updateTaskBadge();
+}
+function toggleDone(id){
+  const t=TASKS.find(x=>x.id===id);
+  if(t){t.done=!t.done;renderTasks();updateTaskBadge();}
+}
+function delTask(id){
+  TASKS.splice(TASKS.findIndex(x=>x.id===id),1);
+  renderTasks();updateTaskBadge();
+}
+function updateTaskBadge(){
+  const n=TASKS.filter(t=>!t.done).length;
+  document.getElementById('tasks-badge').textContent=n;
+}
+
+function renderTasks(){
+  const props=['לבנדה 32','עזאי 38','נתן הנביא 42','הירקון 41 ב"ב'];
+  let html='';
+  props.forEach(prop=>{
+    let tasks=TASKS.filter(t=>t.prop===prop);
+    if(taskFilter==='urgent') tasks=tasks.filter(t=>!t.done&&t.priority==='urgent');
+    else if(taskFilter==='open') tasks=tasks.filter(t=>!t.done);
+    else if(taskFilter==='done') tasks=tasks.filter(t=>t.done);
+    if(!tasks.length&&taskFilter!=='all') return;
+    const open=tasks.filter(t=>!t.done).length;
+    const urgent=tasks.filter(t=>!t.done&&t.priority==='urgent').length;
+    const bc=urgent>0?'badge-red':open>0?'badge-amber':'badge-green';
+    const bl=urgent>0?`${urgent} דחוף`:open>0?`${open} פתוח`:'הכל טופל';
+    html+=`<div style="margin-bottom:1.5rem"><div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border)"><div style="font-size:14px;font-weight:600">${prop}</div><span class="badge ${bc}">${bl}</span></div>`;
+    if(!tasks.length){html+='<div style="color:var(--text3);font-size:13px;padding:6px 0">אין משימות</div>';}
+    else{
+      const sorted=[...tasks].sort((a,b)=>{const po={urgent:0,normal:1,low:2};if(a.done!==b.done)return a.done?1:-1;return po[a.priority]-po[b.priority];});
+      sorted.forEach(t=>{
+        const pc=t.priority==='urgent'?'p-urgent':t.priority==='normal'?'p-normal':'p-low';
+        const pl=t.priority==='urgent'?'דחוף':t.priority==='normal'?'רגיל':'נמוך';
+        const bc2=t.priority==='urgent'?'badge-red':t.priority==='normal'?'badge-amber':'badge-green';
+        html+=`<div class="task-item ${t.done?'done':''}">
+          <div class="priority-dot ${pc}"></div>
+          <div class="task-check ${t.done?'checked':''}" onclick="toggleDone(${t.id})"></div>
+          <div class="task-body">
+            <div class="task-desc">${t.desc}</div>
+            <div class="task-meta"><span class="badge ${bc2}">${pl}</span>${t.opener?`<span>נפתח ע"י ${t.opener}</span>`:''}</div>
+          </div>
+          <button class="btn btn-sm btn-danger" onclick="delTask(${t.id})">מחק</button>
+        </div>`;
+      });
+    }
+    html+='</div>';
+  });
+  document.getElementById('tasks-board').innerHTML=html;
+}
+
+// ============ EXPENSES ============
+function toggleExpForm(){
+  const f=document.getElementById('exp-add-form');
+  f.style.display=f.style.display==='none'?'block':'none';
+}
+function addExpense(){
+  const prop=document.getElementById('ef-prop').value;
+  const date=document.getElementById('ef-date').value||new Date().toISOString().split('T')[0];
+  const total=parseFloat(document.getElementById('ef-total').value)||0;
+  const desc=document.getElementById('ef-desc').value||'הוצאה';
+  const invoice=document.getElementById('ef-invoice').value;
+  if(!total) return;
+  EXPENSES.push({id:nextId++,prop,date,total,desc,invoice});
+  document.getElementById('ef-total').value='';
+  document.getElementById('ef-desc').value='';
+  document.getElementById('ef-invoice').value='';
+  toggleExpForm();
+  renderExpenses();
+}
+function delExpense(id){EXPENSES.splice(EXPENSES.findIndex(e=>e.id===id),1);renderExpenses();}
+
+function renderExpenses(){
+  const total=EXPENSES.reduce((s,e)=>s+e.total,0);
+  const byProp={};
+  EXPENSES.forEach(e=>{byProp[e.prop]=(byProp[e.prop]||0)+e.total;});
+  document.getElementById('exp-metrics').innerHTML=`
+    <div class="metric"><div class="metric-label">סה"כ הוצאות</div><div class="metric-value red">${fmt(total)} ₪</div></div>
+    ${Object.entries(byProp).map(([p,v])=>`<div class="metric"><div class="metric-label">${p}</div><div class="metric-value">${fmt(v)} ₪</div></div>`).join('')}
+  `;
+  let html='<table><thead><tr><th>תאריך</th><th>נכס</th><th>תיאור</th><th>סכום</th><th>חשבונית</th><th></th></tr></thead><tbody>';
+  [...EXPENSES].sort((a,b)=>b.date.localeCompare(a.date)).forEach(e=>{
+    html+=`<tr><td>${e.date}</td><td>${e.prop}</td><td><strong>${e.desc}</strong></td><td>${fmt(e.total)} ₪</td><td style="color:var(--text3)">${e.invoice||'—'}</td><td><button class="btn btn-sm btn-danger" onclick="delExpense(${e.id})">מחק</button></td></tr>`;
+  });
+  html+='</tbody></table>';
+  document.getElementById('exp-table').innerHTML=html;
+}
+
+// ============ INIT ============
+document.getElementById('mv-date').value = new Date().toISOString().split('T')[0];
+document.getElementById('ef-date').value = new Date().toISOString().split('T')[0];
+updateTaskBadge();
+renderDashboard();
+</script>
+</body>
+</html>
