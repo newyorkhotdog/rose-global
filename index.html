@@ -1480,10 +1480,9 @@ function renderBilling(){
       rooms.forEach(r => {
         if (!r.company || r.people <= 0) return;
         if (filterClient) {
-          // Match by exact name OR by client notes field (e.g. client notes='יער')
           const client = CLIENTS.find(c=>c.name===filterClient);
-          const clientShort = client && client.notes ? client.notes.trim() : '';
-          if (r.company !== filterClient && r.company !== clientShort) return;
+          const clientShort = client ? (client.shortName || client.notes || '') : '';
+          if (r.company !== filterClient && r.company !== clientShort && r.company !== filterClient) return;
         }
         // Check if this tenant existed in this month via TENANTS array
         const tenant = TENANTS.find(t=>t.prop===prop&&t.room===r.r&&t.company===r.company&&!t.to);
@@ -1655,14 +1654,14 @@ function renderExpenses(){
 // ============ CLIENTS ============
 const CLIENTS = [
   // לקוחות פעילים
-  {id:1,name:'שיק סין 26 בע"מ',hp:'516880994',status:'active',contact:'דור',phone:'054-4993336',email:'office@shick-china.co.il',accName:'עמית',accPhone:'054-8267524',address:'דרך מנחם בגין 144 תל אביב',notes:''},
-  {id:2,name:'מגיק פאוור בע"מ',hp:'516894219',status:'active',contact:'מוחמד',phone:'050-4685082',email:'',accName:'מוחמד',accPhone:'052-5675187',address:'כרכום 16 נוף הגליל',notes:''},
-  {id:3,name:'ח.ח.א',hp:'',status:'active',contact:'שריף',phone:'052-4010591',email:'',accName:'שריף',accPhone:'052-4010591',address:'',notes:''},
-  {id:4,name:'י.ע.ר 2023 עובדים זרים בע"מ',hp:'516879665',status:'active',contact:'ולאדי',phone:'052-6338899',email:'office@yar2023.co.il',accName:'בבי',accPhone:'',address:'דוד המלך 1 הרצליה',notes:'יער'},
-  {id:5,name:'שמרית שרותי עובדים 2023 בע"מ',hp:'516892411',status:'active',contact:'רן',phone:'050-4836300',email:'Avishay@sjob.co.il',accName:'אבי',accPhone:'050-6203569',address:'החירות 14 יבנה',notes:''},
-  {id:6,name:'בינה עובדים זרים לבניין בע"מ',hp:'515373454',status:'active',contact:'מיכה אילוז',phone:'050-569-6988',email:'offic@binamy.co.il',accName:'',accPhone:'',address:'עומרים 9 עומר',notes:''},
-  {id:7,name:'משביר יעקב בע"מ',hp:'516900701',status:'active',contact:'לירן',phone:'052-390-1196',email:'rafi41088@gmail.com',accName:'',accPhone:'',address:'עומרים 9 עומר',notes:''},
-  {id:8,name:'קורפו בניה בע"מ',hp:'516884863',status:'active',contact:'איהב',phone:'054-992-2361',email:'',accName:'',accPhone:'',address:'',notes:''},
+  {id:1,name:'שיק סין 26 בע"מ',hp:'516880994',shortName:'שיק סין',status:'active',contact:'דור',phone:'054-4993336',email:'office@shick-china.co.il',accName:'עמית',accPhone:'054-8267524',address:'דרך מנחם בגין 144 תל אביב',notes:''},
+  {id:2,name:'מגיק פאוור בע"מ',hp:'516894219',shortName:'מגיק פאוור',status:'active',contact:'מוחמד',phone:'050-4685082',email:'',accName:'מוחמד',accPhone:'052-5675187',address:'כרכום 16 נוף הגליל',notes:''},
+  {id:3,name:'ח.ח.א',hp:'',shortName:'ח.ח.א',status:'active',contact:'שריף',phone:'052-4010591',email:'',accName:'שריף',accPhone:'052-4010591',address:'',notes:''},
+  {id:4,name:'י.ע.ר 2023 עובדים זרים בע"מ',hp:'516879665',shortName:'יער',status:'active',contact:'ולאדי',phone:'052-6338899',email:'office@yar2023.co.il',accName:'בבי',accPhone:'',address:'דוד המלך 1 הרצליה',notes:'יער'},
+  {id:5,name:'שמרית שרותי עובדים 2023 בע"מ',hp:'516892411',shortName:'שמרית',status:'active',contact:'רן',phone:'050-4836300',email:'Avishay@sjob.co.il',accName:'אבי',accPhone:'050-6203569',address:'החירות 14 יבנה',notes:''},
+  {id:6,name:'בינה עובדים זרים לבניין בע"מ',hp:'515373454',shortName:'בינה',status:'active',contact:'מיכה אילוז',phone:'050-569-6988',email:'offic@binamy.co.il',accName:'',accPhone:'',address:'עומרים 9 עומר',notes:''},
+  {id:7,name:'משביר יעקב בע"מ',hp:'516900701',shortName:'משביר יעקב',status:'active',contact:'לירן',phone:'052-390-1196',email:'rafi41088@gmail.com',accName:'',accPhone:'',address:'עומרים 9 עומר',notes:''},
+  {id:8,name:'קורפו בניה בע"מ',hp:'516884863',shortName:'קורפו',status:'active',contact:'איהב',phone:'054-992-2361',email:'',accName:'',accPhone:'',address:'',notes:''},
   {id:9,name:'שימרון',hp:'',status:'active',contact:'אבי כהן',phone:'050-620-3569',email:'',accName:'',accPhone:'',address:'',notes:''},
   {id:10,name:'קורל ב. פרויקטים בע"מ',hp:'516184876',status:'active',contact:'לירז',phone:'052-5445551',email:'liraz@koralprojects.com',accName:'לירז',accPhone:'052-5445551',address:'',notes:''},
   // תאגידים מורשים — רשימה רשמית 2024
@@ -1709,7 +1708,7 @@ const CLIENTS = [
   {id:140,name:'בוני התיכון כוח אדם בע"מ',hp:'513665398',status:'potential',contact:'',phone:'03-9064620',email:'office@nr-taagid.co.il',accName:'',accPhone:'',address:'בעלי מלאכה 3 נתיבות',notes:''},
   {id:141,name:'בי.אמ.ג\'י כח אדם והשמה בע"מ',hp:'516886835',status:'potential',contact:'',phone:'050-5371444',email:'office@g-rm.co.il',accName:'',accPhone:'',address:'המסגר 33-35 ת"א',notes:''},
   {id:142,name:'בילדפאוור גלובל בע"מ',hp:'516904174',status:'potential',contact:'',phone:'052-5733111',email:'',accName:'',accPhone:'',address:'המצודה 4 אזור',notes:''},
-  {id:143,name:'בינה עובדים זרים לבניין בע"מ',hp:'515373454',status:'active',contact:'',phone:'08-9257979',email:'offic@binamy.co.il',accName:'',accPhone:'',address:'עומרים 9 עומר',notes:''},
+  {id:143,name:'בינה עובדים זרים לבניין בע"מ',hp:'515373454',shortName:'בינה',status:'active',contact:'',phone:'08-9257979',email:'offic@binamy.co.il',accName:'',accPhone:'',address:'עומרים 9 עומר',notes:''},
   {id:144,name:'ביננפלד כח אדם לבניה בע"מ',hp:'516883303',status:'potential',contact:'',phone:'052-3414760',email:'',accName:'',accPhone:'',address:'המלאכות 21 מודיעין',notes:''},
   {id:145,name:'בלום כח אדם בע"מ',hp:'516882461',status:'potential',contact:'',phone:'052-7977138',email:'office@blum-hr.co.il',accName:'',accPhone:'',address:'מסילת יוסף 32 מודיעין עילית',notes:''},
   {id:146,name:'בני עמי כח אדם בע"מ',hp:'516886579',status:'potential',contact:'',phone:'08-9445350',email:'office@bneiami.com',accName:'',accPhone:'',address:'חולדה 1 קיבוץ חולדה',notes:''},
@@ -1764,14 +1763,14 @@ const CLIENTS = [
   {id:195,name:'מ.ש ארד משאבי אנוש בע"מ',hp:'516903788',status:'potential',contact:'',phone:'',email:'zafrani@ts-ard.com',accName:'',accPhone:'',address:'הכורם 1 עפולה',notes:''},
   {id:196,name:'מ.ת.ב שירותי כוח אדם והשמה בע"מ',hp:'516905908',status:'potential',contact:'',phone:'052-2380674',email:'office@online-matav.com',accName:'',accPhone:'',address:'ברקת 10 קסריה',notes:''},
   {id:197,name:'מגדל מרום כ"א בע"מ',hp:'516886140',status:'potential',contact:'',phone:'050-9331889',email:'mirit@marom-migdal.co.il',accName:'',accPhone:'',address:'הרוקמים 26 חולון',notes:''},
-  {id:198,name:'מגיק פאוור בע"מ',hp:'516894219',status:'active',contact:'',phone:'050-4411111',email:'M.Power.ltd1@gmail.com',accName:'',accPhone:'',address:'כרכום 16 נוף הגליל',notes:''},
+  {id:198,name:'מגיק פאוור בע"מ',hp:'516894219',shortName:'מגיק פאוור',status:'active',contact:'',phone:'050-4411111',email:'M.Power.ltd1@gmail.com',accName:'',accPhone:'',address:'כרכום 16 נוף הגליל',notes:''},
   {id:199,name:'מורינגה תשתיות בע"מ',hp:'516888062',status:'potential',contact:'',phone:'052-3354400',email:'amit@shilton.com',accName:'',accPhone:'',address:'הטחנה 1 כפר סבא',notes:''},
   {id:200,name:'מטה בנימין חברת כח אדם לבניה בע"מ',hp:'516889482',status:'potential',contact:'',phone:'02-9977260',email:'lishka@binyamin.co.il',accName:'',accPhone:'',address:'א.ת שער בנימין',notes:''},
   {id:201,name:'מיטל שירותי כ"א בע"מ',hp:'513659656',status:'potential',contact:'',phone:'04-6203633',email:'michal@meitalhr.co.il',accName:'',accPhone:'',address:'ארלוזרוב 1 חדרה',notes:''},
   {id:202,name:'מינג כח אדם בע"מ',hp:'516880341',status:'potential',contact:'',phone:'053-9319799',email:'',accName:'',accPhone:'',address:'תוצרת הארץ 1 פתח תקוה',notes:''},
   {id:203,name:'מלגם ניהול כח אדם בע"מ',hp:'513664169',status:'potential',contact:'',phone:'073-3266892',email:'office@malgam.co.il',accName:'',accPhone:'',address:'תוצרת הארץ 3 פתח תקוה',notes:''},
   {id:204,name:'מעוף גלובל עובדים זרים בע"מ',hp:'516886611',status:'potential',contact:'',phone:'052-3133308',email:'maofglobal@group-maof.co.il',accName:'',accPhone:'',address:'היוזמה 2 טירת הכרמל',notes:''},
-  {id:205,name:'משביר יעקב בע"מ',hp:'516900701',status:'active',contact:'',phone:'050-3200591',email:'rafi41088@gmail.com',accName:'',accPhone:'',address:'עומרים 9 עומר',notes:''},
+  {id:205,name:'משביר יעקב בע"מ',hp:'516900701',shortName:'משביר יעקב',status:'active',contact:'',phone:'050-3200591',email:'rafi41088@gmail.com',accName:'',accPhone:'',address:'עומרים 9 עומר',notes:''},
   {id:206,name:'נ.ל זאב חקלאי בע"מ',hp:'516907748',status:'potential',contact:'',phone:'054-6729300',email:'',accName:'',accPhone:'',address:'מושב נווה רחוב',notes:''},
   {id:207,name:'נ.מ.ת כח אדם 2023 בע"מ',hp:'516888468',status:'potential',contact:'',phone:'053-7253672',email:'meital@noufi.co.il',accName:'',accPhone:'',address:'שד התמרים 2 אילת',notes:''},
   {id:208,name:'נ.ר לבניה בע"מ',hp:'516904281',status:'potential',contact:'',phone:'052-9274890',email:'nivamsalem45@gmail.com',accName:'',accPhone:'',address:'הגורן 9 עומר',notes:''},
@@ -1823,8 +1822,8 @@ const CLIENTS = [
   {id:254,name:'ש.כ. מאגרי אנוש יוניברס 2005 בע"מ',hp:'513660977',status:'potential',contact:'',phone:'03-6500999',email:'universe@enosh.co.il',accName:'',accPhone:'',address:'דרך השלום 20 תל אביב',notes:''},
   {id:255,name:'שושנים כח אדם 2023 בע"מ',hp:'516889250',status:'potential',contact:'',phone:'052-7261177',email:'shoshanim2023@gmail.com',accName:'',accPhone:'',address:'שילת בית גלי',notes:''},
   {id:256,name:'שי-לי כח אדם בע"מ',hp:'515379725',status:'potential',contact:'',phone:'050-3090121',email:'Office@limanpowershai.co.il',accName:'',accPhone:'',address:'העצמאות 43 יהוד',notes:''},
-  {id:257,name:'שיק סין 26 בע"מ',hp:'516880994',status:'active',contact:'',phone:'050-5331383',email:'shukiz2015@gmail.com',accName:'',accPhone:'',address:'דרך מנחם בגין 144 תל אביב',notes:''},
-  {id:258,name:'שמרית שרותי עובדים 2023 בע"מ',hp:'516892411',status:'active',contact:'',phone:'050-9292920',email:'Avishay@sjob.co.il',accName:'',accPhone:'',address:'החירות 14 יבנה',notes:''},
+  {id:257,name:'שיק סין 26 בע"מ',hp:'516880994',shortName:'שיק סין',status:'active',contact:'',phone:'050-5331383',email:'shukiz2015@gmail.com',accName:'',accPhone:'',address:'דרך מנחם בגין 144 תל אביב',notes:''},
+  {id:258,name:'שמרית שרותי עובדים 2023 בע"מ',hp:'516892411',shortName:'שמרית',status:'active',contact:'',phone:'050-9292920',email:'Avishay@sjob.co.il',accName:'',accPhone:'',address:'החירות 14 יבנה',notes:''},
   {id:259,name:'שפיר הנדסה כח אדם בע"מ',hp:'516883204',status:'potential',contact:'',phone:'03-7974283',email:'manpower@shapir.co.il',accName:'',accPhone:'',address:'שוהם 9 פ"ת',notes:''},
   {id:260,name:'שריקי מאגרי אנוש בע"מ',hp:'516097292',status:'potential',contact:'',phone:'054-2529601',email:'office@shriki-hr.co.il',accName:'',accPhone:'',address:'יוסף סמילר 41 נתיבות',notes:''},
   {id:261,name:'תהילת אורי ניהול משאבי אנוש בע"מ',hp:'513660423',status:'potential',contact:'',phone:'08-6138888',email:'office@t-ori.co.il',accName:'',accPhone:'',address:'בילו 15 רחובות',notes:''},
