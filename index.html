@@ -213,9 +213,32 @@ textarea { resize: vertical; min-height: 70px; }
 
 <!-- DASHBOARD -->
 <div id="page-dashboard" class="page active">
-  <div class="page-title">דשבורד</div>
-  <div class="page-sub" id="dash-date"></div>
+  <!-- HEADER -->
+  <div id="dash-header" style="margin-bottom:20px;padding:20px 24px;background:linear-gradient(135deg,#ede9f8 0%,#f5f3ef 100%);border-radius:12px;border:1px solid rgba(139,127,212,0.15)">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px">
+      <div>
+        <div id="dash-greeting" style="font-size:22px;font-weight:700;color:#2d2a26;letter-spacing:-0.5px"></div>
+        <div id="dash-date" style="font-size:13px;color:#6b6560;margin-top:2px"></div>
+      </div>
+      <div style="text-align:left;max-width:420px">
+        <div id="dash-quote" style="font-size:13px;color:#5a5060;font-style:italic;line-height:1.6;border-right:3px solid #8b7fd4;padding-right:12px"></div>
+      </div>
+    </div>
+  </div>
+  <!-- METRICS -->
   <div class="metrics" id="dash-metrics"></div>
+  <!-- URGENT + BILLING -->
+  <div class="grid2" style="margin-bottom:20px">
+    <div class="card" id="dash-urgent">
+      <div class="card-title">🔴 משימות דחופות</div>
+      <div id="dash-urgent-list"></div>
+    </div>
+    <div class="card" id="dash-billing">
+      <div class="card-title">💳 גבייה — חודש נוכחי</div>
+      <div id="dash-billing-list"></div>
+    </div>
+  </div>
+  <!-- PROPS -->
   <div class="grid2" id="dash-props"></div>
   <div id="dash-alerts"></div>
 </div>
@@ -573,9 +596,87 @@ function nav(page, el) {
 }
 
 // ============ DASHBOARD ============
+const QUOTES = [
+  "הצלחה היא לא מקרית. היא עבודה קשה, התמדה, למידה, קורבן ואהבה למה שאתה עושה. — פלה",
+  "האנשים שמשוגעים מספיק כדי לחשוב שהם יכולים לשנות את העולם — הם אלה שעושים את זה. — סטיב ג'ובס",
+  "אל תחכה לרגע המושלם. קח את הרגע ועשה אותו מושלם. — זיג זיגלר",
+  "הדרך הטובה ביותר לחזות את העתיד היא ליצור אותו. — פיטר דרוקר",
+  "הצלחה היא הולכת מכישלון לכישלון בלי לאבד את ההתלהבות. — וינסטון צ'רצ'יל",
+  "אל תפחד להיכשל. פחד מלא לנסות. — מייקל ג'ורדן",
+  "כל מסע של אלף מייל מתחיל בצעד אחד. — לאו טסה",
+  "ההזדמנויות הטובות ביותר מוסוות כבעיות קשות. — הנרי קייזר",
+  "עשה עכשיו מה שאחרים לא רוצים לעשות, וחיה מחר כמו שאחרים לא יכולים. — ג'רי רייס",
+  "הסוד להצלחה הוא להתחיל. — מארק טוויין",
+  "אם אתה חושב שאתה יכול, אתה צודק. אם אתה חושב שאתה לא יכול, אתה גם צודק. — הנרי פורד",
+  "לא חשוב כמה פעמים נפלת, חשוב כמה פעמים קמת. — נלסון מנדלה",
+  "החיים הם 10% מה שקורה לך ו-90% איך אתה מגיב לזה. — צ'ארלס סווינדל",
+  "ההבדל בין מי שאתה לבין מי שאתה רוצה להיות הוא מה שאתה עושה. — גברת לא ידועה",
+  "אל תמדוד את הצלחתך בכסף. מדוד אותה בהשפעה שיש לך על חיי אחרים. — מייקל בלומברג",
+  "עסק מוצלח הוא פתרון של בעיה אנושית. — ריצ'רד ברנסון",
+  "הזמן הטוב ביותר לנטוע עץ היה לפני 20 שנה. הזמן הטוב הבא הוא עכשיו. — פתגם סיני",
+  "אל תחפש את הלקוח לעסק שלך. צור עסק ללקוח שלך. — סת' גודין",
+  "נסה לא להיות אדם של הצלחה, אלא אדם של ערך. — אלברט איינשטיין",
+  "הדרך לשינוי היא לא לנלחם במה שקיים אלא לבנות מודלים חדשים. — בקמינסטר פולר",
+  "אנשים לא קונים מה שאתה עושה, הם קונים למה אתה עושה את זה. — סיימון סינק",
+  "המומחה בכל תחום היה פעם מתחיל. — הלן הייס",
+  "ההזדמנות בדרך כלל מגיעה מחופשת בעבודה קשה. — תומס אדיסון",
+  "לא צריך להיות גדול כדי להתחיל, אבל צריך להתחיל כדי להיות גדול. — לס בראון",
+  "המפתח אינו לתעדף את מה שבלוח הזמנים שלך, אלא לתזמן את הדברים שבראש סדר העדיפויות. — סטיבן קובי",
+  "ניהול הוא לעשות דברים נכון. מנהיגות היא לעשות את הדברים הנכונים. — פיטר דרוקר",
+  "אל תחכה לנסיבות המושלמות. הן לעולם לא יגיעו. — ג'נטל פרנקלין",
+  "אדם גדול הוא אדם רגיל עם נחישות יוצאת דופן. — אודי",
+  "הדרך לעשות עבודה נהדרת היא לאהוב את מה שאתה עושה. — סטיב ג'ובס",
+  "כישלון הוא פשוט הזדמנות להתחיל שוב, הפעם בצורה חכמה יותר. — הנרי פורד",
+  "אל תעמיד פנים שאתה יותר ממה שאתה, אבל גם אל תהיה פחות. — פאולו קואלו",
+  "הצלחה אינה מפתח לאושר. אושר הוא מפתח להצלחה. — אלברט שווייצר",
+  "אם אתה רוצה להגיע מהר, לך לבד. אם אתה רוצה להגיע רחוק, לך יחד. — פתגם אפריקאי",
+  "גדולות לא באות לאנשים שמחכים. הן באות לאנשים שיוצאים ועושים. — אנונימי",
+  "השקעה בידע משלמת את הריבית הטובה ביותר. — בנג'מין פרנקלין",
+  "הבעיה עם הסתפקות הוא שהעולם לא מסתפק. — ביל גייטס",
+  "תחשוב גדול, תתחיל קטן, תזוז מהר. — מוטו יזמי",
+  "לא העוצמה שלך תקבע את תוצאותיך, אלא המיקוד שלך. — בילי קוהן",
+  "כל אחד שהפסיק ללמוד הוא זקן, בין אם הוא בן 20 ובין אם בן 80. — הנרי פורד",
+  "העסקים הטובים ביותר הם אלה שפותרים בעיות אמיתיות של אנשים אמיתיים. — מארק צוקרברג",
+  "אל תשאל מה המדינה יכולה לעשות בשבילך. שאל מה אתה יכול לעשות. — ג'ון קנדי",
+  "הצלחה היא 1% השראה ו-99% הזעה. — תומס אדיסון",
+  "בעלי עסקים מצליחים לא מחכים לתנאים הנכונים — הם יוצרים אותם. — ריצ'רד ברנסון",
+  "השוני בין חולם לעושה הוא: עשייה. — אנונימי",
+  "אם אין לך מתחרים, כנראה שאין לך עסק. — ג'ף בזוס",
+  "ערך אמיתי לא נמדד במחיר שגובים, אלא בפתרון שנותנים. — סת' גודין",
+  "ניהול טוב הוא אמנות שהכולם חושבים שיכולים ללמד, אבל מעטים יכולים לעשות. — פיטר דרוקר",
+  "שמור על פשטות. כשאתה לא, אתה לא מבין את העסק שלך. — וורן באפט",
+  "בניית עסק היא כמו בניית בית — צריך יסודות חזקים לפני הקירות. — אנונימי",
+  "כסף הוא תוצאה לוואי של ערך שנתת. — בוב ברג",
+  "הגדרת טירוף היא לעשות את אותו הדבר שוב ושוב ולצפות לתוצאה שונה. — אינשטיין",
+  "לקוח מרוצה הוא הפרסומת הטובה ביותר. — מייקל לבף",
+  "אל תמכור מוצר. מכור פתרון. — אנונימי",
+  "עסק שלא גדל — מתכווץ. — אנונימי",
+  "הלקוח תמיד צודק — גם כשהוא טועה. — הארי גורדון סלפרידג'",
+  "שיתוף פעולה אמיתי יוצר תוצאות שאף אחד לא יכול להשיג לבד. — אנונימי",
+  "חדשנות היא ראיית מה שכולם רואים וחשיבה על מה שאף אחד לא חשב. — אלברט סנט גיורגי",
+  "עסק מצוין פותר בעיה שאנשים לא ידעו שיש להם. — סטיב ג'ובס",
+  "תנהל את הזמן שלך כמו שאתה מנהל את הכסף שלך — בזהירות. — אנונימי",
+  "המטרה של עסק היא ליצור לקוח. — פיטר דרוקר",
+];
+
+function getGreeting() {
+  const h = new Date().getHours();
+  if (h >= 5 && h < 12) return 'בוקר טוב ☀️';
+  if (h >= 12 && h < 17) return 'צהריים טובים 🌤️';
+  if (h >= 17 && h < 21) return 'ערב טוב 🌆';
+  return 'לילה טוב 🌙';
+}
+
+function getDailyQuote() {
+  const day = Math.floor(Date.now() / 86400000);
+  return QUOTES[day % QUOTES.length];
+}
+
 function renderDashboard() {
   const now = new Date();
+  document.getElementById('dash-greeting').textContent = getGreeting() + ' — רוז גלובל';
   document.getElementById('dash-date').textContent = now.toLocaleDateString('he-IL',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  document.getElementById('dash-quote').textContent = getDailyQuote();
 
   const props = ['לבנדה 32','עזאי 38','נתן הנביא 42','הירקון 41 ב"ב'];
   let totalRev=0, totalCost=0, totalPeople=0;
@@ -594,6 +695,51 @@ function renderDashboard() {
     <div class="metric"><div class="metric-label">תקלות פתוחות</div><div class="metric-value ${openTasks>5?'red':'amber'}">${openTasks}</div><div class="metric-sub">${TASKS.filter(t=>!t.done&&t.priority==='urgent').length} דחופות</div></div>
   `;
 
+  // Urgent tasks
+  const urgentTasks = TASKS.filter(t=>!t.done&&t.priority==='urgent').slice(0,6);
+  document.getElementById('dash-urgent-list').innerHTML = urgentTasks.length
+    ? urgentTasks.map(t=>`
+        <div style="display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:0.5px solid var(--border)">
+          <div style="width:7px;height:7px;border-radius:50%;background:#c0655a;flex-shrink:0;margin-top:5px"></div>
+          <div>
+            <div style="font-size:13px;color:var(--text)">${t.desc}</div>
+            <div style="font-size:11px;color:var(--text3);margin-top:2px">${t.prop}${t.opener?' — '+t.opener:''}</div>
+          </div>
+        </div>`).join('')
+    : '<div style="font-size:13px;color:var(--text3);padding:8px 0">אין משימות דחופות 🎉</div>';
+
+  // Billing summary
+  const billingByCompany = {};
+  TENANTS.filter(t=>!t.to&&!FIXED_COSTS[t.prop]).forEach(t=>{
+    if(!billingByCompany[t.company]) billingByCompany[t.company]={people:0,amount:0};
+    billingByCompany[t.company].people += t.people;
+    billingByCompany[t.company].amount += t.people * PRICE;
+  });
+  // Add fixed props
+  ['עזאי 38','נתן הנביא 42'].forEach(p=>{
+    const inc = FIXED_COSTS[p].income;
+    if(inc) {
+      if(!billingByCompany[p]) billingByCompany[p]={people:0,amount:0,fixed:true};
+      billingByCompany[p].amount = inc;
+      billingByCompany[p].fixed = true;
+    }
+  });
+  const billingRows = Object.entries(billingByCompany).sort((a,b)=>b[1].amount-a[1].amount).slice(0,7);
+  const totalBilling = Object.values(billingByCompany).reduce((s,v)=>s+v.amount,0);
+  document.getElementById('dash-billing-list').innerHTML = billingRows.map(([co,v])=>`
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:0.5px solid var(--border);font-size:13px">
+      <div style="display:flex;align-items:center;gap:6px">
+        <span style="color:var(--text);font-weight:500">${co}</span>
+        ${v.fixed?'<span style="font-size:10px;background:var(--blue-bg);color:var(--blue);padding:1px 5px;border-radius:8px">פיקס</span>':
+        '<span style="font-size:11px;color:var(--text3)">'+v.people+' אנשים</span>'}
+      </div>
+      <span style="font-weight:600;color:#2d8a5e">${fmt(v.amount)} ₪</span>
+    </div>`).join('')+
+    `<div style="display:flex;justify-content:space-between;padding:8px 0;font-weight:600;font-size:13px;border-top:1px solid var(--border2);margin-top:4px">
+      <span>סה"כ לגבייה</span><span style="color:#2d8a5e">${fmt(totalBilling)} ₪</span>
+    </div>`;
+
+  // Props
   document.getElementById('dash-props').innerHTML = props.map(p => {
     const rev = getPropRevenue(p);
     const cost = getPropCost(p);
@@ -606,7 +752,7 @@ function renderDashboard() {
         <span class="badge ${profit>=0?'badge-green':'badge-red'}">${profit>=0?'רווח':'הפסד'}</span>
       </div>
       <div class="prop-card-body">
-        <div class="prop-stat-row"><span>הכנסה</span><span class="green">${isFixed&&!rev?'<span class="badge badge-amber">לבדוק עם צביקה</span>':fmt(rev)+' ₪'}</span></div>
+        <div class="prop-stat-row"><span>הכנסה</span><span class="green">${isFixed&&!rev?'<span class="badge badge-amber">לבדוק</span>':fmt(rev)+' ₪'}</span></div>
         <div class="prop-stat-row"><span>שכירות</span><span class="red">${fmt(cost)} ₪</span></div>
         ${isFixed && FIXED_COSTS[p].utilities ? `<div class="prop-stat-row"><span>חשמל/מים/ארנונה</span><span class="red">${fmt(FIXED_COSTS[p].utilities)} ₪</span></div>` : ''}
         ${isFixed && !FIXED_COSTS[p].utilities ? `<div class="prop-stat-row"><span>חשמל/מים/ארנונה</span><span class="badge badge-amber">לעדכן</span></div>` : ''}
@@ -619,8 +765,8 @@ function renderDashboard() {
   }).join('');
 
   const alerts = [];
-  if (FIXED_COSTS['עזאי 38'].income===null) alerts.push(`<div class="alert alert-amber">עזאי 38 — הכנסה חודשית לא מוגדרת. לבדוק עם צביקה.</div>`);
-  if (FIXED_COSTS['נתן הנביא 42'].income===null) alerts.push(`<div class="alert alert-amber">נתן הנביא 42 — הכנסה חודשית לא מוגדרת. לבדוק עם צביקה.</div>`);
+  if (FIXED_COSTS['עזאי 38'].income===null) alerts.push(`<div class="alert alert-amber">עזאי 38 — הכנסה חודשית לא מוגדרת.</div>`);
+  if (FIXED_COSTS['נתן הנביא 42'].income===null) alerts.push(`<div class="alert alert-amber">נתן הנביא 42 — הכנסה חודשית לא מוגדרת.</div>`);
   document.getElementById('dash-alerts').innerHTML = alerts.join('');
 }
 
