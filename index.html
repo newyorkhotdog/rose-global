@@ -1437,7 +1437,7 @@ function renderMovements(){
   document.getElementById('mv-table').innerHTML=html;
 }
 
-function delMv(id){MOVEMENTS.splice(MOVEMENTS.findIndex(m=>m.id===id),1);renderMovements();}
+function delMv(id){MOVEMENTS.splice(MOVEMENTS.findIndex(m=>m.id===id),1);autosave();renderMovements();}
 
 // ============ BILLING ============
 function populateBillClientFilter() {
@@ -1480,7 +1480,12 @@ function renderBilling(){
     Object.entries(MAP_DATA[prop].floors||{}).forEach(([floor, rooms]) => {
       rooms.forEach(r => {
         if (!r.company || r.people <= 0) return;
-        if (filterClient && r.company !== filterClient) return;
+        if (filterClient) {
+          // Match by exact name OR by client notes field (e.g. client notes='יער')
+          const client = CLIENTS.find(c=>c.name===filterClient);
+          const clientShort = client && client.notes ? client.notes.trim() : '';
+          if (r.company !== filterClient && r.company !== clientShort) return;
+        }
         // Check if this tenant existed in this month via TENANTS array
         const tenant = TENANTS.find(t=>t.prop===prop&&t.room===r.r&&t.company===r.company&&!t.to);
         let entryDate = tenant ? new Date(tenant.from) : mStart;
@@ -2248,7 +2253,7 @@ function autosave() {
   // Save to Firebase
   if (window.saveToCloud) {
     window.saveToCloud(data).finally(() => {
-      setTimeout(() => { window._isSaving = false; }, 1000);
+      setTimeout(() => { window._isSaving = false; }, 5000);
     });
   } else {
     showSaveIndicator('✓ נשמר (מקומי)');
@@ -2878,7 +2883,7 @@ async function initApp() {
   // Start real-time sync — update all clients when someone saves
   if (window.startCloudSync) {
     window.startCloudSync((cloudData) => {
-      if (cloudData && !cloudData._cleared && cloudData.TENANTS) {
+      if (cloudData && !cloudData._cleared && cloudData.TENANTS && !window._isSaving) {
         applyData(cloudData);
         refreshUI();
         showSaveIndicator('🔄 עודכן מהענן');
