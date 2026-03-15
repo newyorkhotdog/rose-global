@@ -623,7 +623,6 @@ textarea { resize: vertical; min-height: 70px; }
     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;width:100%">
       <div class="tab-row" style="margin:0" id="hist-view-tabs">
         <button class="tab active" onclick="setHistView('chart',this)">📊 גרף</button>
-        <button class="tab" onclick="setHistView('table',this)">📋 טבלה</button>
         <button class="tab" onclick="setHistView('props',this)">🏠 גיליון נכסים</button>
         <button class="tab" onclick="setHistView('entry',this)">✏️ הזנת נתונים</button>
         <button class="tab" onclick="setHistView('general',this)">💼 הוצאות כלליות</button>
@@ -639,10 +638,13 @@ textarea { resize: vertical; min-height: 70px; }
     <div id="hist-quarterly"></div>
   </div>
 
-  <div id="hist-table-view" style="display:none">
-    <div style="display:flex;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
-      <div class="form-group" style="margin:0"><label style="font-size:11px;color:var(--text3)">סינון לפי חודש</label>
-        <select id="hist-filter-month" onchange="renderHistTable()" style="width:auto;font-size:13px">
+  <div id="hist-table-view" style="display:none"></div>
+
+  <div id="hist-props-view" style="display:none">
+    <div style="display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap">
+      <div class="form-group" style="margin:0">
+        <label style="font-size:11px;color:var(--text3)">סינון לפי חודש</label>
+        <select id="props-filter-month" onchange="renderPropsSheet()" style="width:auto;font-size:13px">
           <option value="">כל החודשים</option>
           <option value="2025-11">נובמבר 2025</option>
           <option value="2025-12">דצמבר 2025</option>
@@ -651,18 +653,15 @@ textarea { resize: vertical; min-height: 70px; }
           <option value="2026-03">מרץ 2026</option>
         </select>
       </div>
-      <div class="form-group" style="margin:0"><label style="font-size:11px;color:var(--text3)">סינון לפי נכס</label>
-        <select id="hist-filter-prop" onchange="renderHistTable()" style="width:auto;font-size:13px">
+      <div class="form-group" style="margin:0">
+        <label style="font-size:11px;color:var(--text3)">סינון לפי נכס</label>
+        <select id="props-filter-prop" onchange="renderPropsSheet()" style="width:auto;font-size:13px">
           <option value="">כל הנכסים</option>
           <option>לבנדה 32</option><option>עזאי 38</option>
           <option>נתן הנביא 42</option><option>הירקון 41 ב"ב</option>
         </select>
       </div>
     </div>
-    <div class="table-wrap"><div id="hist-table"></div></div>
-  </div>
-
-  <div id="hist-props-view" style="display:none">
     <div id="hist-props-content"></div>
   </div>
 
@@ -2326,12 +2325,10 @@ function setHistView(view, el) {
   document.querySelectorAll('#hist-view-tabs .tab').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
   document.getElementById('hist-chart-view').style.display = view==='chart' ? 'block' : 'none';
-  document.getElementById('hist-table-view').style.display = view==='table' ? 'block' : 'none';
   document.getElementById('hist-entry-view').style.display = view==='entry' ? 'block' : 'none';
   document.getElementById('hist-general-view').style.display = view==='general' ? 'block' : 'none';
   document.getElementById('hist-props-view').style.display = view==='props' ? 'block' : 'none';
   if (view==='chart') renderHistChart();
-  if (view==='table') renderHistTable();
   if (view==='entry') renderHistExisting();
   if (view==='general') renderHgExisting();
   if (view==='props') renderPropsSheet();
@@ -2781,13 +2778,15 @@ function getMonthShort(m) {
 }
 
 function renderPropsSheet() {
-  const months = [...new Set([...PROP_MONTHS, ...HISTORY.map(h=>h.month)])].sort();
+  const filterMonth = (document.getElementById('props-filter-month')||{}).value||'';
+  const filterProp = (document.getElementById('props-filter-prop')||{}).value||'';
+  let months = [...new Set([...PROP_MONTHS, ...HISTORY.map(h=>h.month)])].sort();
+  if (filterMonth) months = months.filter(m=>m===filterMonth);
+  const propsToShow = filterProp ? [filterProp] : PROP_NAMES_LIST;
   
-  // Build table: rows = props, cols = months
-  // For each prop+month: income, rent, utilities, profit
   let html = '<div style="overflow-x:auto">';
   
-  PROP_NAMES_LIST.forEach(prop => {
+  propsToShow.forEach(prop => {
     html += `<div style="margin-bottom:24px">
       <div style="font-size:14px;font-weight:600;margin-bottom:10px;padding:8px 12px;background:var(--bg3);border-radius:var(--radius-sm)">${prop}</div>
       <table style="min-width:600px">
