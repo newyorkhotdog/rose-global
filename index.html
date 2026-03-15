@@ -1477,34 +1477,20 @@ function populateBillClientFilter() {
   const sel = document.getElementById('bill-client');
   if (!sel) return;
   const current = sel.value;
-  // Show only active clients that have rooms in MAP_DATA
-  const mapCompanies = new Set();
-  Object.values(MAP_DATA).forEach(prop => {
-    Object.values(prop.floors||{}).forEach(rooms => {
-      rooms.forEach(r => { if(r.company && r.company !== 'שירות') mapCompanies.add(r.company); });
-    });
-  });
-  // Get matching active clients
-  const activeClients = CLIENTS.filter(c => c.status === 'active');
-  const shown = [];
-  mapCompanies.forEach(shortName => {
-    const fullName = COMPANY_MAP[shortName] || shortName;
-    const client = activeClients.find(c => c.name === fullName || c.name === shortName);
-    const displayName = client ? client.name : fullName;
-    if (!shown.find(s => s.value === shortName)) {
-      shown.push({value: shortName, label: displayName});
-    }
-  });
-  // Deduplicate by label
-  const seenLabels = new Set();
-  const unique = shown.filter(s => {
-    if (seenLabels.has(s.label)) return false;
-    seenLabels.add(s.label);
-    return true;
-  });
-  unique.sort((a,b) => a.label.localeCompare(b.label));
+  // Fixed list of 9 clients with their display names and matching short names
+  const CLIENTS_BILLING = [
+    {label:'י.ע.ר 2023 עובדים זרים בע"מ', value:'יער'},
+    {label:'שמרית שרותי עובדים 2023 בע"מ', value:'שמרית'},
+    {label:'בינה עובדים זרים לבניין בע"מ', value:'בינה'},
+    {label:'ניו פאוור / מגיק פאוור', value:'ניו_מגיק'},
+    {label:'שיק סין 26 בע"מ', value:'שיק_סין'},
+    {label:'ח.ח.א', value:'ח.ח.א'},
+    {label:'קורפו בניה בע"מ', value:'קורפו'},
+    {label:'משביר יעקב בע"מ', value:'משביר יעקב'},
+    {label:'קורל ב. פרויקטים בע"מ', value:'קורל'},
+  ];
   sel.innerHTML = '<option value="">כל הלקוחות</option>' +
-    unique.map(s=>`<option value="${s.value}" ${s.value===current?'selected':''}>${s.label}</option>`).join('');
+    CLIENTS_BILLING.map(c=>`<option value="${c.value}" ${c.value===current?'selected':''}>${c.label}</option>`).join('');
 }
 
 function renderBilling(){
@@ -1539,11 +1525,11 @@ function renderBilling(){
       rooms.forEach(r => {
         if (!r.company || r.people <= 0) return;
         if (filterClient) {
-          // Find short names that map to the selected full name
-          const matchingShorts = Object.entries(COMPANY_MAP)
-            .filter(([short, full]) => full === filterClient)
-            .map(([short]) => short);
-          if (!matchingShorts.includes(r.company) && r.company !== filterClient) return;
+          const match =
+            filterClient === 'ניו_מגיק' ? (r.company==='ניו פאוור'||r.company==='מגיק פאוור') :
+            filterClient === 'שיק_סין' ? (r.company==='שיק סין'||r.company==='שיק צין') :
+            r.company === filterClient;
+          if (!match) return;
         }
         // Check if this tenant existed in this month via TENANTS array
         const tenant = TENANTS.find(t=>t.prop===prop&&t.room===r.r&&t.company===r.company&&!t.to);
