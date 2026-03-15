@@ -644,7 +644,8 @@ textarea { resize: vertical; min-height: 70px; }
     <div id="hist-chart-container" class="card" style="margin-bottom:16px">
       <canvas id="hist-chart" style="max-height:320px"></canvas>
     </div>
-    <div id="hist-summary-cards" class="metrics"></div>
+    <div id="hist-summary-cards" class="metrics" style="margin-bottom:20px"></div>
+    <div id="hist-quarterly"></div>
   </div>
 
   <div id="hist-table-view" style="display:none">
@@ -2253,6 +2254,7 @@ function setHistView(view, el) {
 
 function renderHistory() {
   renderHistChart();
+  renderQuarterly();
 }
 
 function getMonthLabel(m) {
@@ -2311,6 +2313,7 @@ function renderHistChart() {
     <div class="metric"><div class="metric-label">סה"כ הכנסות (מצטבר)</div><div class="metric-value">${incomes.reduce((s,v)=>s+v,0).toLocaleString('he-IL')} ₪</div></div>
     <div class="metric"><div class="metric-label">חודשים מתועדים</div><div class="metric-value">${months.length}</div></div>
   `;
+  renderQuarterly();
 }
 
 function renderHistTable() {
@@ -2546,6 +2549,111 @@ function renderHgExisting() {
   });
   const el = document.getElementById('hg-existing');
   if(el) el.innerHTML = html||'<div style="color:var(--text3);font-size:13px;padding:1rem">אין רשומות עדיין</div>';
+}
+
+
+// ============ QUARTERLY P&L ============
+const PARTNERS = ['צביקה בר חיים', 'רועי אלקסלסי', 'אוהד שינה'];
+
+function getQuarters() {
+  const months = [...new Set(HISTORY.map(h=>h.month))].sort();
+  const quarters = {};
+  months.forEach(m => {
+    const [yr, mo] = m.split('-').map(Number);
+    const q = Math.ceil(mo / 3);
+    const key = yr + '-Q' + q;
+    if (!quarters[key]) quarters[key] = { key, yr, q, months: [] };
+    if (!quarters[key].months.includes(m)) quarters[key].months.push(m);
+  });
+  return Object.values(quarters).sort((a,b)=>a.key.localeCompare(b.key));
+}
+
+function getFullMonthPL(month) {
+  const propRows = HISTORY.filter(h=>h.month===month);
+  const income = propRows.reduce((s,h)=>s+h.income, 0);
+  const propExpenses = propRows.reduce((s,h)=>s+h.rent+h.electric+h.water+h.arnona+h.other, 0);
+  const general = getGeneralTotal(month);
+  const net = income - propExpenses - general;
+  return { income, propExpenses, general, net };
+}
+
+function getQuarterPL(quarter) {
+  let income=0, propExpenses=0, general=0;
+  quarter.months.forEach(m => {
+    const pl = getFullMonthPL(m);
+    income += pl.income;
+    propExpenses += pl.propExpenses;
+    general += pl.general;
+  });
+  const net = income - propExpenses - general;
+  const perPartner = net / 3;
+  return { income, propExpenses, general, net, perPartner, months: quarter.months.length };
+}
+
+function getQuarterLabel(q) {
+  const qNames = { 1:'ינואר–מרץ', 2:'אפריל–יוני', 3:'יולי–ספטמבר', 4:'אוקטובר–דצמבר' };
+  return 'רבעון ' + q.q + ' ' + q.yr + ' (' + qNames[q.q] + ')';
+}
+
+function renderQuarterly() {
+  const quarters = getQuarters();
+  if (!quarters.length) {
+    document.getElementById('hist-quarterly').innerHTML = '';
+    return;
+  }
+
+  let html = '<div style="margin-bottom:8px"><div style="font-size:15px;font-weight:600;margin-bottom:4px">רווח לשותפים — לפי רבעון</div>';
+  html += '<div style="font-size:12px;color:var(--text2);margin-bottom:14px">חישוב נטו אחרי כל ההוצאות — מחולק שווה ב-3 שותפים</div></div>';
+
+  html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px">';
+
+  quarters.forEach(q => {
+    const pl = getQuarterPL(q);
+    const isProfit = pl.net >= 0;
+    const completedMonths = q.months.length;
+    const isPartial = completedMonths < 3;
+
+    html += `<div class="card" style="border-top:3px solid ${isProfit?'#a8d9be':'#e8b0aa'}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
+        <div>
+          <div style="font-size:13px;font-weight:600">${getQuarterLabel(q)}</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:2px">${completedMonths} מתוך 3 חודשים${isPartial?' (חלקי)':''}</div>
+        </div>
+        <span class="badge ${isProfit?'badge-green':'badge-red'}">${isProfit?'רווח':'הפסד'}</span>
+      </div>
+
+      <div style="font-size:13px;display:flex;flex-direction:column;gap:5px;margin-bottom:14px">
+        <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:0.5px solid var(--border)">
+          <span style="color:var(--text2)">סה"כ הכנסות</span>
+          <span class="green" style="font-weight:500">${pl.income.toLocaleString('he-IL')} ₪</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:0.5px solid var(--border)">
+          <span style="color:var(--text2)">הוצאות נכסים</span>
+          <span class="red">${pl.propExpenses.toLocaleString('he-IL')} ₪</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:0.5px solid var(--border)">
+          <span style="color:var(--text2)">הוצאות כלליות</span>
+          <span class="red">${pl.general.toLocaleString('he-IL')} ₪</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:6px 0;font-weight:600">
+          <span>רווח נקי</span>
+          <span style="color:${isProfit?'#3a8a68':'#b85a50'};font-size:15px">${pl.net.toLocaleString('he-IL')} ₪</span>
+        </div>
+      </div>
+
+      <div style="background:${isProfit?'var(--green-bg)':'var(--red-bg)'};border-radius:var(--radius-sm);padding:10px 12px">
+        <div style="font-size:11px;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.4px">חלוקה לשותפים</div>
+        ${PARTNERS.map(p=>`
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;font-size:13px">
+            <span style="color:var(--text2)">${p}</span>
+            <span style="font-weight:600;color:${isProfit?'#3a8a68':'#b85a50'}">${Math.round(pl.perPartner).toLocaleString('he-IL')} ₪</span>
+          </div>`).join('')}
+      </div>
+    </div>`;
+  });
+
+  html += '</div>';
+  document.getElementById('hist-quarterly').innerHTML = html;
 }
 
 // ============ INIT ============
