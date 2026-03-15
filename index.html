@@ -1443,9 +1443,16 @@ function populateBillClientFilter() {
   const sel = document.getElementById('bill-client');
   if (!sel) return;
   const current = sel.value;
-  const active = CLIENTS.filter(c=>c.status==='active').sort((a,b)=>a.name.localeCompare(b.name));
+  // Pull unique company names directly from MAP_DATA
+  const companies = new Set();
+  Object.values(MAP_DATA).forEach(prop => {
+    Object.values(prop.floors||{}).forEach(rooms => {
+      rooms.forEach(r => { if(r.company) companies.add(r.company); });
+    });
+  });
+  const sorted = [...companies].filter(Boolean).sort((a,b)=>a.localeCompare(b));
   sel.innerHTML = '<option value="">כל הלקוחות</option>' +
-    active.map(c=>`<option value="${c.name}" ${c.name===current?'selected':''}>${c.name}</option>`).join('');
+    sorted.map(c=>`<option value="${c}" ${c===current?'selected':''}>${c}</option>`).join('');
 }
 
 function renderBilling(){
@@ -1479,11 +1486,7 @@ function renderBilling(){
     Object.entries(MAP_DATA[prop].floors||{}).forEach(([floor, rooms]) => {
       rooms.forEach(r => {
         if (!r.company || r.people <= 0) return;
-        if (filterClient) {
-          const client = CLIENTS.find(c=>c.name===filterClient);
-          const clientShort = client ? (client.shortName || client.notes || '') : '';
-          if (r.company !== filterClient && r.company !== clientShort && r.company !== filterClient) return;
-        }
+        if (filterClient && r.company !== filterClient) return;
         // Check if this tenant existed in this month via TENANTS array
         const tenant = TENANTS.find(t=>t.prop===prop&&t.room===r.r&&t.company===r.company&&!t.to);
         let entryDate = tenant ? new Date(tenant.from) : mStart;
