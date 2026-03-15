@@ -351,7 +351,9 @@ textarea { resize: vertical; min-height: 70px; }
         </select></div>
       <div style="display:flex;flex-direction:column;gap:4px"><label style="font-size:11px;color:#a09890;text-transform:uppercase">קומה</label>
         <select id="ar-floor" style="background:#f5f3ef;border:1px solid #ddd;border-radius:6px;padding:8px 10px;font-size:13px;font-family:inherit">
-          <option value="1">קומה 1</option><option value="2">קומה 2</option><option value="3">קומה 3</option>
+          <option value="-1">מרתף</option><option value="0">כניסה</option>
+          <option value="1">קומה 1</option><option value="2">קומה 2</option>
+          <option value="3">קומה 3</option><option value="4">גג</option>
         </select></div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
@@ -990,16 +992,23 @@ const MAP_DATA = {
   },
   'עזאי 38': {
     floors: {
-      1: [
-        {r:4,company:'יער',people:6,price:0,cost:0,note:'פיקס פרייס'},
-        {r:5,company:'יער',people:5,price:0,cost:0,note:'פיקס פרייס'},
-        {r:6,company:'יער',people:6,price:0,cost:0,note:'פיקס פרייס'},
-      ],
-      0: [
+      '-1': [
         {r:1,company:'יער',people:1,price:0,cost:0,note:'מרתף ימני'},
         {r:2,company:'',people:0,price:0,cost:0,note:'מרתף אמצעי — מטבח'},
         {r:3,company:'יער',people:3,price:0,cost:0,note:'מרתף שמאלי'},
-      ]
+      ],
+      1: [
+        {r:1,company:'יער',people:6,price:0,cost:0,note:'פיקס פרייס'},
+      ],
+      2: [
+        {r:1,company:'יער',people:5,price:0,cost:0,note:'פיקס פרייס'},
+      ],
+      3: [
+        {r:1,company:'יער',people:6,price:0,cost:0,note:'פיקס פרייס'},
+      ],
+      4: [
+        {r:1,company:'',people:0,price:0,cost:0,note:'גג'},
+      ],
     }
   },
   'נתן הנביא 42': {
@@ -1094,7 +1103,7 @@ function renderTenantMap() {
 
   const floorNums = Object.keys(data.floors).map(Number).sort((a,b)=>a-b);
   floorNums.forEach(f => {
-    const floorLabel = f === 0 ? 'מרתף' : f < 0 ? 'קומה '+f : 'קומה '+f;
+    const floorLabel = f == -1 ? 'מרתף' : f == 4 ? 'גג' : f == 0 ? 'כניסה' : 'קומה '+f;
     html += '<div style="margin-bottom:1.5rem">';
     html += '<div style="font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border)">'+floorLabel+'</div>';
     html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px">';
