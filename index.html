@@ -579,14 +579,15 @@ function renderDashboard() {
 // ============ TENANTS ============
 function renderTenants() {
   const props = ['לבנדה 32','עזאי 38','נתן הנביא 42','הירקון 41 ב"ב'];
-  document.getElementById('tenant-tabs').innerHTML = props.map(p =>
-    `<button class="tab ${p===currentTenantProp?'active':''}" onclick="selectTenantProp('${p}',this)">${p}</button>`
+  document.getElementById('tenant-tabs').innerHTML = props.map((p,i) =>
+    `<button class="tab ${p===currentTenantProp?'active':''}" onclick="selectTenantPropByIndex(${i},this)">${p}</button>`
   ).join('');
   renderTenantTable();
 }
 
-function selectTenantProp(p,el) {
-  currentTenantProp = p;
+function selectTenantPropByIndex(i, el) {
+  const props = ['לבנדה 32','עזאי 38','נתן הנביא 42','הירקון 41 ב"ב'];
+  currentTenantProp = props[i];
   document.querySelectorAll('#tenant-tabs .tab').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
   renderTenantTable();
