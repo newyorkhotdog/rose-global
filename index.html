@@ -1450,15 +1450,19 @@ const COMPANY_MAP = {
   'יער': 'י.ע.ר 2023 עובדים זרים בע"מ',
   'שמרית': 'שמרית שרותי עובדים 2023 בע"מ',
   'בינה': 'בינה עובדים זרים לבניין בע"מ',
-  'ניו פאוור': 'ניו פאוור עובדים זרים בע"מ',
+  'ניו פאוור': 'ניו פאוור / מגיק פאוור בע"מ',
+  'מגיק פאוור': 'ניו פאוור / מגיק פאוור בע"מ',
   'שיק סין': 'שיק סין 26 בע"מ',
-  'שיק צין': 'שיק צין',
+  'שיק צין': 'שיק סין 26 בע"מ',
   'ח.ח.א': 'ח.ח.א',
   'קורפו': 'קורפו בניה בע"מ',
   'משביר יעקב': 'משביר יעקב בע"מ',
   'משביר': 'משביר יעקב בע"מ',
-  'מגיק פאוור': 'מגיק פאוור בע"מ',
-  'שירות': null, // חדר שירות - לא לקוח
+  'שירות': null,
+  'גייקוב': null,
+  'ששי': null,
+  'תאגיד': null,
+  'אחר': null,
 };
 
 // Reverse map: full name → short name
@@ -1534,7 +1538,13 @@ function renderBilling(){
     Object.entries(MAP_DATA[prop].floors||{}).forEach(([floor, rooms]) => {
       rooms.forEach(r => {
         if (!r.company || r.people <= 0) return;
-        if (filterClient && r.company !== filterClient) return;
+        if (filterClient) {
+          // Find short names that map to the selected full name
+          const matchingShorts = Object.entries(COMPANY_MAP)
+            .filter(([short, full]) => full === filterClient)
+            .map(([short]) => short);
+          if (!matchingShorts.includes(r.company) && r.company !== filterClient) return;
+        }
         // Check if this tenant existed in this month via TENANTS array
         const tenant = TENANTS.find(t=>t.prop===prop&&t.room===r.r&&t.company===r.company&&!t.to);
         let entryDate = tenant ? new Date(tenant.from) : mStart;
