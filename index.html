@@ -1491,7 +1491,7 @@ function renderBilling(){
         const amount = Math.round(r.people * r.price * d / days);
         if (!byCompany[r.company]) byCompany[r.company] = {company:r.company, lines:[], total:0, isFixed:false};
         byCompany[r.company].lines.push({
-          label:`ק${floor} ח${r.room} — ${prop}`,
+          label:`ק${floor} ח${r.r} — ${prop}`,
           people:r.people, d, days, amount, isPartial
         });
         byCompany[r.company].total += amount;
