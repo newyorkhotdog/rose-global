@@ -801,14 +801,13 @@ function buildRoomCard(propName, floor, room, bg, profitStr, incStr) {
   const profitHtml = profitStr ? '<div style="font-size:12px;font-weight:600;color:'+bg.text+'">'+profitStr+'</div>' : '';
   const incHtml = incStr ? '<div style="font-size:11px;color:#a09890">'+incStr+'</div>' : '';
   return [
-    '<div onclick="editMapRoom(\''+safeProp+'\','+floor+','+room.r+')"',
-    ' style="background:'+bg.bg+';border:1.5px solid '+bg.border+';border-radius:8px;padding:11px;cursor:pointer;transition:transform 0.15s"',
-    ' onmouseover="this.style.transform=\'translateY(-2px)\'"',
-    ' onmouseout="this.style.transform=\'\'"',
-    '>',
+    '<div style="background:'+bg.bg+';border:1.5px solid '+bg.border+';border-radius:8px;padding:11px;position:relative;transition:transform 0.15s" onmouseover="this.style.transform=\'translateY(-2px)\'" onmouseout="this.style.transform=\'\'">'  ,
+    '<button onclick="event.stopPropagation();deleteMapRoom(\''+safeProp+'\','+floor+','+room.r+')" title="מחק חדר" style="position:absolute;top:6px;left:6px;background:rgba(184,90,80,0.12);border:none;border-radius:4px;cursor:pointer;font-size:11px;color:#b85a50;padding:2px 5px;line-height:1">✕</button>',
+    '<div onclick="editMapRoom(\''+safeProp+'\','+floor+','+room.r+')" style="cursor:pointer">',
     '<div style="font-size:11px;font-weight:600;color:#a09890;margin-bottom:2px">חדר '+room.r+'</div>',
     '<div style="font-size:13px;font-weight:600;color:#2d2a26;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(room.company||'ריק')+'</div>',
     peopleHtml, profitHtml, incHtml, noteHtml,
+    '</div>',
     '</div>'
   ].join('');
 }
@@ -1329,6 +1328,17 @@ document.getElementById('add-room-modal').addEventListener('click', e => {
   if (e.target === document.getElementById('add-room-modal'))
     document.getElementById('add-room-modal').style.display = 'none';
 });
+
+
+function deleteMapRoom(propRaw, floor, roomNum) {
+  const prop = propRaw.replace(/__/g, '"');
+  if (!confirm('למחוק את חדר ' + roomNum + ' מקומה ' + floor + '?')) return;
+  const floors = MAP_DATA[prop] && MAP_DATA[prop].floors;
+  if (!floors || !floors[floor]) return;
+  floors[floor] = floors[floor].filter(r => r.r !== roomNum);
+  if (floors[floor].length === 0) delete floors[floor];
+  renderTenantMap();
+}
 
 function closeRoomModal(){document.getElementById('room-modal').style.display='none';mapEditKey=null;}
 document.getElementById('room-modal').addEventListener('click',e=>{if(e.target===document.getElementById('room-modal'))closeRoomModal();});
