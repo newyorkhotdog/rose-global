@@ -1013,6 +1013,8 @@ function renderHirkonInto(containerId) {
   html += '</div>';
   document.getElementById(containerId).innerHTML = html;
 }
+
+function renderLavanda(){
   let totalRev=0,totalCost=0,totalPpl=0,green=0,yellow=0,red=0,empty=0;
   Object.values(LAV_ROOMS).forEach(r=>{totalRev+=r.people*r.price;totalCost+=r.cost;totalPpl+=r.people;const c=roomColor(r);if(!r.company)empty++;else if(c.bg==='#e8f5ef')green++;else if(c.bg==='#fef9e7')yellow++;else red++;});
   const profit=totalRev-totalCost;
