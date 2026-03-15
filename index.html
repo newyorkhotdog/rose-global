@@ -934,14 +934,19 @@ function roomCard(key, r, onclick){
   const c=roomColor(r);
   const p=r.people*r.price-r.cost;
   const inc=r.people*r.price;
-  return `<div onclick="${onclick}" style="background:${c.bg};border:1.5px solid ${c.border};border-radius:8px;padding:12px;cursor:pointer;transition:transform 0.15s" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
-    <div style="font-size:11px;font-weight:600;color:#a09890;margin-bottom:3px">חדר ${key.toString().includes('-')?key.split('-')[1]:key}</div>
-    <div style="font-size:13px;font-weight:600;color:#2d2a26;margin-bottom:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.company||'ריק'}</div>
-    <div style="font-size:12px;color:#6b6560;margin-bottom:3px">${r.people>0?r.people+' אנשים':'—'}</div>
-    <div style="font-size:13px;font-weight:600;color:${c.text}">${r.company?(p>=0?'+':'')+Math.round(p).toLocaleString('he-IL')+' ₪':'—'}</div>
-    ${r.company?`<div style="font-size:11px;color:#a09890">${Math.round(inc).toLocaleString('he-IL')} ₪ הכנסה</div>`:''}
-    ${r.note?`<div style="font-size:10px;background:rgba(0,0,0,0.06);padding:2px 6px;border-radius:8px;color:#6b6560;margin-top:4px;display:inline-block">${r.note.slice(0,24)}${r.note.length>24?'…':''}</div>`:''}
-  </div>`;
+  const roomNum = key.toString().includes('-') ? key.split('-')[1] : key;
+  const profitStr = r.company ? (p>=0?'+':'')+Math.round(p).toLocaleString('he-IL')+' ₪' : '—';
+  const incStr = Math.round(inc).toLocaleString('he-IL');
+  const incLine = r.company ? '<div style="font-size:11px;color:#a09890">'+incStr+' ₪ הכנסה</div>' : '';
+  const noteLine = r.note ? '<div style="font-size:10px;background:rgba(0,0,0,0.06);padding:2px 6px;border-radius:8px;color:#6b6560;margin-top:4px;display:inline-block">'+r.note.slice(0,24)+(r.note.length>24?'…':'')+'</div>' : '';
+  const peopleStr = r.people>0 ? r.people+' אנשים' : '—';
+  return '<div onclick="'+onclick+'" style="background:'+c.bg+';border:1.5px solid '+c.border+';border-radius:8px;padding:12px;cursor:pointer;transition:transform 0.15s" onmouseover="this.style.transform=\'translateY(-2px)\'" onmouseout="this.style.transform=\'\'">'+
+    '<div style="font-size:11px;font-weight:600;color:#a09890;margin-bottom:3px">חדר '+roomNum+'</div>'+
+    '<div style="font-size:13px;font-weight:600;color:#2d2a26;margin-bottom:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(r.company||'ריק')+'</div>'+
+    '<div style="font-size:12px;color:#6b6560;margin-bottom:3px">'+peopleStr+'</div>'+
+    '<div style="font-size:13px;font-weight:600;color:'+c.text+'">'+profitStr+'</div>'+
+    incLine + noteLine +
+  '</div>';
 }
 
 function renderLavanda(){
@@ -965,7 +970,7 @@ function renderLavanda(){
     rms.forEach(r=>{
       const key=`${f}-${r}`;
       const room=LAV_ROOMS[key]||{company:'',people:0,price:1250,cost:0,note:''};
-      html+=roomCard(key,room,`openRoomModal('lav','${key}')`);
+      html+=roomCard(key,room,"openRoomModal('lav','"+key+"')");
     });
     html+=`</div></div>`;
   });
@@ -987,7 +992,7 @@ function renderHirkon(){
     <div class="metric"><div class="metric-label">🔴 הפסדיים/ריקים</div><div class="metric-value red">${red+empty}</div></div>
   `;
   let html=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px">`;
-  roomNums.forEach(r=>{html+=roomCard(r,HIR_ROOMS[r],`openRoomModal('hir',${r})`);});
+  roomNums.forEach(r=>{html+=roomCard(r,HIR_ROOMS[r],"openRoomModal('hir',"+r+")");});
   html+=`</div>`;
   document.getElementById('hir-floors').innerHTML=html;
 }
