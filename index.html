@@ -1321,6 +1321,15 @@ function saveRoomMap() {
   mapEditRoomRef.price = parseInt(document.getElementById('rm-price').value)||0;
   mapEditRoomRef.cost = parseInt(document.getElementById('rm-cost').value)||0;
   mapEditRoomRef.note = document.getElementById('rm-note').value;
+  // Sync to TENANTS array
+  if(mapEditPropName && !FIXED_COSTS[mapEditPropName]) {
+    const r = mapEditRoomRef;
+    const existingT = TENANTS.find(t=>t.prop===mapEditPropName&&t.room===r.r&&!t.to);
+    if(existingT) { existingT.company=r.company; existingT.people=r.people; }
+    else if(r.company && r.people>0) {
+      TENANTS.push({id:nextId++,prop:mapEditPropName,floor:0,room:r.r,company:r.company,people:r.people,from:new Date().toISOString().split('T')[0],to:null});
+    }
+  }
   closeRoomModal();
   renderTenantMap();
   autosave();
@@ -1366,12 +1375,37 @@ function addMovement() {
   if(!room||!date||!people){alert('נא למלא חדר, פועלים ותאריך');return;}
   MOVEMENTS.unshift({id:nextId++,type,prop,floor,room,company,people,date,note});
   if(type==='entry'){
+    // Update TENANTS (for revenue calc)
     const existing=TENANTS.find(t=>t.prop===prop&&t.floor===floor&&t.room===room&&!t.to);
     if(existing) existing.people+=people;
     else TENANTS.push({id:nextId++,prop,floor,room,company,people,from:date,to:null});
+    // Update MAP_DATA (for visual map)
+    if(MAP_DATA[prop]&&MAP_DATA[prop].floors) {
+      const floorKey = MAP_DATA[prop].floors[floor]!==undefined?floor:
+                       MAP_DATA[prop].floors[String(floor)]!==undefined?String(floor):null;
+      if(floorKey!==null) {
+        const mapRoom = MAP_DATA[prop].floors[floorKey].find(r=>r.r===room);
+        if(mapRoom){ mapRoom.company=company; mapRoom.people+=people; }
+        else { MAP_DATA[prop].floors[floorKey].push({r:room,company,people,price:PRICE,cost:0,note:''}); }
+      } else {
+        // Floor doesn't exist in map yet — create it
+        if(!MAP_DATA[prop]) MAP_DATA[prop]={floors:{}};
+        MAP_DATA[prop].floors[floor]=[{r:room,company,people,price:PRICE,cost:0,note:''}];
+      }
+    }
   } else {
+    // Exit: update TENANTS
     const existing=TENANTS.find(t=>t.prop===prop&&t.floor===floor&&t.room===room&&!t.to&&t.company===company);
     if(existing){existing.people=Math.max(0,existing.people-people);if(existing.people===0)existing.to=date;}
+    // Exit: update MAP_DATA
+    if(MAP_DATA[prop]&&MAP_DATA[prop].floors) {
+      const floorKey = MAP_DATA[prop].floors[floor]!==undefined?floor:
+                       MAP_DATA[prop].floors[String(floor)]!==undefined?String(floor):null;
+      if(floorKey!==null) {
+        const mapRoom = MAP_DATA[prop].floors[floorKey].find(r=>r.r===room&&r.company===company);
+        if(mapRoom){ mapRoom.people=Math.max(0,mapRoom.people-people); if(mapRoom.people===0){mapRoom.company='';} }
+      }
+    }
   }
   clearMvForm();
   autosave();
@@ -2919,6 +2953,11 @@ function saveAddRoom() {
 
   MAP_DATA[prop].floors[floor].push({ r: roomNum, company, people, price, cost, note });
   MAP_DATA[prop].floors[floor].sort((a,b) => a.r - b.r);
+  // Sync to TENANTS if occupied
+  if(company && people > 0 && !FIXED_COSTS[prop]) {
+    const existingT = TENANTS.find(t=>t.prop===prop&&t.floor===floor&&t.room===roomNum&&!t.to);
+    if(!existingT) TENANTS.push({id:nextId++,prop,floor,room:roomNum,company,people,from:new Date().toISOString().split('T')[0],to:null});
+  }
   autosave();
   document.getElementById('add-room-modal').style.display = 'none';
   currentTenantProp = prop;
