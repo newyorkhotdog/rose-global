@@ -197,7 +197,6 @@ textarea { resize: vertical; min-height: 70px; }
   <div class="nav-item" onclick="nav('tasks',this)" id="nav-tasks"><span class="nav-icon">🔧</span> תקלות ומשימות <span class="nav-badge" id="tasks-badge">0</span></div>
   <div class="nav-item" onclick="nav('expenses',this)"><span class="nav-icon">📋</span> הוצאות</div>
   <div class="nav-item" onclick="nav('clients',this)"><span class="nav-icon">👥</span> לקוחות</div>
-  <div class="nav-item" onclick="nav('ai',this)"><span class="nav-icon">🤖</span> יועץ AI</div>
 </nav>
 
 <!-- MAIN -->
@@ -243,6 +242,26 @@ textarea { resize: vertical; min-height: 70px; }
   <!-- PROPS -->
   <div class="grid2" id="dash-props"></div>
   <div id="dash-alerts"></div>
+
+  <!-- AI ADVISOR IN DASHBOARD -->
+  <div class="card" style="margin-top:16px;border-right:3px solid #7367c0">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px">
+      <div>
+        <div style="font-size:14px;font-weight:500">🤖 יועץ AI</div>
+        <div style="font-size:12px;color:var(--text2)">ניתוח חכם של העסק בזמן אמת</div>
+      </div>
+      <button onclick="runAIAnalysis()" class="btn btn-primary" id="ai-analyze-btn">נתח את העסק</button>
+    </div>
+    <div id="ai-results"></div>
+    <div style="margin-top:14px;border-top:0.5px solid var(--border);padding-top:12px">
+      <div id="ai-chat-history" style="max-height:260px;overflow-y:auto;margin-bottom:10px;display:flex;flex-direction:column;gap:8px"></div>
+      <div style="display:flex;gap:8px">
+        <input id="ai-question" placeholder="שאל שאלה... למשל: איך למלא את החדרים הריקים?" style="flex:1;font-size:13px" onkeydown="if(event.key==='Enter')askAI()">
+        <button onclick="askAI()" class="btn btn-primary btn-sm" id="ai-ask-btn">שלח</button>
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-top:5px">מופעל על ידי Claude AI — מנתח את הנתונים האמיתיים של העסק</div>
+    </div>
+  </div>
 </div>
 
 <!-- TENANTS -->
@@ -683,7 +702,6 @@ function nav(page, el) {
   if (page==='tasks') renderTasks();
   if (page==='expenses') renderExpenses();
   if (page==='clients') renderClients();
-  if (page==='ai') renderAIPage();
   if (page==='map-lavanda') renderLavanda();
   if (page==='map-hirkon') renderHirkon();
 }
