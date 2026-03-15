@@ -196,6 +196,7 @@ textarea { resize: vertical; min-height: 70px; }
   <div class="nav-item" onclick="nav('billing',this)"><span class="nav-icon">💳</span> חשבוניות</div>
   <div class="nav-item" onclick="nav('tasks',this)" id="nav-tasks"><span class="nav-icon">🔧</span> תקלות ומשימות <span class="nav-badge" id="tasks-badge">0</span></div>
   <div class="nav-item" onclick="nav('expenses',this)"><span class="nav-icon">📋</span> הוצאות</div>
+  <div class="nav-item" onclick="nav('clients',this)"><span class="nav-icon">👥</span> לקוחות</div>
 </nav>
 
 <!-- MAIN -->
@@ -447,6 +448,64 @@ textarea { resize: vertical; min-height: 70px; }
   </div>
 </div>
 
+<!-- CLIENTS -->
+<div id="page-clients" class="page">
+  <div class="page-title">רשימת לקוחות</div>
+  <div class="page-sub">תאגידים פעילים ופוטנציאליים</div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+    <div style="display:flex;gap:6px">
+      <button class="tab active" id="cl-tab-active" onclick="setClientTab('active',this)">פעילים</button>
+      <button class="tab" id="cl-tab-potential" onclick="setClientTab('potential',this)">פוטנציאליים</button>
+      <button class="tab" id="cl-tab-all" onclick="setClientTab('all',this)">הכל</button>
+    </div>
+    <div style="display:flex;gap:8px">
+      <input id="cl-search" placeholder="חיפוש לקוח..." style="width:200px;padding:7px 10px;border:0.5px solid var(--border2);border-radius:var(--radius-sm);background:var(--bg2);color:var(--text);font-size:13px" oninput="renderClients()">
+      <button class="btn btn-primary btn-sm" onclick="openAddClientModal()">+ לקוח חדש</button>
+    </div>
+  </div>
+  <div id="clients-list"></div>
+</div>
+
+<!-- ADD/EDIT CLIENT MODAL -->
+<div id="client-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);align-items:center;justify-content:center;z-index:300;padding:1rem">
+  <div style="background:#fff;border-radius:12px;padding:20px;width:100%;max-width:400px;border:1px solid #e0ddd8;max-height:90vh;overflow-y:auto">
+    <div style="font-size:15px;font-weight:600;margin-bottom:16px" id="cl-modal-title">לקוח חדש</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+      <div style="display:flex;flex-direction:column;gap:4px;grid-column:1/-1"><label style="font-size:11px;color:#a09890;text-transform:uppercase">שם חברה</label>
+        <input id="cl-name" placeholder="שם החברה" style="background:#f5f3ef;border:1px solid #ddd;border-radius:6px;padding:8px 10px;font-size:13px;font-family:inherit"></div>
+      <div style="display:flex;flex-direction:column;gap:4px"><label style="font-size:11px;color:#a09890;text-transform:uppercase">ח.פ.</label>
+        <input id="cl-hp" placeholder="מספר ח.פ." style="background:#f5f3ef;border:1px solid #ddd;border-radius:6px;padding:8px 10px;font-size:13px;font-family:inherit"></div>
+      <div style="display:flex;flex-direction:column;gap:4px"><label style="font-size:11px;color:#a09890;text-transform:uppercase">סטטוס</label>
+        <select id="cl-status" style="background:#f5f3ef;border:1px solid #ddd;border-radius:6px;padding:8px 10px;font-size:13px;font-family:inherit">
+          <option value="active">פעיל</option>
+          <option value="potential">פוטנציאלי</option>
+          <option value="inactive">לא פעיל</option>
+        </select></div>
+    </div>
+    <div style="font-size:12px;font-weight:600;color:#a09890;text-transform:uppercase;margin:12px 0 8px">איש קשר ראשי</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+      <div style="display:flex;flex-direction:column;gap:4px"><label style="font-size:11px;color:#a09890;text-transform:uppercase">שם</label>
+        <input id="cl-contact" placeholder="שם איש הקשר" style="background:#f5f3ef;border:1px solid #ddd;border-radius:6px;padding:8px 10px;font-size:13px;font-family:inherit"></div>
+      <div style="display:flex;flex-direction:column;gap:4px"><label style="font-size:11px;color:#a09890;text-transform:uppercase">טלפון</label>
+        <input id="cl-phone" placeholder="050-0000000" style="background:#f5f3ef;border:1px solid #ddd;border-radius:6px;padding:8px 10px;font-size:13px;font-family:inherit"></div>
+      <div style="display:flex;flex-direction:column;gap:4px;grid-column:1/-1"><label style="font-size:11px;color:#a09890;text-transform:uppercase">אימייל</label>
+        <input id="cl-email" placeholder="email@company.com" style="background:#f5f3ef;border:1px solid #ddd;border-radius:6px;padding:8px 10px;font-size:13px;font-family:inherit"></div>
+    </div>
+    <div style="font-size:12px;font-weight:600;color:#a09890;text-transform:uppercase;margin:12px 0 8px">הנה"ח</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+      <div style="display:flex;flex-direction:column;gap:4px"><label style="font-size:11px;color:#a09890;text-transform:uppercase">שם</label>
+        <input id="cl-acc-name" placeholder="שם מנהל חשבונות" style="background:#f5f3ef;border:1px solid #ddd;border-radius:6px;padding:8px 10px;font-size:13px;font-family:inherit"></div>
+      <div style="display:flex;flex-direction:column;gap:4px"><label style="font-size:11px;color:#a09890;text-transform:uppercase">טלפון</label>
+        <input id="cl-acc-phone" placeholder="050-0000000" style="background:#f5f3ef;border:1px solid #ddd;border-radius:6px;padding:8px 10px;font-size:13px;font-family:inherit"></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:14px"><label style="font-size:11px;color:#a09890;text-transform:uppercase">הערות</label>
+      <input id="cl-notes" placeholder="הערות נוספות" style="background:#f5f3ef;border:1px solid #ddd;border-radius:6px;padding:8px 10px;font-size:13px;font-family:inherit"></div>
+    <div style="display:flex;gap:8px">
+      <button onclick="saveClient()" style="flex:1;padding:9px;background:#2d2a26;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-family:inherit">שמור</button>
+      <button onclick="document.getElementById('client-modal').style.display='none'" style="padding:9px 16px;background:transparent;border:1px solid #ddd;border-radius:6px;cursor:pointer;font-size:13px;font-family:inherit">ביטול</button>
+    </div>
+  </div>
+</div>
 </main>
 </div>
 
@@ -591,6 +650,7 @@ function nav(page, el) {
   if (page==='billing') renderBilling();
   if (page==='tasks') renderTasks();
   if (page==='expenses') renderExpenses();
+  if (page==='clients') renderClients();
   if (page==='map-lavanda') renderLavanda();
   if (page==='map-hirkon') renderHirkon();
 }
@@ -1242,6 +1302,145 @@ function renderExpenses(){
   html+='</tbody></table>';
   document.getElementById('exp-table').innerHTML=html;
 }
+
+
+// ============ CLIENTS ============
+const CLIENTS = [
+  {id:1,name:'שיק סין 26 בע"מ',hp:'516880994',status:'active',contact:'דור',phone:'054-4993336',email:'office@shick-china.co.il',accName:'עמית',accPhone:'054-8267524',notes:''},
+  {id:2,name:'מגיק פאוור בע"מ',hp:'516894219',status:'active',contact:'מוחמד',phone:'050-4685082',email:'',accName:'מוחמד',accPhone:'052-5675187',notes:''},
+  {id:3,name:'ח.ח.א',hp:'',status:'active',contact:'שריף',phone:'052-4010591',email:'',accName:'שריף',accPhone:'052-4010591',notes:''},
+  {id:4,name:'י.ע.ר 2023 עובדים זרים בע"מ',hp:'516879665',status:'active',contact:'ולאדי',phone:'',email:'',accName:'בבי',accPhone:'',notes:'יער'},
+  {id:5,name:'שמרית שרותי עובדים 2023 בע"מ',hp:'516892411',status:'active',contact:'רן',phone:'050-4836300',email:'',accName:'אבי',accPhone:'050-6203569',notes:''},
+  {id:6,name:'בינה עובדים זרים לבניין בע"מ',hp:'515373454',status:'active',contact:'מיכה אילוז',phone:'050-569-6988',email:'',accName:'',accPhone:'',notes:''},
+  {id:7,name:'משביר יעקב בע"מ',hp:'516900701',status:'active',contact:'לירן',phone:'052-390-1196',email:'',accName:'',accPhone:'',notes:''},
+  {id:8,name:'קורפו בניה בע"מ',hp:'516884863',status:'active',contact:'איהב',phone:'054-992-2361',email:'',accName:'',accPhone:'',notes:''},
+  {id:9,name:'שימרון',hp:'',status:'active',contact:'אבי כהן',phone:'050-620-3569',email:'',accName:'',accPhone:'',notes:''},
+  {id:10,name:'קורל ב. פרויקטים בע"מ',hp:'516184876',status:'active',contact:'לירז',phone:'052-5445551',email:'liraz@koralprojects.com',accName:'לירז',accPhone:'052-5445551',notes:''},
+];
+let clientNextId = 11;
+let clientTab = 'active';
+let clientEditId = null;
+
+function setClientTab(tab, el) {
+  clientTab = tab;
+  document.querySelectorAll('#page-clients .tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderClients();
+}
+
+function renderClients() {
+  const search = (document.getElementById('cl-search')||{}).value||'';
+  let list = CLIENTS.filter(c => {
+    if (clientTab === 'active' && c.status !== 'active') return false;
+    if (clientTab === 'potential' && c.status !== 'potential') return false;
+    if (search) {
+      const s = search.toLowerCase();
+      return c.name.toLowerCase().includes(s) || c.contact.toLowerCase().includes(s) || c.phone.includes(s);
+    }
+    return true;
+  });
+
+  if (!list.length) {
+    document.getElementById('clients-list').innerHTML = '<div style="text-align:center;padding:2rem;color:var(--text3);font-size:13px">אין לקוחות</div>';
+    return;
+  }
+
+  const html = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px">' +
+    list.map(c => {
+      const statusColor = c.status==='active'?'badge-green':c.status==='potential'?'badge-blue':'badge-amber';
+      const statusLabel = c.status==='active'?'פעיל':c.status==='potential'?'פוטנציאלי':'לא פעיל';
+      const initials = c.name.split(' ').map(w=>w[0]).join('').slice(0,2);
+      return '<div class="card" style="padding:14px">' +
+        '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">' +
+          '<div style="display:flex;align-items:center;gap:10px">' +
+            '<div style="width:36px;height:36px;border-radius:50%;background:#ede9f8;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#7367c0;flex-shrink:0">'+initials+'</div>' +
+            '<div><div style="font-size:14px;font-weight:600;color:var(--text)">'+c.name+'</div>' +
+            (c.hp?'<div style="font-size:11px;color:var(--text3)">ח.פ. '+c.hp+'</div>':'') + '</div>' +
+          '</div>' +
+          '<span class="badge '+statusColor+'">'+statusLabel+'</span>' +
+        '</div>' +
+        '<div style="font-size:12px;color:var(--text2);display:flex;flex-direction:column;gap:4px">' +
+          (c.contact?'<div>👤 '+c.contact+(c.phone?' · '+c.phone:'')+'</div>':'') +
+          (c.email?'<div>✉️ '+c.email+'</div>':'') +
+          (c.accName?'<div style="color:var(--text3)">הנה"ח: '+c.accName+(c.accPhone?' · '+c.accPhone:'')+'</div>':'') +
+          (c.notes?'<div style="color:var(--text3)">'+c.notes+'</div>':'') +
+        '</div>' +
+        '<div style="display:flex;gap:6px;margin-top:10px">' +
+          '<button onclick="editClient('+c.id+')" class="btn btn-sm" style="flex:1">עריכה</button>' +
+          '<button onclick="deleteClient('+c.id+')" class="btn btn-sm btn-danger">מחק</button>' +
+        '</div>' +
+      '</div>';
+    }).join('') + '</div>';
+
+  document.getElementById('clients-list').innerHTML = html;
+}
+
+function openAddClientModal() {
+  clientEditId = null;
+  document.getElementById('cl-modal-title').textContent = 'לקוח חדש';
+  ['cl-name','cl-hp','cl-contact','cl-phone','cl-email','cl-acc-name','cl-acc-phone','cl-notes'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('cl-status').value = 'active';
+  document.getElementById('client-modal').style.display = 'flex';
+}
+
+function editClient(id) {
+  const c = CLIENTS.find(x=>x.id===id);
+  if (!c) return;
+  clientEditId = id;
+  document.getElementById('cl-modal-title').textContent = 'עריכת לקוח';
+  document.getElementById('cl-name').value = c.name;
+  document.getElementById('cl-hp').value = c.hp;
+  document.getElementById('cl-status').value = c.status;
+  document.getElementById('cl-contact').value = c.contact;
+  document.getElementById('cl-phone').value = c.phone;
+  document.getElementById('cl-email').value = c.email;
+  document.getElementById('cl-acc-name').value = c.accName;
+  document.getElementById('cl-acc-phone').value = c.accPhone;
+  document.getElementById('cl-notes').value = c.notes;
+  document.getElementById('client-modal').style.display = 'flex';
+}
+
+function saveClient() {
+  const data = {
+    name: document.getElementById('cl-name').value.trim(),
+    hp: document.getElementById('cl-hp').value.trim(),
+    status: document.getElementById('cl-status').value,
+    contact: document.getElementById('cl-contact').value.trim(),
+    phone: document.getElementById('cl-phone').value.trim(),
+    email: document.getElementById('cl-email').value.trim(),
+    accName: document.getElementById('cl-acc-name').value.trim(),
+    accPhone: document.getElementById('cl-acc-phone').value.trim(),
+    notes: document.getElementById('cl-notes').value.trim(),
+  };
+  if (!data.name) { alert('נא להזין שם חברה'); return; }
+  if (clientEditId) {
+    const idx = CLIENTS.findIndex(c=>c.id===clientEditId);
+    if (idx !== -1) CLIENTS[idx] = {...CLIENTS[idx], ...data};
+  } else {
+    CLIENTS.push({id: clientNextId++, ...data});
+  }
+  document.getElementById('client-modal').style.display = 'none';
+  renderClients();
+}
+
+function deleteClient(id) {
+  if (!confirm('למחוק לקוח זה?')) return;
+  const idx = CLIENTS.findIndex(c=>c.id===id);
+  if (idx !== -1) CLIENTS.splice(idx, 1);
+  renderClients();
+}
+
+function getClientName(nameOrId) {
+  const c = CLIENTS.find(x=>x.id===nameOrId||x.name===nameOrId);
+  return c ? c.name : nameOrId;
+}
+
+document.getElementById('client-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('client-modal'))
+    document.getElementById('client-modal').style.display = 'none';
+});
 
 // ============ INIT ============
 document.getElementById('mv-date').value = new Date().toISOString().split('T')[0];
