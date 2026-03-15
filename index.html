@@ -596,6 +596,8 @@ function renderTenantTable() {
   const cost = getPropCost(p);
   const profit = rev - cost;
   const ppl = rows.reduce((s,t)=>s+t.people,0);
+  const hasMap = (p==='לבנדה 32' || p==='הירקון 41 ב"ב');
+  const showMap = hasMap && tenantViewState[p] === 'map';
 
   let html = `<div class="metrics">
     <div class="metric"><div class="metric-label">הכנסה</div><div class="metric-value green">${isFixed&&!rev?'לבדוק':fmt(rev)+' ₪'}</div></div>
@@ -604,12 +606,23 @@ function renderTenantTable() {
     <div class="metric"><div class="metric-label">סה"כ דיירים</div><div class="metric-value">${ppl}</div></div>
   </div>`;
 
-  if (isFixed) {
-    html += `<div class="alert alert-amber" style="margin-bottom:16px">נכס זה בתשלום פיקס פרייס — ${FIXED_COSTS[p].note}</div>`;
-  }
+  if (isFixed) html += `<div class="alert alert-amber" style="margin-bottom:16px">נכס זה בתשלום פיקס פרייס — ${FIXED_COSTS[p].note}</div>`;
 
-  html += `<div class="section-header"><div class="section-title">חדרים פעילים (${rows.length})</div>
-    <button class="btn btn-primary btn-sm" onclick="showAddTenant()">+ הוסף</button></div>`;
+  // View toggle for map-enabled properties
+  if (hasMap) {
+    const mapKey = p==='לבנדה 32'?'lav':'hir';
+    html += `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <div class="section-title">חדרים פעילים (${rows.length})</div>
+      <div style="display:flex;gap:6px">
+        <button class="tab ${!showMap?'active':''}" onclick="setTenantView('${p}','table')">📋 טבלה</button>
+        <button class="tab ${showMap?'active':''}" onclick="setTenantView('${p}','map')">🗺️ מפת חדרים</button>
+        <button class="btn btn-primary btn-sm" onclick="showAddTenant()">+ הוסף</button>
+      </div>
+    </div>`;
+  } else {
+    html += `<div class="section-header"><div class="section-title">חדרים פעילים (${rows.length})</div>
+      <button class="btn btn-primary btn-sm" onclick="showAddTenant()">+ הוסף</button></div>`;
+  }
 
   html += `<div id="add-tenant-form" style="display:none" class="card" style="margin-bottom:12px">
     <div class="card-title">דייר/תאגיד חדש</div>
@@ -625,6 +638,18 @@ function renderTenantTable() {
     <div class="btn-row"><button class="btn btn-primary" onclick="addTenant()">שמור</button><button class="btn" onclick="document.getElementById('add-tenant-form').style.display='none'">ביטול</button></div>
   </div>`;
 
+  if (hasMap && showMap) {
+    // MAP VIEW
+    const mapKey = p==='לבנדה 32'?'lav':'hir';
+    html += `<div id="tenant-map-container"></div>`;
+    document.getElementById('tenant-content').innerHTML = html;
+    // Render the map into the container
+    if (p==='לבנדה 32') renderLavandaInto('tenant-map-container');
+    else renderHirkonInto('tenant-map-container');
+    return;
+  }
+
+  // TABLE VIEW
   html += `<div class="table-wrap"><table><thead><tr><th>קומה</th><th>חדר</th><th>תאגיד</th><th>אנשים</th><th>הכנסה/חודש</th><th>כניסה</th><th>פעולות</th></tr></thead><tbody>`;
   rows.sort((a,b)=>a.floor-b.floor||a.room-b.room).forEach(t => {
     const monthly = isFixed ? '-' : fmt(t.people*PRICE)+' ₪';
@@ -642,6 +667,12 @@ function renderTenantTable() {
   });
   html += `</tbody></table></div>`;
   document.getElementById('tenant-content').innerHTML = html;
+}
+
+const tenantViewState = {};
+function setTenantView(prop, view) {
+  tenantViewState[prop] = view;
+  renderTenantTable();
 }
 
 function showAddTenant() { document.getElementById('add-tenant-form').style.display='block'; }
@@ -949,7 +980,39 @@ function roomCard(key, r, onclick){
   '</div>';
 }
 
-function renderLavanda(){
+function renderLavandaInto(containerId) {
+  let html = '<div style="display:flex;gap:14px;margin-bottom:14px;flex-wrap:wrap">';
+  html += '<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)"><div style="width:12px;height:12px;border-radius:3px;background:#a8d9be"></div>רווחי</div>';
+  html += '<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)"><div style="width:12px;height:12px;border-radius:3px;background:#f0d98a"></div>מדשדש</div>';
+  html += '<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)"><div style="width:12px;height:12px;border-radius:3px;background:#e8b0aa"></div>הפסדי</div>';
+  html += '<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)"><div style="width:12px;height:12px;border-radius:3px;background:#e0e0e0"></div>ריק</div></div>';
+  [1,2,3].forEach(f => {
+    const rms = LAV_FLOORS[f];
+    html += '<div style="margin-bottom:1.5rem"><div style="font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border)">קומה '+f+'</div>';
+    html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px">';
+    rms.forEach(r => {
+      const key = f+'-'+r;
+      const room = LAV_ROOMS[key]||{company:'',people:0,price:1250,cost:0,note:''};
+      html += roomCard(key, room, "openRoomModal('lav','"+key+"')");
+    });
+    html += '</div></div>';
+  });
+  document.getElementById(containerId).innerHTML = html;
+}
+
+function renderHirkonInto(containerId) {
+  const roomNums = [5,6,7,9,10,11,13,14];
+  let html = '<div style="display:flex;gap:14px;margin-bottom:14px;flex-wrap:wrap">';
+  html += '<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)"><div style="width:12px;height:12px;border-radius:3px;background:#a8d9be"></div>רווחי</div>';
+  html += '<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)"><div style="width:12px;height:12px;border-radius:3px;background:#f0d98a"></div>מדשדש</div>';
+  html += '<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)"><div style="width:12px;height:12px;border-radius:3px;background:#e8b0aa"></div>הפסדי</div>';
+  html += '<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)"><div style="width:12px;height:12px;border-radius:3px;background:#e0e0e0"></div>ריק</div>';
+  html += '<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)"><div style="width:12px;height:12px;border-radius:3px;background:#d4a8e0"></div>שיפוץ</div></div>';
+  html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px">';
+  roomNums.forEach(r => { html += roomCard(r, HIR_ROOMS[r], "openRoomModal('hir',"+r+")"); });
+  html += '</div>';
+  document.getElementById(containerId).innerHTML = html;
+}
   let totalRev=0,totalCost=0,totalPpl=0,green=0,yellow=0,red=0,empty=0;
   Object.values(LAV_ROOMS).forEach(r=>{totalRev+=r.people*r.price;totalCost+=r.cost;totalPpl+=r.people;const c=roomColor(r);if(!r.company)empty++;else if(c.bg==='#e8f5ef')green++;else if(c.bg==='#fef9e7')yellow++;else red++;});
   const profit=totalRev-totalCost;
