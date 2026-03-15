@@ -1445,7 +1445,7 @@ function populateBillClientFilter() {
   const current = sel.value;
   const active = CLIENTS.filter(c=>c.status==='active').sort((a,b)=>a.name.localeCompare(b.name));
   sel.innerHTML = '<option value="">כל הלקוחות</option>' +
-    active.map(c=>`<option ${c.name===current?'selected':''}>${c.name}</option>`).join('');
+    active.map(c=>`<option value="${c.name}" ${c.name===current?'selected':''}>${c.name}</option>`).join('');
 }
 
 function renderBilling(){
@@ -1747,7 +1747,7 @@ const CLIENTS = [
   {id:178,name:'טונג דה ישראל בע"מ',hp:'514569458',status:'potential',contact:'',phone:'03-6007595',email:'office@tongde.co.il',accName:'',accPhone:'',address:'דבורה הנביאה 121 ת"א',notes:''},
   {id:179,name:'טי.אר.פי כח אדם לבניה בע"מ',hp:'516879558',status:'potential',contact:'',phone:'054-6114729',email:'oz@p-r-t.co.il',accName:'',accPhone:'',address:'המלאכה 21 ראש העין',notes:''},
   {id:180,name:'י.ב.מ אינטרנשיונל אימפלוימנט בע"מ',hp:'515392017',status:'potential',contact:'',phone:'03-9422260',email:'mp@ibmhr.co.il',accName:'',accPhone:'',address:'משה דיין 10 פתח תקוה',notes:''},
-  {id:181,name:'י.ע.ר 2023 עובדים זרים בע"מ',hp:'516879665',status:'active',contact:'',phone:'052-6338899',email:'office@yar2023.co.il',accName:'',accPhone:'',address:'דוד המלך 1 הרצליה',notes:''},
+  {id:181,name:'י.ע.ר 2023 עובדים זרים בע"מ',hp:'516879665',status:'potential',contact:'',phone:'052-6338899',email:'office@yar2023.co.il',accName:'',accPhone:'',address:'דוד המלך 1 הרצליה',notes:''},
   {id:182,name:'י.ש. 770 עובדים זרים לבניין',hp:'516900289',status:'potential',contact:'',phone:'052-4428429',email:'amos@ys770.co.il',accName:'',accPhone:'',address:'התעשייה 47 נשר',notes:''},
   {id:183,name:'יגיע כפיים בע"מ',hp:'516884616',status:'potential',contact:'',phone:'054-2507704',email:'',accName:'',accPhone:'',address:'הארזים 73 נתיבות',notes:''},
   {id:184,name:'יד ביד בניה ואספקת עובדים בע"מ',hp:'516887668',status:'potential',contact:'',phone:'050-6233115',email:'',accName:'',accPhone:'',address:'הרכס 13 מודיעין',notes:''},
@@ -2133,19 +2133,15 @@ function renderAIAnalysis(text, snapshot) {
 }
 
 function extractSection(text, title) {
-  // Simple string-based extraction, no regex with brackets
   const marker = '[' + title + ']';
   const idx = text.indexOf(marker);
   if (idx >= 0) {
     const start = idx + marker.length;
     const nextBracket = text.indexOf('[', start);
     const section = nextBracket > 0 ? text.slice(start, nextBracket) : text.slice(start);
-    return section.trim().replace(/
-/g,'<br>');
+    return section.trim().split('\n').join('<br>');
   }
-  // Fallback: find by title followed by colon or newline
-  const lines = text.split('
-');
+  const lines = text.split('\n');
   let capture = false, result = [];
   for (const line of lines) {
     if (line.includes(title)) { capture = true; continue; }
