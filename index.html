@@ -1431,16 +1431,10 @@ function delMv(id){MOVEMENTS.splice(MOVEMENTS.findIndex(m=>m.id===id),1);renderM
 function populateBillClientFilter() {
   const sel = document.getElementById('bill-client');
   if (!sel) return;
-  // Get all unique companies from MAP_DATA
-  const companies = new Set();
-  Object.keys(MAP_DATA).forEach(prop => {
-    Object.values(MAP_DATA[prop].floors||{}).forEach(rooms => {
-      rooms.forEach(r => { if(r.company) companies.add(r.company); });
-    });
-  });
   const current = sel.value;
-  sel.innerHTML = '<option value="">כל הלקוחות</option>' + 
-    [...companies].sort().map(c => `<option ${c===current?'selected':''}>${c}</option>`).join('');
+  const active = CLIENTS.filter(c=>c.status==='active').sort((a,b)=>a.name.localeCompare(b.name));
+  sel.innerHTML = '<option value="">כל הלקוחות</option>' +
+    active.map(c=>`<option ${c.name===current?'selected':''}>${c.name}</option>`).join('');
 }
 
 function renderBilling(){
