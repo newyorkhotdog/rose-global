@@ -162,6 +162,17 @@ textarea { resize: vertical; min-height: 70px; }
 .invoice-subtotal { background: #faf9f7; font-weight: 600; color: var(--text); }
 
 /* PRORATA BOX */
+.he-inline {
+  background: var(--bg2);
+  border: 0.5px solid var(--border2);
+  border-radius: 4px;
+  padding: 4px 6px;
+  font-size: 12px;
+  font-family: inherit;
+  color: var(--text);
+  text-align: left;
+}
+.he-inline:focus { outline: 1px solid var(--purple); }
 .prorata-box { background: var(--blue-bg); border: 1px solid rgba(96,165,250,0.2); border-radius: var(--radius-sm); padding: 10px 14px; font-size: 13px; color: var(--blue); margin-bottom: 12px; }
 
 /* MOBILE */
@@ -701,62 +712,32 @@ textarea { resize: vertical; min-height: 70px; }
   </div>
 
   <div id="hist-entry-view" style="display:none">
-    <div class="card">
-      <div class="card-title">הזנת נתונים חודשיים</div>
-      <div class="form-grid" style="margin-bottom:12px">
-        <div class="form-group"><label>חודש</label>
-          <select id="he-month">
-            <option value="2025-11">נובמבר 2025</option>
-            <option value="2025-12">דצמבר 2025</option>
-            <option value="2026-01">ינואר 2026</option>
-            <option value="2026-02">פברואר 2026</option>
-            <option value="2026-03" selected>מרץ 2026</option>
-          <option value="2026-04">אפריל 2026</option>
-          </select>
-        </div>
-        <div class="form-group"><label>נכס</label>
-          <select id="he-prop">
-            <option>לבנדה 32</option>
-            <option>עזאי 38</option>
-            <option>נתן הנביא 42</option>
-            <option>הירקון 41 ב"ב</option>
-          <option>חיים בר לב 104</option>
-          </select>
-        </div>
-      </div>
-      <div style="font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">הכנסות</div>
-      <div class="form-grid three" style="margin-bottom:14px">
-        <div class="form-group"><label>הכנסת שכירות (₪)</label><input type="number" id="he-income" placeholder="0"></div>
-        <div class="form-group"><label>מספר דיירים</label><input type="number" id="he-tenants" placeholder="0"></div>
-        <div class="form-group"><label>הכנסה פר ראש</label><input type="number" id="he-pph" placeholder="1250"></div>
-      </div>
-      <div style="font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">הוצאות</div>
-      <div class="form-grid three" style="margin-bottom:14px">
-        <div class="form-group"><label>שכירות לבעל נכס (₪)</label><input type="number" id="he-rent" placeholder="0"></div>
-        <div class="form-group"><label>חשמל (₪)</label><input type="number" id="he-electric" placeholder="0"></div>
-        <div class="form-group"><label>מים (₪)</label><input type="number" id="he-water" placeholder="0"></div>
-      </div>
-      <div class="form-grid" style="margin-bottom:14px">
-        <div class="form-group"><label>ארנונה (₪)</label><input type="number" id="he-arnona" placeholder="0"></div>
-        <div class="form-group"><label>הוצאות אחרות (₪)</label><input type="number" id="he-other" placeholder="0"></div>
-      </div>
-      <div id="he-preview" style="background:var(--bg3);border-radius:var(--radius-sm);padding:12px;margin-bottom:14px;font-size:13px;display:none">
-        <div style="display:flex;gap:24px;flex-wrap:wrap">
-          <div><div style="font-size:11px;color:var(--text3)">הכנסה</div><div id="he-prev-income" style="font-weight:600;color:#3a8a68"></div></div>
-          <div><div style="font-size:11px;color:var(--text3)">הוצאות</div><div id="he-prev-expenses" style="font-weight:600;color:#b85a50"></div></div>
-          <div><div style="font-size:11px;color:var(--text3)">רווח גולמי</div><div id="he-prev-profit" style="font-weight:600"></div></div>
-        </div>
-      </div>
-      <div class="btn-row">
-        <button class="btn btn-primary" onclick="saveHistEntry()">שמור רשומה</button>
-        <button class="btn" onclick="clearHistForm()">נקה</button>
-      </div>
+  <div class="card">
+    <div class="card-title">הזנת נתונים היסטוריים — טבלה מרכזת</div>
+    <div style="overflow-x:auto">
+      <table id="hist-entry-table" style="min-width:900px">
+        <thead>
+          <tr>
+            <th style="min-width:130px">נכס</th>
+            <th style="min-width:100px">חודש</th>
+            <th style="min-width:90px">הכנסה ₪</th>
+            <th style="min-width:90px">שכירות ₪</th>
+            <th style="min-width:80px">חשמל ₪</th>
+            <th style="min-width:80px">מים ₪</th>
+            <th style="min-width:80px">ארנונה ₪</th>
+            <th style="min-width:80px">אחר ₪</th>
+            <th style="min-width:70px">פעולות</th>
+          </tr>
+        </thead>
+        <tbody id="hist-entry-tbody"></tbody>
+      </table>
     </div>
-    <div style="margin-top:16px">
-      <div class="section-title" style="margin-bottom:10px">רשומות קיימות</div>
-      <div id="he-existing"></div>
+    <button onclick="addHistEntryRow()" class="btn btn-sm" style="margin-top:12px">+ הוסף שורה</button>
+    <div class="btn-row" style="margin-top:12px">
+      <button onclick="saveAllHistEntries()" class="btn btn-primary">שמור הכל</button>
     </div>
   </div>
+</div>
 </div>
 
 </main>
@@ -2421,7 +2402,7 @@ function setHistView(view, el) {
   document.getElementById('hist-general-view').style.display = view==='general' ? 'block' : 'none';
   document.getElementById('hist-props-view').style.display = view==='props' ? 'block' : 'none';
   if (view==='chart') renderHistChart();
-  if (view==='entry') renderHistExisting();
+  if (view==='entry') renderHistEntryTable();
   if (view==='general') renderHgExisting();
   if (view==='props') renderPropsSheet();
 }
@@ -2953,6 +2934,135 @@ function renderPropsSheet() {
 
   html += '</div>';
   document.getElementById('hist-props-content').innerHTML = html;
+}
+
+
+// ============ HISTORY ENTRY TABLE ============
+const MONTHS_LIST = ['2025-11','2025-12','2026-01','2026-02','2026-03','2026-04'];
+const PROPS_LIST = ['לבנדה 32','עזאי 38','נתן הנביא 42','הירקון 41 ב"ב','חיים בר לב 104'];
+
+function renderHistEntryTable() {
+  const tbody = document.getElementById('hist-entry-tbody');
+  if (!tbody) return;
+
+  // Build rows from existing HISTORY data
+  let rows = [];
+  PROPS_LIST.forEach(prop => {
+    MONTHS_LIST.forEach(month => {
+      const h = HISTORY.find(x=>x.month===month&&x.prop===prop);
+      rows.push({
+        prop, month,
+        income: h ? h.income : '',
+        rent: h ? h.rent : '',
+        electric: h ? h.electric||'' : '',
+        water: h ? h.water||'' : '',
+        arnona: h ? h.arnona||'' : '',
+        other: h ? h.other||'' : '',
+        exists: !!h
+      });
+    });
+  });
+
+  tbody.innerHTML = rows.map((r,i) => `
+    <tr style="background:${r.exists?'var(--green-bg)':''}">
+      <td style="font-size:12px;font-weight:500">${r.prop}</td>
+      <td style="font-size:12px">${getMonthLabel(r.month)}</td>
+      <td><input type="number" value="${r.income}" placeholder="0" class="he-inline" data-i="${i}" data-f="income" style="width:80px"></td>
+      <td><input type="number" value="${r.rent}" placeholder="0" class="he-inline" data-i="${i}" data-f="rent" style="width:80px"></td>
+      <td><input type="number" value="${r.electric}" placeholder="0" class="he-inline" data-i="${i}" data-f="electric" style="width:70px"></td>
+      <td><input type="number" value="${r.water}" placeholder="0" class="he-inline" data-i="${i}" data-f="water" style="width:70px"></td>
+      <td><input type="number" value="${r.arnona}" placeholder="0" class="he-inline" data-i="${i}" data-f="arnona" style="width:70px"></td>
+      <td><input type="number" value="${r.other}" placeholder="0" class="he-inline" data-i="${i}" data-f="other" style="width:70px"></td>
+      <td><button onclick="clearHistRow(${i})" class="btn btn-sm btn-danger" style="padding:3px 8px">✕</button></td>
+    </tr>`).join('');
+
+  // Store rows reference for saving
+  tbody._rows = rows;
+}
+
+function addHistEntryRow() {
+  // Open a quick-add form below table
+  const tbody = document.getElementById('hist-entry-tbody');
+  const i = 'new_'+Date.now();
+  const propOpts = PROPS_LIST.map(p=>`<option>${p}</option>`).join('');
+  const monthOpts = MONTHS_LIST.map(m=>`<option value="${m}">${getMonthLabel(m)}</option>`).join('');
+  const tr = document.createElement('tr');
+  tr.style.background = 'var(--blue-bg)';
+  tr.innerHTML = `
+    <td><select class="he-inline" id="new-prop-${i}" style="width:130px">${propOpts}</select></td>
+    <td><select class="he-inline" id="new-month-${i}" style="width:100px">${monthOpts}</select></td>
+    <td><input type="number" id="new-income-${i}" placeholder="0" style="width:80px"></td>
+    <td><input type="number" id="new-rent-${i}" placeholder="0" style="width:80px"></td>
+    <td><input type="number" id="new-electric-${i}" placeholder="0" style="width:70px"></td>
+    <td><input type="number" id="new-water-${i}" placeholder="0" style="width:70px"></td>
+    <td><input type="number" id="new-arnona-${i}" placeholder="0" style="width:70px"></td>
+    <td><input type="number" id="new-other-${i}" placeholder="0" style="width:70px"></td>
+    <td><button onclick="saveNewHistRow('${i}',this.closest('tr'))" class="btn btn-sm btn-primary" style="padding:3px 8px">✓</button></td>`;
+  tbody.appendChild(tr);
+}
+
+function saveNewHistRow(i, tr) {
+  const prop = document.getElementById('new-prop-'+i).value;
+  const month = document.getElementById('new-month-'+i).value;
+  const income = parseFloat(document.getElementById('new-income-'+i).value)||0;
+  const rent = parseFloat(document.getElementById('new-rent-'+i).value)||0;
+  const electric = parseFloat(document.getElementById('new-electric-'+i).value)||0;
+  const water = parseFloat(document.getElementById('new-water-'+i).value)||0;
+  const arnona = parseFloat(document.getElementById('new-arnona-'+i).value)||0;
+  const other = parseFloat(document.getElementById('new-other-'+i).value)||0;
+  const entry = {month,prop,income,tenants:0,pph:0,rent,electric,water,arnona,other};
+  const idx = HISTORY.findIndex(h=>h.month===month&&h.prop===prop);
+  if (idx>=0) HISTORY[idx]=entry; else HISTORY.push(entry);
+  HISTORY.sort((a,b)=>a.month.localeCompare(b.month)||a.prop.localeCompare(b.prop));
+  autosave();
+  tr.remove();
+  renderHistEntryTable();
+  showSaveIndicator('✓ נשמר');
+}
+
+function clearHistRow(i) {
+  const tbody = document.getElementById('hist-entry-tbody');
+  if (!tbody._rows || !tbody._rows[i]) return;
+  const r = tbody._rows[i];
+  if (!r.exists) return;
+  if (!confirm('למחוק את הנתונים של '+r.prop+' — '+getMonthLabel(r.month)+'?')) return;
+  const idx = HISTORY.findIndex(h=>h.month===r.month&&h.prop===r.prop);
+  if (idx>=0) HISTORY.splice(idx,1);
+  autosave();
+  renderHistEntryTable();
+}
+
+function saveAllHistEntries() {
+  const inputs = document.querySelectorAll('#hist-entry-tbody .he-inline[data-i]');
+  const changes = {};
+  inputs.forEach(inp => {
+    const i = inp.dataset.i;
+    const f = inp.dataset.f;
+    if (!changes[i]) changes[i] = {};
+    changes[i][f] = parseFloat(inp.value)||0;
+  });
+  const tbody = document.getElementById('hist-entry-tbody');
+  if (!tbody._rows) return;
+  Object.entries(changes).forEach(([i, vals]) => {
+    const r = tbody._rows[i];
+    if (!r) return;
+    const hasData = Object.values(vals).some(v=>v>0);
+    if (!hasData && !r.exists) return;
+    const entry = {month:r.month,prop:r.prop,income:vals.income||0,tenants:0,pph:0,
+      rent:vals.rent||0,electric:vals.electric||0,water:vals.water||0,
+      arnona:vals.arnona||0,other:vals.other||0};
+    if (!hasData) {
+      const idx = HISTORY.findIndex(h=>h.month===r.month&&h.prop===r.prop);
+      if (idx>=0) HISTORY.splice(idx,1);
+    } else {
+      const idx = HISTORY.findIndex(h=>h.month===r.month&&h.prop===r.prop);
+      if (idx>=0) HISTORY[idx]=entry; else HISTORY.push(entry);
+    }
+  });
+  HISTORY.sort((a,b)=>a.month.localeCompare(b.month)||a.prop.localeCompare(b.prop));
+  autosave();
+  renderHistEntryTable();
+  showSaveIndicator('✓ כל הנתונים נשמרו');
 }
 
 // ============ INIT ============
