@@ -187,8 +187,8 @@ textarea { resize: vertical; min-height: 70px; }
   th, td { padding: 8px 10px; }
   .mobile-nav { display: flex !important; }
 }
-.mobile-nav { display: none; gap: 0; overflow-x: auto; background: #ede9f8; border-bottom: 1px solid rgba(139,127,212,0.2); margin: -16px -16px 16px; padding: 8px 12px; }
-.mobile-nav .nav-item { border-right: none; border-bottom: 2px solid transparent; padding: 6px 12px; white-space: nowrap; font-size: 12px; }
+.mobile-nav { display: none; gap: 0; overflow-x: auto; background: #ede9f8; border-bottom: 1px solid rgba(139,127,212,0.2); margin: -16px -16px 16px; padding: 8px 12px; white-space: nowrap; -webkit-overflow-scrolling: touch; }
+.mobile-nav .nav-item { border-right: none; border-bottom: 2px solid transparent; padding: 6px 12px; white-space: nowrap; font-size: 12px;  flex-shrink: 0; }
 .mobile-nav .nav-item.active { border-bottom-color: var(--accent); }
 </style>
 <!-- Chart.js -->
@@ -277,13 +277,15 @@ textarea { resize: vertical; min-height: 70px; }
 <main class="main">
 
 <!-- MOBILE NAV -->
-<div class="mobile-nav">
+<div class="mobile-nav" id="mobile-nav">
   <div class="nav-item active" onclick="nav('dashboard',this)">📊 דשבורד</div>
   <div class="nav-item" onclick="nav('tenants',this)">🏠 דיירים</div>
   <div class="nav-item" onclick="nav('movements',this)">🔄 תנועות</div>
   <div class="nav-item" onclick="nav('billing',this)">💳 חשבוניות</div>
   <div class="nav-item" onclick="nav('tasks',this)">🔧 תקלות</div>
   <div class="nav-item" onclick="nav('expenses',this)">📋 הוצאות</div>
+  <div class="nav-item" onclick="nav('clients',this)">👥 לקוחות</div>
+  <div class="nav-item" onclick="nav('history',this)">📈 רווח והפסד</div>
 </div>
 
 <!-- DASHBOARD -->
