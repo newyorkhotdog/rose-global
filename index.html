@@ -337,6 +337,7 @@ textarea { resize: vertical; min-height: 70px; }
     <button class="tab" data-idx="1" onclick="selectTab(this)">עזאי 38</button>
     <button class="tab" data-idx="2" onclick="selectTab(this)">נתן הנביא 42</button>
     <button class="tab" data-idx="3" onclick="selectTab(this)">הירקון 41 ב&quot;ב</button>
+    <button class="tab" data-idx="4" onclick="selectTab(this)">חיים בר לב 104</button>
   </div>
   <div id="tenant-metrics"></div>
   <div id="tenant-map"></div>
@@ -392,7 +393,7 @@ textarea { resize: vertical; min-height: 70px; }
     <div class="card-title">רשום תנועה חדשה</div>
     <div class="form-grid four">
       <div class="form-group"><label>סוג</label><select id="mv-type" onchange="updateProrata()"><option value="entry">כניסה</option><option value="exit">יציאה</option></select></div>
-      <div class="form-group"><label>נכס</label><select id="mv-prop"><option>לבנדה 32</option><option>עזאי 38</option><option>נתן הנביא 42</option><option>הירקון 41 ב"ב</option></select></div>
+      <div class="form-group"><label>נכס</label><select id="mv-prop"><option>לבנדה 32</option><option>עזאי 38</option><option>נתן הנביא 42</option><option>הירקון 41 ב"ב</option><option>חיים בר לב 104</option><option>חיים בר לב 104</option><option>חיים בר לב 104</option></select></div>
       <div class="form-group"><label>קומה</label><select id="mv-floor"><option>1</option><option>2</option><option>3</option></select></div>
       <div class="form-group"><label>חדר</label><input type="number" id="mv-room" placeholder="מספר חדר" min="1" oninput="updateProrata()"></div>
     </div>
@@ -467,7 +468,7 @@ textarea { resize: vertical; min-height: 70px; }
   <div id="task-add-form" style="display:none" class="card" style="margin-bottom:16px">
     <div class="card-title">משימה חדשה</div>
     <div class="form-grid three">
-      <div class="form-group"><label>נכס</label><select id="tf-prop"><option>לבנדה 32</option><option>עזאי 38</option><option>נתן הנביא 42</option><option>הירקון 41 ב"ב</option></select></div>
+      <div class="form-group"><label>נכס</label><select id="tf-prop"><option>לבנדה 32</option><option>עזאי 38</option><option>נתן הנביא 42</option><option>הירקון 41 ב"ב</option><option>חיים בר לב 104</option><option>חיים בר לב 104</option></select></div>
       <div class="form-group"><label>עדיפות</label><select id="tf-priority"><option value="urgent">דחוף</option><option value="normal" selected>רגיל</option><option value="low">נמוך</option></select></div>
       <div class="form-group"><label>פתח</label><select id="tf-opener"><option>יועד</option><option>צביקה</option><option>רועי</option><option>אוהד</option></select></div>
     </div>
@@ -488,7 +489,7 @@ textarea { resize: vertical; min-height: 70px; }
   <div id="exp-add-form" style="display:none" class="card" style="margin-bottom:16px">
     <div class="card-title">הוצאה חדשה</div>
     <div class="form-grid three">
-      <div class="form-group"><label>נכס</label><select id="ef-prop"><option>כללי</option><option>לבנדה 32</option><option>עזאי 38</option><option>נתן הנביא 42</option><option>הירקון 41 ב"ב</option></select></div>
+      <div class="form-group"><label>נכס</label><select id="ef-prop"><option>כללי</option><option>לבנדה 32</option><option>עזאי 38</option><option>נתן הנביא 42</option><option>הירקון 41 ב"ב</option><option>חיים בר לב 104</option></select></div>
       <div class="form-group"><label>תאריך</label><input type="date" id="ef-date"></div>
       <div class="form-group"><label>סכום כולל מע"מ</label><input type="number" id="ef-total" placeholder="0"></div>
     </div>
@@ -682,6 +683,7 @@ textarea { resize: vertical; min-height: 70px; }
             <option value="2026-01">ינואר 2026</option>
             <option value="2026-02">פברואר 2026</option>
             <option value="2026-03" selected>מרץ 2026</option>
+          <option value="2026-04">אפריל 2026</option>
           </select>
         </div>
         <div class="form-group"><label>שכר יועד (₪)</label>
@@ -709,6 +711,7 @@ textarea { resize: vertical; min-height: 70px; }
             <option value="2026-01">ינואר 2026</option>
             <option value="2026-02">פברואר 2026</option>
             <option value="2026-03" selected>מרץ 2026</option>
+          <option value="2026-04">אפריל 2026</option>
           </select>
         </div>
         <div class="form-group"><label>נכס</label>
@@ -717,6 +720,7 @@ textarea { resize: vertical; min-height: 70px; }
             <option>עזאי 38</option>
             <option>נתן הנביא 42</option>
             <option>הירקון 41 ב"ב</option>
+          <option>חיים בר לב 104</option>
           </select>
         </div>
       </div>
@@ -797,7 +801,8 @@ const TENANTS = [
 
 const ROOM_COSTS = {
   'לבנדה 32': [ {f:1,r:1,c:5350},{f:1,r:3,c:5350},{f:1,r:4,c:5350},{f:1,r:5,c:5350}, {f:2,r:1,c:3600},{f:2,r:3,c:5350},{f:2,r:4,c:5350},{f:2,r:5,c:5350},{f:2,r:6,c:5350},{f:2,r:7,c:5350},{f:2,r:8,c:5350},{f:2,r:9,c:5350},{f:2,r:10,c:5350},{f:2,r:11,c:5350},{f:2,r:12,c:5350}, {f:3,r:2,c:3600},{f:3,r:3,c:5350},{f:3,r:4,c:3000},{f:3,r:5,c:5350},{f:3,r:6,c:5350},{f:3,r:7,c:5350},{f:3,r:8,c:5350},{f:3,r:9,c:5350},{f:3,r:10,c:5350},{f:3,r:11,c:5350},{f:3,r:13,c:5350} ],
-  'הירקון 41 ב"ב': [ {f:2,r:5,c:5100},{f:2,r:6,c:5100},{f:2,r:7,c:5100},{f:2,r:10,c:5100},{f:2,r:11,c:5100} ]
+  'הירקון 41 ב"ב': [ {f:2,r:5,c:5100},{f:2,r:6,c:5100},{f:2,r:7,c:5100},{f:2,r:10,c:5100},{f:2,r:11,c:5100} ],
+  'חיים בר לב 104': [ {f:1,r:2,c:7000} ]
 };
 
 const MOVEMENTS = [
@@ -840,6 +845,8 @@ const EXPENSES = [
   {id:7,prop:'לבנדה 32',date:'2026-02-03',total:450,desc:'שיפוץ חדר 1 קומה 2',invoice:'מזומן'},
   {id:8,prop:'לבנדה 32',date:'2026-02-11',total:2200,desc:'תיקונים שונים',invoice:'26502896'},
   {id:9,prop:'כללי',date:'2026-03-09',total:5000,desc:'טיפול+ביטוח+טסט לטוסטוס',invoice:'מזומן'},
+  {id:10,prop:'חיים בר לב 104',date:'2026-03-16',total:7000,desc:'דמי תיווך — חודש ראשון',invoice:''},
+  {id:11,prop:'חיים בר לב 104',date:'2026-03-16',total:7000,desc:'צ׳ק ביטחון',invoice:'ביטחון'},
 ];
 
 let nextId = 100;
@@ -1000,7 +1007,7 @@ function renderDashboard() {
   document.getElementById('dash-date').textContent = now.toLocaleDateString('he-IL',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
   document.getElementById('dash-quote').textContent = getDailyQuote();
 
-  const props = ['לבנדה 32','עזאי 38','נתן הנביא 42','הירקון 41 ב"ב'];
+  const props = ['לבנדה 32','עזאי 38','נתן הנביא 42','הירקון 41 ב"ב','חיים בר לב 104'];
   let totalRev=0, totalCost=0, totalPeople=0;
   props.forEach(p => { totalRev += getPropRevenue(p); totalCost += getPropCost(p); });
   totalPeople = TENANTS.filter(t=>!t.to).reduce((s,t)=>s+t.people,0);
@@ -1093,7 +1100,7 @@ function renderDashboard() {
 }
 
 // ============ TENANTS ============
-const PROP_NAMES = ['לבנדה 32','עזאי 38','נתן הנביא 42','הירקון 41 ב"ב'];
+const PROP_NAMES = ['לבנדה 32','עזאי 38','נתן הנביא 42','הירקון 41 ב"ב','חיים בר לב 104'];
 
 // Map data for all 4 properties
 const MAP_DATA = {
@@ -2045,7 +2052,7 @@ document.getElementById('client-modal').addEventListener('click', e => {
 
 // ============ AI ADVISOR ============
 function getBusinessSnapshot() {
-  const props = ['לבנדה 32','עזאי 38','נתן הנביא 42','הירקון 41 ב"ב'];
+  const props = ['לבנדה 32','עזאי 38','נתן הנביא 42','הירקון 41 ב"ב','חיים בר לב 104'];
   const snapshot = {
     properties: props.map(p => {
       const isFixed = !!FIXED_COSTS[p];
@@ -2874,8 +2881,8 @@ function populateClientSelects() {
 }
 
 // ============ PROPERTY SHEET ============
-const PROP_MONTHS = ['2025-11','2025-12','2026-01','2026-02','2026-03'];
-const PROP_NAMES_LIST = ['לבנדה 32','עזאי 38','נתן הנביא 42','הירקון 41 ב"ב'];
+const PROP_MONTHS = ['2025-11','2025-12','2026-01','2026-02','2026-03','2026-04'];
+const PROP_NAMES_LIST = ['לבנדה 32','עזאי 38','נתן הנביא 42','הירקון 41 ב"ב','חיים בר לב 104'];
 
 function getMonthShort(m) {
   const [yr,mo] = m.split('-');
