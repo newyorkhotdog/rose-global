@@ -922,104 +922,119 @@ function nav(page, el) {
 }
 
 // ============ DASHBOARD ============
-const QUOTES = [
-  "הצלחה היא לא מקרית. היא עבודה קשה, התמדה, למידה, קורבן ואהבה למה שאתה עושה. — פלה",
-  "האנשים שמשוגעים מספיק כדי לחשוב שהם יכולים לשנות את העולם — הם אלה שעושים את זה. — סטיב ג'ובס",
-  "אל תחכה לרגע המושלם. קח את הרגע ועשה אותו מושלם. — זיג זיגלר",
-  "הדרך הטובה ביותר לחזות את העתיד היא ליצור אותו. — פיטר דרוקר",
-  "הצלחה היא הולכת מכישלון לכישלון בלי לאבד את ההתלהבות. — וינסטון צ'רצ'יל",
-  "אל תפחד להיכשל. פחד מלא לנסות. — מייקל ג'ורדן",
-  "כל מסע של אלף מייל מתחיל בצעד אחד. — לאו טסה",
-  "ההזדמנויות הטובות ביותר מוסוות כבעיות קשות. — הנרי קייזר",
-  "עשה עכשיו מה שאחרים לא רוצים לעשות, וחיה מחר כמו שאחרים לא יכולים. — ג'רי רייס",
-  "הסוד להצלחה הוא להתחיל. — מארק טוויין",
-  "אם אתה חושב שאתה יכול, אתה צודק. אם אתה חושב שאתה לא יכול, אתה גם צודק. — הנרי פורד",
-  "לא חשוב כמה פעמים נפלת, חשוב כמה פעמים קמת. — נלסון מנדלה",
-  "החיים הם 10% מה שקורה לך ו-90% איך אתה מגיב לזה. — צ'ארלס סווינדל",
-  "ההבדל בין מי שאתה לבין מי שאתה רוצה להיות הוא מה שאתה עושה. — גברת לא ידועה",
-  "אל תמדוד את הצלחתך בכסף. מדוד אותה בהשפעה שיש לך על חיי אחרים. — מייקל בלומברג",
-  "עסק מוצלח הוא פתרון של בעיה אנושית. — ריצ'רד ברנסון",
-  "הזמן הטוב ביותר לנטוע עץ היה לפני 20 שנה. הזמן הטוב הבא הוא עכשיו. — פתגם סיני",
-  "אל תחפש את הלקוח לעסק שלך. צור עסק ללקוח שלך. — סת' גודין",
-  "נסה לא להיות אדם של הצלחה, אלא אדם של ערך. — אלברט איינשטיין",
-  "הדרך לשינוי היא לא לנלחם במה שקיים אלא לבנות מודלים חדשים. — בקמינסטר פולר",
-  "אנשים לא קונים מה שאתה עושה, הם קונים למה אתה עושה את זה. — סיימון סינק",
-  "המומחה בכל תחום היה פעם מתחיל. — הלן הייס",
-  "ההזדמנות בדרך כלל מגיעה מחופשת בעבודה קשה. — תומס אדיסון",
-  "לא צריך להיות גדול כדי להתחיל, אבל צריך להתחיל כדי להיות גדול. — לס בראון",
-  "המפתח אינו לתעדף את מה שבלוח הזמנים שלך, אלא לתזמן את הדברים שבראש סדר העדיפויות. — סטיבן קובי",
-  "ניהול הוא לעשות דברים נכון. מנהיגות היא לעשות את הדברים הנכונים. — פיטר דרוקר",
-  "אל תחכה לנסיבות המושלמות. הן לעולם לא יגיעו. — ג'נטל פרנקלין",
-  "אדם גדול הוא אדם רגיל עם נחישות יוצאת דופן. — אודי",
-  "הדרך לעשות עבודה נהדרת היא לאהוב את מה שאתה עושה. — סטיב ג'ובס",
-  "כישלון הוא פשוט הזדמנות להתחיל שוב, הפעם בצורה חכמה יותר. — הנרי פורד",
-  "אל תעמיד פנים שאתה יותר ממה שאתה, אבל גם אל תהיה פחות. — פאולו קואלו",
-  "הצלחה אינה מפתח לאושר. אושר הוא מפתח להצלחה. — אלברט שווייצר",
-  "אם אתה רוצה להגיע מהר, לך לבד. אם אתה רוצה להגיע רחוק, לך יחד. — פתגם אפריקאי",
-  "גדולות לא באות לאנשים שמחכים. הן באות לאנשים שיוצאים ועושים. — אנונימי",
-  "השקעה בידע משלמת את הריבית הטובה ביותר. — בנג'מין פרנקלין",
-  "הבעיה עם הסתפקות הוא שהעולם לא מסתפק. — ביל גייטס",
-  "תחשוב גדול, תתחיל קטן, תזוז מהר. — מוטו יזמי",
-  "לא העוצמה שלך תקבע את תוצאותיך, אלא המיקוד שלך. — בילי קוהן",
-  "כל אחד שהפסיק ללמוד הוא זקן, בין אם הוא בן 20 ובין אם בן 80. — הנרי פורד",
-  "העסקים הטובים ביותר הם אלה שפותרים בעיות אמיתיות של אנשים אמיתיים. — מארק צוקרברג",
-  "אל תשאל מה המדינה יכולה לעשות בשבילך. שאל מה אתה יכול לעשות. — ג'ון קנדי",
-  "הצלחה היא 1% השראה ו-99% הזעה. — תומס אדיסון",
-  "בעלי עסקים מצליחים לא מחכים לתנאים הנכונים — הם יוצרים אותם. — ריצ'רד ברנסון",
-  "השוני בין חולם לעושה הוא: עשייה. — אנונימי",
-  "אם אין לך מתחרים, כנראה שאין לך עסק. — ג'ף בזוס",
-  "ערך אמיתי לא נמדד במחיר שגובים, אלא בפתרון שנותנים. — סת' גודין",
-  "ניהול טוב הוא אמנות שהכולם חושבים שיכולים ללמד, אבל מעטים יכולים לעשות. — פיטר דרוקר",
-  "שמור על פשטות. כשאתה לא, אתה לא מבין את העסק שלך. — וורן באפט",
-  "בניית עסק היא כמו בניית בית — צריך יסודות חזקים לפני הקירות. — אנונימי",
-  "כסף הוא תוצאה לוואי של ערך שנתת. — בוב ברג",
-  "הגדרת טירוף היא לעשות את אותו הדבר שוב ושוב ולצפות לתוצאה שונה. — אינשטיין",
-  "לקוח מרוצה הוא הפרסומת הטובה ביותר. — מייקל לבף",
-  "אל תמכור מוצר. מכור פתרון. — אנונימי",
-  "עסק שלא גדל — מתכווץ. — אנונימי",
-  "הלקוח תמיד צודק — גם כשהוא טועה. — הארי גורדון סלפרידג'",
-  "שיתוף פעולה אמיתי יוצר תוצאות שאף אחד לא יכול להשיג לבד. — אנונימי",
-  "חדשנות היא ראיית מה שכולם רואים וחשיבה על מה שאף אחד לא חשב. — אלברט סנט גיורגי",
-  "עסק מצוין פותר בעיה שאנשים לא ידעו שיש להם. — סטיב ג'ובס",
-  "תנהל את הזמן שלך כמו שאתה מנהל את הכסף שלך — בזהירות. — אנונימי",
-  "המטרה של עסק היא ליצור לקוח. — פיטר דרוקר",
-];
-
-function getGreeting() {
-  const h = new Date().getHours();
-  if (h >= 5 && h < 12) return 'בוקר טוב ☀️';
-  if (h >= 12 && h < 17) return 'צהריים טובים 🌤️';
-  if (h >= 17 && h < 21) return 'ערב טוב 🌆';
-  return 'לילה טוב 🌙';
+// Unified P&L calculation - single source of truth
+function getCurrentMonth() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
 }
 
-function getDailyQuote() {
-  const day = Math.floor(Date.now() / 86400000);
-  return QUOTES[day % QUOTES.length];
+function getPropPL(prop, month) {
+  // Returns {income, rent, electric, water, arnona, other, profit, hasHistData}
+  const isFixed = !!FIXED_COSTS[prop];
+  const histRow = HISTORY.find(h=>h.month===month&&h.prop===prop);
+  
+  // Income
+  let income = 0;
+  if (isFixed) {
+    income = histRow ? histRow.income : (FIXED_COSTS[prop].income || 0);
+  } else {
+    // Auto-calculate from MAP_DATA (people × price)
+    if (MAP_DATA[prop]) {
+      Object.values(MAP_DATA[prop].floors||{}).forEach(rooms => {
+        rooms.forEach(r => {
+          if (r.company && r.company !== 'שירות' && r.people > 0) {
+            income += r.people * (r.price || PRICE);
+          }
+        });
+      });
+    }
+    // Override with HISTORY if manually set
+    if (histRow && histRow.income > 0) income = histRow.income;
+  }
+
+  // Rent (from ROOM_COSTS or FIXED_COSTS)
+  const rent = histRow ? histRow.rent : getPropCost(prop);
+
+  // Utilities - from HISTORY only (real bills)
+  const electric = histRow ? (histRow.electric||0) : null;
+  const water = histRow ? (histRow.water||0) : null;
+  const arnona = histRow ? (histRow.arnona||0) : null;
+  const other = histRow ? (histRow.other||0) : 0;
+
+  const utilTotal = (electric||0)+(water||0)+(arnona||0)+other;
+  const profit = income - rent - utilTotal;
+  const hasMissingUtils = isFixed && (!histRow || (electric===null&&water===null&&arnona===null));
+
+  return { income, rent, electric, water, arnona, other, utilTotal, profit, hasMissingUtils, hasHistData: !!histRow };
+}
+
+function getTotalPL(month) {
+  const props = ['לבנדה 32','עזאי 38','נתן הנביא 42','הירקון 41 ב"ב','חיים בר לב 104'];
+  let totalIncome=0, totalRent=0, totalUtil=0;
+  props.forEach(p => {
+    const pl = getPropPL(p, month);
+    totalIncome += pl.income;
+    totalRent += pl.rent;
+    totalUtil += pl.utilTotal;
+  });
+  const general = getGeneralTotal(month);
+  const grossProfit = totalIncome - totalRent - totalUtil;
+  const netProfit = grossProfit - general;
+  return { totalIncome, totalRent, totalUtil, general, grossProfit, netProfit };
 }
 
 function renderDashboard() {
   const now = new Date();
+  const month = getCurrentMonth();
+
   document.getElementById('dash-greeting').textContent = getGreeting() + ' — רוז גלובל';
   document.getElementById('dash-date').textContent = now.toLocaleDateString('he-IL',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
   document.getElementById('dash-quote').textContent = getDailyQuote();
 
-  const props = ['לבנדה 32','עזאי 38','נתן הנביא 42','הירקון 41 ב"ב','חיים בר לב 104'];
-  let totalRev=0, totalCost=0, totalPeople=0;
-  props.forEach(p => { totalRev += getPropRevenue(p); totalCost += getPropCost(p); });
-  totalPeople = TENANTS.filter(t=>!t.to).reduce((s,t)=>s+t.people,0);
-  const gross = totalRev - totalCost;
-  const fixed = 12000 + 1054.75 + 1500;
-  const net = gross - fixed;
+  const pl = getTotalPL(month);
+  const totalPeople = MAP_DATA ? Object.values(MAP_DATA).reduce((s,p)=>s+Object.values(p.floors||{}).flat().reduce((s2,r)=>s2+(r.company&&r.company!=='שירות'?r.people:0),0),0) : 0;
   const openTasks = TASKS.filter(t=>!t.done).length;
 
   document.getElementById('dash-metrics').innerHTML = `
-    <div class="metric"><div class="metric-label">הכנסות חודשיות</div><div class="metric-value green">${fmt(totalRev)} ₪</div><div class="metric-sub">${totalPeople} דיירים פעילים</div></div>
-    <div class="metric"><div class="metric-label">הוצאות שכירות</div><div class="metric-value red">${fmt(totalCost)} ₪</div><div class="metric-sub">4 נכסים</div></div>
-    <div class="metric"><div class="metric-label">רווח גולמי</div><div class="metric-value ${gross>=0?'green':'red'}">${fmt(gross)} ₪</div><div class="metric-sub">לפני הוצ' קבועות</div></div>
-    <div class="metric"><div class="metric-label">רווח נקי משוער</div><div class="metric-value ${net>=0?'green':'red'}">${fmt(net)} ₪</div><div class="metric-sub">אחרי יועד + עו"ד + הנח"ש</div></div>
+    <div class="metric"><div class="metric-label">הכנסות חודשיות</div><div class="metric-value green">${fmt(pl.totalIncome)} ₪</div><div class="metric-sub">${totalPeople} דיירים</div></div>
+    <div class="metric"><div class="metric-label">הוצאות שכירות</div><div class="metric-value red">${fmt(pl.totalRent)} ₪</div><div class="metric-sub">5 נכסים</div></div>
+    <div class="metric"><div class="metric-label">חשמל/מים/ארנונה</div><div class="metric-value red">${fmt(pl.totalUtil)} ₪</div><div class="metric-sub">${pl.totalUtil===0?'<span style="color:var(--amber)">לא הוכנסו</span>':'נתוני אמת'}</div></div>
+    <div class="metric"><div class="metric-label">רווח גולמי</div><div class="metric-value ${pl.grossProfit>=0?'green':'red'}">${fmt(pl.grossProfit)} ₪</div></div>
+    <div class="metric"><div class="metric-label">הוצאות כלליות</div><div class="metric-value red">${fmt(pl.general)} ₪</div><div class="metric-sub">יועד+עו"ד+הנח"ש</div></div>
+    <div class="metric"><div class="metric-label">רווח נקי</div><div class="metric-value ${pl.netProfit>=0?'green':'red'}">${fmt(pl.netProfit)} ₪</div><div class="metric-sub">נתוני אמת</div></div>
     <div class="metric"><div class="metric-label">תקלות פתוחות</div><div class="metric-value ${openTasks>5?'red':'amber'}">${openTasks}</div><div class="metric-sub">${TASKS.filter(t=>!t.done&&t.priority==='urgent').length} דחופות</div></div>
   `;
+
+  // Props cards
+  const props = ['לבנדה 32','עזאי 38','נתן הנביא 42','הירקון 41 ב"ב','חיים בר לב 104'];
+  document.getElementById('dash-props').innerHTML = props.map(p => {
+    const ppL = getPropPL(p, month);
+    const isFixed = !!FIXED_COSTS[p];
+    const ppl = MAP_DATA[p] ? Object.values(MAP_DATA[p].floors||{}).flat().reduce((s,r)=>s+(r.company&&r.company!=='שירות'?r.people:0),0) : 0;
+    return `<div class="prop-card">
+      <div class="prop-card-header">
+        <div class="prop-card-name">${p}</div>
+        <span class="badge ${ppL.profit>=0?'badge-green':'badge-red'}">${ppL.profit>=0?'רווח':'הפסד'}</span>
+      </div>
+      <div class="prop-card-body">
+        <div class="prop-stat-row"><span>הכנסה</span><span class="green">${fmt(ppL.income)} ₪</span></div>
+        <div class="prop-stat-row"><span>שכירות</span><span class="red">${fmt(ppL.rent)} ₪</span></div>
+        ${isFixed ? `
+        <div class="prop-stat-row"><span>חשמל/מים/ארנונה</span><span class="${ppL.hasMissingUtils?'amber':'red'}">${ppL.hasMissingUtils?'<span class="badge badge-amber">לעדכן</span>':fmt(ppL.utilTotal)+' ₪'}</span></div>` : ''}
+        <div class="prop-stat-row"><span>רווח גולמי</span><span class="${ppL.profit>=0?'green':'red'}" style="font-weight:600">${fmt(ppL.profit)} ₪</span></div>
+        <div class="prop-stat-row"><span>דיירים</span><span>${ppl}</span></div>
+        <div class="prop-stat-row"><span>מודל</span><span>${isFixed?'<span class="badge badge-purple">פיקס</span>':'<span class="badge badge-blue">לפי ראש</span>'}</span></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Alerts
+  const alerts = [];
+  props.forEach(p => {
+    const ppL = getPropPL(p, month);
+    if (ppL.hasMissingUtils) alerts.push(`<div class="alert alert-amber">${p} — חסרים נתוני חשמל/מים/ארנונה לחודש הנוכחי</div>`);
+  });
+  document.getElementById('dash-alerts').innerHTML = alerts.join('');
 
   // Urgent tasks
   const urgentTasks = TASKS.filter(t=>!t.done&&t.priority==='urgent').slice(0,6);
@@ -1027,74 +1042,56 @@ function renderDashboard() {
     ? urgentTasks.map(t=>`
         <div style="display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:0.5px solid var(--border)">
           <div style="width:7px;height:7px;border-radius:50%;background:#c0655a;flex-shrink:0;margin-top:5px"></div>
-          <div>
-            <div style="font-size:13px;color:var(--text)">${t.desc}</div>
-            <div style="font-size:11px;color:var(--text3);margin-top:2px">${t.prop}${t.opener?' — '+t.opener:''}</div>
-          </div>
+          <div><div style="font-size:13px;color:var(--text)">${t.desc}</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:2px">${t.prop}${t.opener?' — '+t.opener:''}</div></div>
         </div>`).join('')
     : '<div style="font-size:13px;color:var(--text3);padding:8px 0">אין משימות דחופות 🎉</div>';
 
-  // Billing summary
-  const billingByCompany = {};
-  TENANTS.filter(t=>!t.to&&!FIXED_COSTS[t.prop]).forEach(t=>{
-    if(!billingByCompany[t.company]) billingByCompany[t.company]={people:0,amount:0};
-    billingByCompany[t.company].people += t.people;
-    billingByCompany[t.company].amount += t.people * PRICE;
-  });
-  // Add fixed props
-  ['עזאי 38','נתן הנביא 42'].forEach(p=>{
-    const inc = FIXED_COSTS[p].income;
-    if(inc) {
-      if(!billingByCompany[p]) billingByCompany[p]={people:0,amount:0,fixed:true};
-      billingByCompany[p].amount = inc;
-      billingByCompany[p].fixed = true;
+  // Billing
+  const byCompany = {};
+  const getGroup = c => {
+    if (!c) return null;
+    if (c.includes('יער')||c.includes('י.ע.ר')) return {key:'יער',label:'י.ע.ר 2023'};
+    if (c.includes('שמרית')) return {key:'שמרית',label:'שמרית'};
+    if (c.includes('בינה')) return {key:'בינה',label:'בינה'};
+    if (c.includes('ניו פאוור')||c.includes('מגיק פאוור')) return {key:'ניו_מגיק',label:'ניו פאוור / מגיק'};
+    if (c.includes('שיק סין')||c.includes('שיק צין')) return {key:'שיק_סין',label:'שיק סין'};
+    if (c.includes('ח.ח.א')) return {key:'ח.ח.א',label:'ח.ח.א'};
+    if (c.includes('קורפו')) return {key:'קורפו',label:'קורפו'};
+    if (c.includes('משביר')) return {key:'משביר',label:'משביר יעקב'};
+    if (c.includes('קורל')) return {key:'קורל',label:'קורל'};
+    return null;
+  };
+  Object.keys(MAP_DATA||{}).forEach(prop => {
+    if (FIXED_COSTS[prop]) {
+      const inc = FIXED_COSTS[prop].income || 0;
+      if (inc) { byCompany[prop] = {label:prop+' (פיקס)', amount:inc, people:0}; }
+      return;
     }
+    Object.values(MAP_DATA[prop].floors||{}).forEach(rooms => {
+      rooms.forEach(r => {
+        if (!r.company||r.company==='שירות'||r.people<=0) return;
+        const g = getGroup(r.company);
+        const key = g ? g.key : r.company;
+        const label = g ? g.label : r.company;
+        if (!byCompany[key]) byCompany[key]={label,amount:0,people:0};
+        byCompany[key].amount += r.people*(r.price||PRICE);
+        byCompany[key].people += r.people;
+      });
+    });
   });
-  const billingRows = Object.entries(billingByCompany).sort((a,b)=>b[1].amount-a[1].amount).slice(0,7);
-  const totalBilling = Object.values(billingByCompany).reduce((s,v)=>s+v.amount,0);
-  document.getElementById('dash-billing-list').innerHTML = billingRows.map(([co,v])=>`
+  const billingRows = Object.values(byCompany).sort((a,b)=>b.amount-a.amount).slice(0,8);
+  const totalBilling = Object.values(byCompany).reduce((s,v)=>s+v.amount,0);
+  document.getElementById('dash-billing-list').innerHTML = billingRows.map(v=>`
     <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:0.5px solid var(--border);font-size:13px">
-      <div style="display:flex;align-items:center;gap:6px">
-        <span style="color:var(--text);font-weight:500">${co}</span>
-        ${v.fixed?'<span style="font-size:10px;background:var(--blue-bg);color:var(--blue);padding:1px 5px;border-radius:8px">פיקס</span>':
-        '<span style="font-size:11px;color:var(--text3)">'+v.people+' אנשים</span>'}
-      </div>
+      <span style="color:var(--text);font-weight:500">${v.label}</span>
       <span style="font-weight:600;color:#2d8a5e">${fmt(v.amount)} ₪</span>
     </div>`).join('')+
     `<div style="display:flex;justify-content:space-between;padding:8px 0;font-weight:600;font-size:13px;border-top:1px solid var(--border2);margin-top:4px">
       <span>סה"כ לגבייה</span><span style="color:#2d8a5e">${fmt(totalBilling)} ₪</span>
     </div>`;
-
-  // Props
-  document.getElementById('dash-props').innerHTML = props.map(p => {
-    const rev = getPropRevenue(p);
-    const cost = getPropCost(p);
-    const profit = rev - cost;
-    const ppl = TENANTS.filter(t=>t.prop===p&&!t.to).reduce((s,t)=>s+t.people,0);
-    const isFixed = !!FIXED_COSTS[p];
-    return `<div class="prop-card">
-      <div class="prop-card-header">
-        <div class="prop-card-name">${p}</div>
-        <span class="badge ${profit>=0?'badge-green':'badge-red'}">${profit>=0?'רווח':'הפסד'}</span>
-      </div>
-      <div class="prop-card-body">
-        <div class="prop-stat-row"><span>הכנסה</span><span class="green">${isFixed&&!rev?'<span class="badge badge-amber">לבדוק</span>':fmt(rev)+' ₪'}</span></div>
-        <div class="prop-stat-row"><span>שכירות</span><span class="red">${fmt(cost)} ₪</span></div>
-        ${isFixed && FIXED_COSTS[p].utilities ? `<div class="prop-stat-row"><span>חשמל/מים/ארנונה</span><span class="red">${fmt(FIXED_COSTS[p].utilities)} ₪</span></div>` : ''}
-        ${isFixed && !FIXED_COSTS[p].utilities ? `<div class="prop-stat-row"><span>חשמל/מים/ארנונה</span><span class="badge badge-amber">לעדכן</span></div>` : ''}
-        <div class="prop-stat-row"><span>רווח גולמי</span><span class="${profit>=0?'green':'red'}">${fmt(profit)} ₪</span></div>
-        <div class="prop-stat-row"><span>דיירים</span><span>${ppl}</span></div>
-        <div class="prop-stat-row"><span>מודל חיוב</span><span>${isFixed?'<span class="badge badge-purple">פיקס פרייס</span>':'<span class="badge badge-blue">לפי ראש</span>'}</span></div>
-        ${profit<0&&!isFixed?`<div style="margin-top:8px" class="alert alert-red">חסרים ${Math.ceil(Math.abs(profit)/PRICE)} דיירים לאיזון</div>`:''}
-      </div>
-    </div>`;
-  }).join('');
-
-  const alerts = [];
-  if (FIXED_COSTS['עזאי 38'].income===null) alerts.push(`<div class="alert alert-amber">עזאי 38 — הכנסה חודשית לא מוגדרת.</div>`);
-  if (FIXED_COSTS['נתן הנביא 42'].income===null) alerts.push(`<div class="alert alert-amber">נתן הנביא 42 — הכנסה חודשית לא מוגדרת.</div>`);
-  document.getElementById('dash-alerts').innerHTML = alerts.join('');
 }
+
 
 // ============ TENANTS ============
 const PROP_NAMES = ['לבנדה 32','עזאי 38','נתן הנביא 42','הירקון 41 ב"ב','חיים בר לב 104'];
