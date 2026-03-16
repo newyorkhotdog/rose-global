@@ -1278,7 +1278,8 @@ function buildRoomCard(propName, floor, room, bg, profitStr, incStr) {
 
 
 function getRoomBg(room, isFixed) {
-  if (isFixed || room.company === 'שירות') return {bg:'#eef0fb',border:'#c5caee',text:'#5a5fd4'};
+  if (room.company === 'שירות') return {bg:'#fff3e0',border:'#ffb74d',text:'#e65100'}; // orange for service room
+  if (isFixed) return {bg:'#eef0fb',border:'#c5caee',text:'#5a5fd4'};
   if (!room.company) {
     if (room.note && room.note.includes('שיפוץ')) return {bg:'#f5eef8',border:'#d4a8e0',text:'#8a5aa0'};
     return {bg:'#f0ede8',border:'#d8d4ce',text:'#a09890'};
@@ -1631,6 +1632,18 @@ function delTask(id){
   TASKS.splice(TASKS.findIndex(x=>x.id===id),1);
   renderTasks();updateTaskBadge();
 }
+
+function editTask(id) {
+  const t = TASKS.find(x=>x.id===id);
+  if (!t) return;
+  const newDesc = prompt('עריכת משימה:', t.desc);
+  if (newDesc === null) return;
+  if (newDesc.trim()) {
+    t.desc = newDesc.trim();
+    autosave();
+    renderTasks();
+  }
+}
 function updateTaskBadge(){
   const n=TASKS.filter(t=>!t.done).length;
   document.getElementById('tasks-badge').textContent=n;
@@ -1666,6 +1679,7 @@ function renderTasks(){
             <div class="task-desc">${t.desc}</div>
             <div class="task-meta"><span class="badge ${bc2}">${pl}</span>${t.opener?`<span>נפתח ע"י ${t.opener}</span>`:''}</div>
           </div>
+          <button class="btn btn-sm" onclick="editTask(${t.id})">✏️</button>
           <button class="btn btn-sm btn-danger" onclick="delTask(${t.id})">מחק</button>
         </div>`;
       });
@@ -2853,11 +2867,11 @@ function populateClientSelects() {
   
   // Room modal company select
   const rmSel = document.getElementById('rm-company');
-  if(rmSel) { const v=rmSel.value; rmSel.innerHTML='<option value="">ריק</option>'+optsNoEmpty; rmSel.value=v||''; }
+  if(rmSel) { const v=rmSel.value; rmSel.innerHTML='<option value="">ריק</option><option value="שירות">🔧 חדר שירות</option>'+optsNoEmpty; rmSel.value=v||''; }
   
   // Add room modal company select
   const arSel = document.getElementById('ar-company');
-  if(arSel) { const v=arSel.value; arSel.innerHTML='<option value="">ריק</option>'+optsNoEmpty; arSel.value=v||''; }
+  if(arSel) { const v=arSel.value; arSel.innerHTML='<option value="">ריק</option><option value="שירות">🔧 חדר שירות</option>'+optsNoEmpty; arSel.value=v||''; }
 
   // Billing client filter
   populateBillClientFilter();
@@ -3065,6 +3079,90 @@ function saveAllHistEntries() {
   autosave();
   renderHistEntryTable();
   showSaveIndicator('✓ כל הנתונים נשמרו');
+}
+
+
+// ============ INVOICE SCANNING ============
+async function processInvoice(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const status = document.getElementById('invoice-status');
+  const preview = document.getElementById('invoice-preview');
+  status.textContent = '⏳ מעבד חשבונית...';
+  preview.style.display = 'none';
+
+  try {
+    // Convert to base64
+    const base64 = await new Promise((res, rej) => {
+      const reader = new FileReader();
+      reader.onload = () => res(reader.result.split(',')[1]);
+      reader.onerror = rej;
+      reader.readAsDataURL(file);
+    });
+
+    const isImage = file.type.startsWith('image/');
+    const isPdf = file.type === 'application/pdf';
+
+    const messageContent = [];
+    if (isImage) {
+      messageContent.push({
+        type: 'image',
+        source: { type: 'base64', media_type: file.type, data: base64 }
+      });
+    } else if (isPdf) {
+      messageContent.push({
+        type: 'document',
+        source: { type: 'base64', media_type: 'application/pdf', data: base64 }
+      });
+    }
+    messageContent.push({
+      type: 'text',
+      text: 'זו חשבונית עסקית. חלץ JSON בלבד: {"date":"YYYY-MM-DD","total":number,"desc":"תיאור","invoice":"מספר"}. null אם חסר.'
+    });
+
+    const response = await fetch('https://rose-ai.ohadsheena.workers.dev', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-5',
+        max_tokens: 200,
+        messages: [{ role: 'user', content: messageContent }]
+      })
+    });
+
+    const data = await response.json();
+    if (!data.content || !data.content[0]) throw new Error('תגובה ריקה');
+    
+    let text = data.content[0].text.trim();
+    text = text.replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(text);
+
+    // Pre-fill expense form
+    status.textContent = '✅ חשבונית זוהתה!';
+    if (parsed.date) document.getElementById('ef-date').value = parsed.date;
+    if (parsed.total) document.getElementById('ef-total').value = parsed.total;
+    if (parsed.desc) document.getElementById('ef-desc').value = parsed.desc || '';
+    if (parsed.invoice) document.getElementById('ef-invoice').value = parsed.invoice || '';
+
+    // Show parsed preview
+    preview.style.display = 'block';
+    preview.innerHTML = `<div style="background:var(--green-bg);border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;font-size:13px">
+      <div style="font-weight:600;margin-bottom:6px">✅ פרטים שזוהו:</div>
+      <div>תאריך: <strong>${parsed.date||'—'}</strong></div>
+      <div>סכום: <strong>${parsed.total ? parsed.total.toLocaleString('he-IL')+' ₪' : '—'}</strong></div>
+      <div>תיאור: <strong>${parsed.desc||'—'}</strong></div>
+      <div>מסמך: <strong>${parsed.invoice||'—'}</strong></div>
+      <div style="margin-top:8px;color:var(--text2);font-size:12px">הטופס מולא אוטומטית — בדוק ולחץ "הוסף הוצאה"</div>
+    </div>`;
+
+    // Show form
+    document.getElementById('exp-add-form').style.display = 'block';
+
+  } catch(e) {
+    status.textContent = '❌ שגיאה: ' + e.message;
+    console.error(e);
+  }
+  input.value = ''; // reset file input
 }
 
 // ============ INIT ============
