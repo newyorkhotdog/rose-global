@@ -1478,17 +1478,32 @@ function populateBillClientFilter() {
   if (!sel) return;
   const current = sel.value;
   // Fixed list of 9 clients with their display names and matching short names
-  const CLIENTS_BILLING = [
-    {label:'י.ע.ר 2023 עובדים זרים בע"מ', value:'יער'},
-    {label:'שמרית שרותי עובדים 2023 בע"מ', value:'שמרית'},
-    {label:'בינה עובדים זרים לבניין בע"מ', value:'בינה'},
-    {label:'ניו פאוור / מגיק פאוור', value:'ניו_מגיק'},
-    {label:'שיק סין 26 בע"מ', value:'שיק_סין'},
-    {label:'ח.ח.א', value:'ח.ח.א'},
-    {label:'קורפו בניה בע"מ', value:'קורפו'},
-    {label:'משביר יעקב בע"מ', value:'משביר יעקב'},
-    {label:'קורל ב. פרויקטים בע"מ', value:'קורל'},
-  ];
+  // Build dynamic list from actual MAP_DATA company names
+  const allCompanies = new Set();
+  Object.values(MAP_DATA).forEach(prop => {
+    Object.values(prop.floors||{}).forEach(rooms => {
+      rooms.forEach(r => { if(r.company && r.company !== 'שירות' && r.company !== 'גייקוב' && r.company !== 'ששי' && r.company !== 'תאגיד' && r.company !== 'אחר') allCompanies.add(r.company); });
+    });
+  });
+  // Merge similar companies
+  const mergeMap = {};
+  allCompanies.forEach(c => {
+    if (c.includes('יער') || c.includes('י.ע.ר')) mergeMap[c] = {label:'י.ע.ר 2023 עובדים זרים בע"מ', group:'יער'};
+    else if (c.includes('שמרית')) mergeMap[c] = {label:'שמרית שרותי עובדים 2023 בע"מ', group:'שמרית'};
+    else if (c.includes('בינה')) mergeMap[c] = {label:'בינה עובדים זרים לבניין בע"מ', group:'בינה'};
+    else if (c.includes('ניו פאוור') || c.includes('מגיק פאוור')) mergeMap[c] = {label:'ניו פאוור / מגיק פאוור', group:'ניו_מגיק'};
+    else if (c.includes('שיק סין') || c.includes('שיק צין')) mergeMap[c] = {label:'שיק סין 26 בע"מ', group:'שיק_סין'};
+    else if (c.includes('ח.ח.א')) mergeMap[c] = {label:'ח.ח.א', group:'ח.ח.א'};
+    else if (c.includes('קורפו')) mergeMap[c] = {label:'קורפו בניה בע"מ', group:'קורפו'};
+    else if (c.includes('משביר')) mergeMap[c] = {label:'משביר יעקב בע"מ', group:'משביר יעקב'};
+    else if (c.includes('קורל')) mergeMap[c] = {label:'קורל ב. פרויקטים בע"מ', group:'קורל'};
+    else mergeMap[c] = {label:c, group:c};
+  });
+  // Unique groups
+  const groups = {};
+  Object.values(mergeMap).forEach(v => { groups[v.group] = v.label; });
+  const CLIENTS_BILLING = Object.entries(groups).map(([group,label])=>({label,value:group}))
+    .sort((a,b)=>a.label.localeCompare(b.label));
   sel.innerHTML = '<option value="">כל הלקוחות</option>' +
     CLIENTS_BILLING.map(c=>`<option value="${c.value}" ${c.value===current?'selected':''}>${c.label}</option>`).join('');
 }
@@ -1497,7 +1512,6 @@ function renderBilling(){
   const filterClient = (document.getElementById('bill-client')||{}).value||'';
   const month = document.getElementById('bill-month').value;
   const filterProp = document.getElementById('bill-prop').value;
-  console.log('DEBUG billing: filterClient='+filterClient+' filterProp='+filterProp+' month='+month);
   const [yr,mo] = month.split('-').map(Number);
   const days = dim(yr,mo);
   const mStart = new Date(yr,mo-1,1);
@@ -1525,12 +1539,21 @@ function renderBilling(){
       rooms.forEach(r => {
         if (!r.company || r.people <= 0) return;
         if (filterClient) {
-          const match =
-            filterClient === 'ניו_מגיק' ? (r.company==='ניו פאוור'||r.company==='מגיק פאוור') :
-            filterClient === 'שיק_סין' ? (r.company==='שיק סין'||r.company==='שיק צין') :
-            r.company === filterClient;
-          console.log('ROOM:', prop, 'floor:', floor, 'r:', r.r, 'company:', JSON.stringify(r.company), 'filter:', JSON.stringify(filterClient), 'match:', match);
-          if (!match) return;
+          // Check if this room's company belongs to the selected group
+          const getGroup = c => {
+            if (!c) return '';
+            if (c.includes('יער') || c.includes('י.ע.ר')) return 'יער';
+            if (c.includes('שמרית')) return 'שמרית';
+            if (c.includes('בינה')) return 'בינה';
+            if (c.includes('ניו פאוור') || c.includes('מגיק פאוור')) return 'ניו_מגיק';
+            if (c.includes('שיק סין') || c.includes('שיק צין')) return 'שיק_סין';
+            if (c.includes('ח.ח.א')) return 'ח.ח.א';
+            if (c.includes('קורפו')) return 'קורפו';
+            if (c.includes('משביר')) return 'משביר יעקב';
+            if (c.includes('קורל')) return 'קורל';
+            return c;
+          };
+          if (getGroup(r.company) !== filterClient) return;
         }
         // Check if this tenant existed in this month via TENANTS array
         const tenant = TENANTS.find(t=>t.prop===prop&&t.room===r.r&&t.company===r.company&&!t.to);
