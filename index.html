@@ -908,7 +908,7 @@ function nav(page, el) {
   if (page==='dashboard') renderDashboard();
   if (page==='tenants') { renderTenants(); populateClientSelects(); }
   if (page==='movements') { renderMovements(); populateClientSelects(); }
-  if (page==='billing') { renderBilling(); populateClientSelects(); }
+  if (page==='billing') { populateBillClientFilter(); renderBilling(); }
   if (page==='tasks') renderTasks();
   if (page==='expenses') renderExpenses();
   if (page==='clients') renderClients();
@@ -1494,16 +1494,9 @@ function populateBillClientFilter() {
 }
 
 function renderBilling(){
-  // Read values BEFORE repopulating selects
   const filterClient = (document.getElementById('bill-client')||{}).value||'';
   const month = document.getElementById('bill-month').value;
   const filterProp = document.getElementById('bill-prop').value;
-  populateBillClientFilter();
-  // Restore selection after repopulate
-  if (filterClient) {
-    const sel = document.getElementById('bill-client');
-    if (sel) sel.value = filterClient;
-  }
   const [yr,mo] = month.split('-').map(Number);
   const days = dim(yr,mo);
   const mStart = new Date(yr,mo-1,1);
