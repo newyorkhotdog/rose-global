@@ -1494,10 +1494,16 @@ function populateBillClientFilter() {
 }
 
 function renderBilling(){
-  populateBillClientFilter();
+  // Read values BEFORE repopulating selects
+  const filterClient = (document.getElementById('bill-client')||{}).value||'';
   const month = document.getElementById('bill-month').value;
   const filterProp = document.getElementById('bill-prop').value;
-  const filterClient = (document.getElementById('bill-client')||{}).value||'';
+  populateBillClientFilter();
+  // Restore selection after repopulate
+  if (filterClient) {
+    const sel = document.getElementById('bill-client');
+    if (sel) sel.value = filterClient;
+  }
   const [yr,mo] = month.split('-').map(Number);
   const days = dim(yr,mo);
   const mStart = new Date(yr,mo-1,1);
