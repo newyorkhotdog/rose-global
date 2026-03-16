@@ -1529,6 +1529,7 @@ function renderBilling(){
             filterClient === 'ניו_מגיק' ? (r.company==='ניו פאוור'||r.company==='מגיק פאוור') :
             filterClient === 'שיק_סין' ? (r.company==='שיק סין'||r.company==='שיק צין') :
             r.company === filterClient;
+          console.log('ROOM:', prop, 'floor:', floor, 'r:', r.r, 'company:', JSON.stringify(r.company), 'filter:', JSON.stringify(filterClient), 'match:', match);
           if (!match) return;
         }
         // Check if this tenant existed in this month via TENANTS array
