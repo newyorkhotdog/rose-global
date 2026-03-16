@@ -512,6 +512,20 @@ textarea { resize: vertical; min-height: 70px; }
     </div>
     <div class="btn-row"><button class="btn btn-primary" onclick="addExpense()">שמור</button><button class="btn" onclick="toggleExpForm()">ביטול</button></div>
   </div>
+  <!-- INVOICE UPLOAD -->
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">📸 העלאת חשבונית</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:12px">צלם או העלה קובץ — ה-AI מחלץ את הפרטים אוטומטית</div>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <label style="cursor:pointer;display:inline-flex;align-items:center;gap:6px;padding:9px 16px;background:var(--bg3);border:1px dashed var(--border2);border-radius:var(--radius-sm);font-size:13px;color:var(--text2)">
+        📎 בחר קובץ / צלם
+        <input type="file" id="invoice-file" accept="image/*,application/pdf" capture="environment" style="display:none" onchange="processInvoice(this)">
+      </label>
+      <div id="invoice-status" style="font-size:13px;color:var(--text2)"></div>
+    </div>
+    <div id="invoice-preview" style="display:none;margin-top:12px"></div>
+  </div>
+
   <div class="table-wrap"><div id="exp-table"></div></div>
 </div>
 
@@ -1246,7 +1260,7 @@ function renderTenantMap() {
     data.floors[f].forEach(room => {
       const bg = getRoomBg(room, isFixed);
       const p2 = room.people * room.price - room.cost;
-      const profitStr = (!isFixed && room.company && room.company !== 'שירות') ? ((p2>=0?'+':'')+fmt(p2)+' ₪') : '';
+      const profitStr = room.company === 'שירות' ? ('-'+fmt(room.cost)+' ₪ הפסד') : (!isFixed && room.company) ? ((p2>=0?'+':'')+fmt(p2)+' ₪') : '';
       const incStr = (!isFixed && room.people > 0 && room.price > 0) ? fmt(room.people*room.price)+' ₪ הכנסה' : '';
       html += buildRoomCard(p, Number(f), room, bg, profitStr, incStr);
     });
@@ -1278,7 +1292,7 @@ function buildRoomCard(propName, floor, room, bg, profitStr, incStr) {
 
 
 function getRoomBg(room, isFixed) {
-  if (room.company === 'שירות') return {bg:'#fff3e0',border:'#ffb74d',text:'#e65100'}; // orange for service room
+  if (room.company === 'שירות') return {bg:'#e8eaf6',border:'#7986cb',text:'#3949ab'}; // blue for service room
   if (isFixed) return {bg:'#eef0fb',border:'#c5caee',text:'#5a5fd4'};
   if (!room.company) {
     if (room.note && room.note.includes('שיפוץ')) return {bg:'#f5eef8',border:'#d4a8e0',text:'#8a5aa0'};
