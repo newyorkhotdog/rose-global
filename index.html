@@ -1376,6 +1376,8 @@ function renderTenants() {
 }
 
 function renderTenantMap() {
+  // Read filter FIRST before any innerHTML rebuild destroys the select
+  const companyFilter = (document.getElementById('tenant-company-filter')||{}).value||'';
   const p = currentTenantProp;
   const isFixed = !!FIXED_COSTS[p];
   const rev = getPropRevenue(p);
@@ -1404,7 +1406,7 @@ function renderTenantMap() {
     </div>`;
 
   // Populate company filter
-  const companyFilter = (document.getElementById('tenant-company-filter')||{}).value||'';
+  // companyFilter already read at topue||'';
   const allCompanies = new Set();
   if (MAP_DATA[p]) {
     Object.values(MAP_DATA[p].floors||{}).forEach(rooms => {
