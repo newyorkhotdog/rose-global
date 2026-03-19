@@ -1396,7 +1396,27 @@ function renderTenantMap() {
         <div class="metric"><div class="metric-label">דיירים</div><div class="metric-value">${ppl}</div></div>
       </div>
       <button onclick="openAddRoomModal()" style="margin-right:12px;padding:9px 16px;background:#2d2a26;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px;font-family:inherit;flex-shrink:0;white-space:nowrap">+ הוסף חדר</button>
+    </div>
+    <div style="margin-bottom:12px">
+      <select id="tenant-company-filter" onchange="renderTenantMap()" style="width:auto;font-size:13px;padding:6px 10px;border:0.5px solid var(--border2);border-radius:var(--radius-sm);background:var(--bg2);color:var(--text)">
+        <option value="">כל התאגידים</option>
+      </select>
     </div>`;
+
+  // Populate company filter
+  const companyFilter = (document.getElementById('tenant-company-filter')||{}).value||'';
+  const allCompanies = new Set();
+  if (MAP_DATA[p]) {
+    Object.values(MAP_DATA[p].floors||{}).forEach(rooms => {
+      rooms.forEach(r => { if(r.company && r.company!=='שירות') allCompanies.add(r.company); });
+    });
+  }
+  const cfSel = document.getElementById('tenant-company-filter');
+  if (cfSel) {
+    const cur = cfSel.value;
+    cfSel.innerHTML = '<option value="">כל התאגידים</option>' +
+      [...allCompanies].sort().map(c=>`<option value="${c}" ${c===cur?'selected':''}>${c}</option>`).join('');
+  }
 
   // Map
   const data = MAP_DATA[p];
@@ -1421,7 +1441,12 @@ function renderTenantMap() {
       const p2 = room.people * room.price - room.cost;
       const profitStr = room.company === 'שירות' ? ('-'+fmt(room.cost)+' ₪ הפסד') : (!isFixed && room.company) ? ((p2>=0?'+':'')+fmt(p2)+' ₪') : '';
       const incStr = (!isFixed && room.people > 0 && room.price > 0) ? fmt(room.people*room.price)+' ₪ הכנסה' : '';
-      html += buildRoomCard(p, Number(f), room, bg, profitStr, incStr);
+      if (!companyFilter || room.company === companyFilter) {
+        html += buildRoomCard(p, Number(f), room, bg, profitStr, incStr);
+      } else {
+        // Show dimmed placeholder
+        html += '<div style="background:var(--bg3);border:1px dashed var(--border);border-radius:8px;padding:11px;opacity:0.3"><div style="font-size:11px;color:var(--text3)">חדר '+room.r+'</div></div>';
+      }
     });
     html += '</div></div>';
   });
