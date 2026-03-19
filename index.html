@@ -3112,59 +3112,63 @@ function renderPropsSheet() {
   let months = [...new Set([...PROP_MONTHS, ...HISTORY.map(h=>h.month)])].sort();
   if (filterMonth) months = months.filter(m=>m===filterMonth);
   const propsToShow = filterProp ? [filterProp] : PROP_NAMES_LIST;
-  
-  let html = '<div style="overflow-x:auto">';
-  
+
+  let html = '<div style="display:flex;flex-direction:column;gap:24px">';
+
   propsToShow.forEach(prop => {
-    html += `<div style="margin-bottom:24px">
-      <div style="font-size:14px;font-weight:600;margin-bottom:10px;padding:8px 12px;background:var(--bg3);border-radius:var(--radius-sm)">${prop}</div>
-      <table style="min-width:600px">
-        <thead><tr>
-          <th style="text-align:right;min-width:140px">סעיף</th>
-          ${months.map(m=>`<th style="text-align:left;min-width:90px">${getMonthShort(m)}</th>`).join('')}
-          <th style="text-align:left;min-width:90px">סה"כ</th>
-        </tr></thead>
-        <tbody>`;
-    
     const rows = [
-      { label: '📥 הכנסות', key: 'income', color: '#3a8a68', bold: true },
-      { label: '🏠 שכירות', key: 'rent', color: '#b85a50' },
-      { label: '⚡ חשמל', key: 'electric', color: '#b85a50' },
-      { label: '💧 מים', key: 'water', color: '#b85a50' },
-      { label: '🏛️ ארנונה', key: 'arnona', color: '#b85a50' },
-      { label: '📊 רווח גולמי', key: 'profit', color: null, bold: true, calc: true },
+      { label: '📥 הכנסות',    key: 'income',   color: '#2d8a5e', bold: true },
+      { label: '🏠 שכירות',    key: 'rent',     color: '#b85a50' },
+      { label: '⚡ חשמל',      key: 'electric', color: '#b85a50' },
+      { label: '💧 מים',       key: 'water',    color: '#b85a50' },
+      { label: '🏛️ ארנונה',   key: 'arnona',   color: '#b85a50' },
+      { label: '📊 רווח גולמי', key: 'profit',  color: null, bold: true, calc: true },
     ];
 
-    rows.forEach(row => {
+    html += `<div style="border:1px solid var(--border);border-radius:10px;overflow:hidden">
+      <div style="background:var(--bg3);padding:10px 16px;font-size:14px;font-weight:600;border-bottom:1px solid var(--border)">${prop}</div>
+      <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse">
+        <thead>
+          <tr style="background:var(--bg3)">
+            <th style="padding:9px 14px;text-align:right;font-size:12px;color:var(--text2);font-weight:500;border-bottom:1px solid var(--border);min-width:130px">סעיף</th>
+            ${months.map(m=>`<th style="padding:9px 12px;text-align:center;font-size:12px;color:var(--text2);font-weight:500;border-bottom:1px solid var(--border);border-right:0.5px solid var(--border);min-width:100px">${getMonthShort(m)}</th>`).join('')}
+            <th style="padding:9px 12px;text-align:center;font-size:12px;color:var(--text2);font-weight:600;border-bottom:1px solid var(--border);border-right:0.5px solid var(--border);min-width:90px;background:var(--bg2)">סה"כ</th>
+          </tr>
+        </thead>
+        <tbody>`;
+
+    rows.forEach((row, rowIdx) => {
       const vals = months.map(m => {
         const h = HISTORY.find(x=>x.month===m&&x.prop===prop);
         if (!h) return null;
-        if (row.calc) {
-          return h.income - h.rent - h.electric - h.water - h.arnona - h.other;
-        }
+        if (row.calc) return h.income - h.rent - (h.electric||0) - (h.water||0) - (h.arnona||0) - (h.other||0);
         return h[row.key] || 0;
       });
-      
+
       const total = vals.reduce((s,v)=>s+(v||0), 0);
       const hasData = vals.some(v=>v!==null);
       if (!hasData && !row.calc) return;
 
-      const color = row.calc
-        ? (total >= 0 ? '#3a8a68' : '#b85a50')
-        : row.color;
+      const rowBg = row.bold ? 'background:var(--bg3)' : (rowIdx%2===0?'':'background:var(--bg2)');
 
-      html += `<tr style="${row.bold?'font-weight:600;background:var(--bg3)':''}">
-        <td style="color:var(--text2);padding:7px 12px">${row.label}</td>
+      html += `<tr style="${rowBg}">
+        <td style="padding:9px 14px;font-size:13px;color:var(--text2);border-bottom:0.5px solid var(--border);${row.bold?'font-weight:600':''}">
+          ${row.label}
+        </td>
         ${vals.map(v => {
-          if (v === null) return `<td style="color:var(--text3);padding:7px 8px;text-align:right">—</td>`;
-          const c = row.calc ? (v>=0?'#3a8a68':'#b85a50') : color;
-          return `<td style="color:${c};padding:7px 8px;text-align:right">${v!==0?Math.round(v).toLocaleString('he-IL')+' ₪':'—'}</td>`;
+          if (v === null) return `<td style="padding:9px 12px;text-align:center;font-size:13px;color:var(--text3);border-bottom:0.5px solid var(--border);border-right:0.5px solid var(--border)">—</td>`;
+          const c = row.calc ? (v>=0?'#2d8a5e':'#b85a50') : (row.color||'var(--text)');
+          const fw = row.bold ? 'font-weight:600' : '';
+          return `<td style="padding:9px 12px;text-align:center;font-size:13px;color:${c};${fw};border-bottom:0.5px solid var(--border);border-right:0.5px solid var(--border)">${v!==0?Math.round(v).toLocaleString('he-IL')+' ₪':'—'}</td>`;
         }).join('')}
-        <td style="color:${color||''};padding:7px 8px;text-align:right;font-weight:600">${total?Math.round(total).toLocaleString('he-IL')+' ₪':'—'}</td>
+        <td style="padding:9px 12px;text-align:center;font-size:13px;font-weight:600;color:${row.calc?(total>=0?'#2d8a5e':'#b85a50'):(row.color||'var(--text)')};border-bottom:0.5px solid var(--border);background:var(--bg2)">
+          ${total?Math.round(total).toLocaleString('he-IL')+' ₪':'—'}
+        </td>
       </tr>`;
     });
 
-    html += '</tbody></table></div>';
+    html += '</tbody></table></div></div>';
   });
 
   html += '</div>';
@@ -3172,366 +3176,6 @@ function renderPropsSheet() {
 }
 
 
-// ============ HISTORY ENTRY TABLE ============
-const MONTHS_LIST = ['2025-11','2025-12','2026-01','2026-02','2026-03','2026-04'];
-const PROPS_LIST = ['לבנדה 32','עזאי 38','נתן הנביא 42','הירקון 41 ב"ב','חיים בר לב 104'];
-
-function renderHistEntryTable() {
-  const tbody = document.getElementById('hist-entry-tbody');
-  if (!tbody) return;
-
-  // Build rows from existing HISTORY data
-  let rows = [];
-  PROPS_LIST.forEach(prop => {
-    MONTHS_LIST.forEach(month => {
-      const h = HISTORY.find(x=>x.month===month&&x.prop===prop);
-      rows.push({
-        prop, month,
-        income: h ? h.income : '',
-        rent: h ? h.rent : '',
-        electric: h ? h.electric||'' : '',
-        water: h ? h.water||'' : '',
-        arnona: h ? h.arnona||'' : '',
-        other: h ? h.other||'' : '',
-        exists: !!h
-      });
-    });
-  });
-
-  tbody.innerHTML = rows.map((r,i) => `
-    <tr style="background:${r.exists?'var(--green-bg)':''}">
-      <td style="font-size:12px;font-weight:500">${r.prop}</td>
-      <td style="font-size:12px">${getMonthLabel(r.month)}</td>
-      <td><input type="number" value="${r.income}" placeholder="0" class="he-inline" data-i="${i}" data-f="income" style="width:80px"></td>
-      <td><input type="number" value="${r.rent}" placeholder="0" class="he-inline" data-i="${i}" data-f="rent" style="width:80px"></td>
-      <td><input type="number" value="${r.electric}" placeholder="0" class="he-inline" data-i="${i}" data-f="electric" style="width:70px"></td>
-      <td><input type="number" value="${r.water}" placeholder="0" class="he-inline" data-i="${i}" data-f="water" style="width:70px"></td>
-      <td><input type="number" value="${r.arnona}" placeholder="0" class="he-inline" data-i="${i}" data-f="arnona" style="width:70px"></td>
-      <td><input type="number" value="${r.other}" placeholder="0" class="he-inline" data-i="${i}" data-f="other" style="width:70px"></td>
-      <td><button onclick="clearHistRow(${i})" class="btn btn-sm btn-danger" style="padding:3px 8px">✕</button></td>
-    </tr>`).join('');
-
-  // Store rows reference for saving
-  tbody._rows = rows;
-}
-
-function addHistEntryRow() {
-  // Open a quick-add form below table
-  const tbody = document.getElementById('hist-entry-tbody');
-  const i = 'new_'+Date.now();
-  const propOpts = PROPS_LIST.map(p=>`<option>${p}</option>`).join('');
-  const monthOpts = MONTHS_LIST.map(m=>`<option value="${m}">${getMonthLabel(m)}</option>`).join('');
-  const tr = document.createElement('tr');
-  tr.style.background = 'var(--blue-bg)';
-  tr.innerHTML = `
-    <td><select class="he-inline" id="new-prop-${i}" style="width:130px">${propOpts}</select></td>
-    <td><select class="he-inline" id="new-month-${i}" style="width:100px">${monthOpts}</select></td>
-    <td><input type="number" id="new-income-${i}" placeholder="0" style="width:80px"></td>
-    <td><input type="number" id="new-rent-${i}" placeholder="0" style="width:80px"></td>
-    <td><input type="number" id="new-electric-${i}" placeholder="0" style="width:70px"></td>
-    <td><input type="number" id="new-water-${i}" placeholder="0" style="width:70px"></td>
-    <td><input type="number" id="new-arnona-${i}" placeholder="0" style="width:70px"></td>
-    <td><input type="number" id="new-other-${i}" placeholder="0" style="width:70px"></td>
-    <td><button onclick="saveNewHistRow('${i}',this.closest('tr'))" class="btn btn-sm btn-primary" style="padding:3px 8px">✓</button></td>`;
-  tbody.appendChild(tr);
-}
-
-function saveNewHistRow(i, tr) {
-  const prop = document.getElementById('new-prop-'+i).value;
-  const month = document.getElementById('new-month-'+i).value;
-  const income = parseFloat(document.getElementById('new-income-'+i).value)||0;
-  const rent = parseFloat(document.getElementById('new-rent-'+i).value)||0;
-  const electric = parseFloat(document.getElementById('new-electric-'+i).value)||0;
-  const water = parseFloat(document.getElementById('new-water-'+i).value)||0;
-  const arnona = parseFloat(document.getElementById('new-arnona-'+i).value)||0;
-  const other = parseFloat(document.getElementById('new-other-'+i).value)||0;
-  const entry = {month,prop,income,tenants:0,pph:0,rent,electric,water,arnona,other};
-  const idx = HISTORY.findIndex(h=>h.month===month&&h.prop===prop);
-  if (idx>=0) HISTORY[idx]=entry; else HISTORY.push(entry);
-  HISTORY.sort((a,b)=>a.month.localeCompare(b.month)||a.prop.localeCompare(b.prop));
-  autosave();
-  tr.remove();
-  renderHistEntryTable();
-  showSaveIndicator('✓ נשמר');
-}
-
-function clearHistRow(i) {
-  const tbody = document.getElementById('hist-entry-tbody');
-  if (!tbody._rows || !tbody._rows[i]) return;
-  const r = tbody._rows[i];
-  if (!r.exists) return;
-  if (!confirm('למחוק את הנתונים של '+r.prop+' — '+getMonthLabel(r.month)+'?')) return;
-  const idx = HISTORY.findIndex(h=>h.month===r.month&&h.prop===r.prop);
-  if (idx>=0) HISTORY.splice(idx,1);
-  autosave();
-  renderHistEntryTable();
-}
-
-function saveAllHistEntries() {
-  const inputs = document.querySelectorAll('#hist-entry-tbody .he-inline[data-i]');
-  const changes = {};
-  inputs.forEach(inp => {
-    const i = inp.dataset.i;
-    const f = inp.dataset.f;
-    if (!changes[i]) changes[i] = {};
-    changes[i][f] = parseFloat(inp.value)||0;
-  });
-  const tbody = document.getElementById('hist-entry-tbody');
-  if (!tbody._rows) return;
-  Object.entries(changes).forEach(([i, vals]) => {
-    const r = tbody._rows[i];
-    if (!r) return;
-    const hasData = Object.values(vals).some(v=>v>0);
-    if (!hasData && !r.exists) return;
-    const entry = {month:r.month,prop:r.prop,income:vals.income||0,tenants:0,pph:0,
-      rent:vals.rent||0,electric:vals.electric||0,water:vals.water||0,
-      arnona:vals.arnona||0,other:vals.other||0};
-    if (!hasData) {
-      const idx = HISTORY.findIndex(h=>h.month===r.month&&h.prop===r.prop);
-      if (idx>=0) HISTORY.splice(idx,1);
-    } else {
-      const idx = HISTORY.findIndex(h=>h.month===r.month&&h.prop===r.prop);
-      if (idx>=0) HISTORY[idx]=entry; else HISTORY.push(entry);
-    }
-  });
-  HISTORY.sort((a,b)=>a.month.localeCompare(b.month)||a.prop.localeCompare(b.prop));
-  autosave();
-  renderHistEntryTable();
-  showSaveIndicator('✓ כל הנתונים נשמרו');
-}
-
-
-// ============ INVOICE SCANNING ============
-async function processInvoice(input) {
-  const file = input.files[0];
-  if (!file) return;
-  const status = document.getElementById('invoice-status');
-  const preview = document.getElementById('invoice-preview');
-  status.textContent = '⏳ מעבד חשבונית...';
-  preview.style.display = 'none';
-
-  try {
-    // Convert to base64
-    const base64 = await new Promise((res, rej) => {
-      const reader = new FileReader();
-      reader.onload = () => res(reader.result.split(',')[1]);
-      reader.onerror = rej;
-      reader.readAsDataURL(file);
-    });
-
-    const isImage = file.type.startsWith('image/');
-    const isPdf = file.type === 'application/pdf';
-
-    const messageContent = [];
-    if (isImage) {
-      messageContent.push({
-        type: 'image',
-        source: { type: 'base64', media_type: file.type, data: base64 }
-      });
-    } else if (isPdf) {
-      messageContent.push({
-        type: 'document',
-        source: { type: 'base64', media_type: 'application/pdf', data: base64 }
-      });
-    }
-    messageContent.push({
-      type: 'text',
-      text: 'זו חשבונית עסקית. חלץ JSON בלבד: {"date":"YYYY-MM-DD","total":number,"desc":"תיאור","invoice":"מספר"}. null אם חסר.'
-    });
-
-    const response = await fetch('https://rose-ai.ohadsheena.workers.dev', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-5',
-        max_tokens: 200,
-        messages: [{ role: 'user', content: messageContent }]
-      })
-    });
-
-    const data = await response.json();
-    if (!data.content || !data.content[0]) throw new Error('תגובה ריקה');
-    
-    let text = data.content[0].text.trim();
-    text = text.replace(/```json|```/g, '').trim();
-    const parsed = JSON.parse(text);
-
-    // Pre-fill expense form
-    status.textContent = '✅ חשבונית זוהתה!';
-    if (parsed.date) document.getElementById('ef-date').value = parsed.date;
-    if (parsed.total) document.getElementById('ef-total').value = parsed.total;
-    if (parsed.desc) document.getElementById('ef-desc').value = parsed.desc || '';
-    if (parsed.invoice) document.getElementById('ef-invoice').value = parsed.invoice || '';
-
-    // Show parsed preview
-    preview.style.display = 'block';
-    preview.innerHTML = `<div style="background:var(--green-bg);border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;font-size:13px">
-      <div style="font-weight:600;margin-bottom:6px">✅ פרטים שזוהו:</div>
-      <div>תאריך: <strong>${parsed.date||'—'}</strong></div>
-      <div>סכום: <strong>${parsed.total ? parsed.total.toLocaleString('he-IL')+' ₪' : '—'}</strong></div>
-      <div>תיאור: <strong>${parsed.desc||'—'}</strong></div>
-      <div>מסמך: <strong>${parsed.invoice||'—'}</strong></div>
-      <div style="margin-top:8px;color:var(--text2);font-size:12px">הטופס מולא אוטומטית — בדוק ולחץ "הוסף הוצאה"</div>
-    </div>`;
-
-    // Show form
-    document.getElementById('exp-add-form').style.display = 'block';
-
-  } catch(e) {
-    status.textContent = '❌ שגיאה: ' + e.message;
-    console.error(e);
-  }
-  input.value = ''; // reset file input
-}
-
-
-// ============ MANAGEMENT TASKS ============
-const MGMT_TASKS = [
-  {id:1,prop:'לבנדה 32',desc:'לבדוק עם תאגיד המים כמות אנשים בנכס',owner:'צביקה',priority:'normal',done:false,due:'2026-04-01'},
-  {id:2,prop:'כללי',desc:'לסגור חוזה עם חיים בר לב 104',owner:'רועי',priority:'urgent',done:false,due:'2026-04-01'},
-  {id:3,prop:'כללי',desc:'להעביר צרכנים חשמל ומים — חיים בר לב',owner:'אוהד',priority:'urgent',done:false,due:'2026-04-01'},
-];
-let mgmtNextId = 10;
-let mgmtFilter = 'all';
-
-function setTaskMainTab(tab, el) {
-  document.querySelectorAll('#task-main-tabs .tab').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('task-technical-view').style.display = tab==='technical' ? 'block' : 'none';
-  document.getElementById('task-mgmt-view').style.display = tab==='mgmt' ? 'block' : 'none';
-  if (tab==='mgmt') renderMgmtTasks();
-}
-
-function setMgmtFilter(f, el) {
-  mgmtFilter = f;
-  document.querySelectorAll('#mgmt-filters .tab').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');
-  renderMgmtTasks();
-}
-
-function toggleMgmtForm() {
-  const f = document.getElementById('mgmt-add-form');
-  f.style.display = f.style.display==='none'?'block':'none';
-  if (f.style.display==='block') {
-    document.getElementById('mg-due').value = new Date().toISOString().split('T')[0];
-  }
-}
-
-function addMgmtTask() {
-  const prop = document.getElementById('mg-prop').value;
-  const owner = document.getElementById('mg-owner').value;
-  const priority = document.getElementById('mg-priority').value;
-  const desc = document.getElementById('mg-desc').value.trim();
-  const due = document.getElementById('mg-due').value;
-  if (!desc) return;
-  MGMT_TASKS.push({id:mgmtNextId++,prop,desc,owner,priority,done:false,due});
-  document.getElementById('mg-desc').value='';
-  toggleMgmtForm();
-  autosave();
-  renderMgmtTasks();
-  updateTaskBadge();
-}
-
-function toggleMgmtDone(id) {
-  const t = MGMT_TASKS.find(x=>x.id==id);
-  if(t){t.done=!t.done;autosave();renderMgmtTasks();updateTaskBadge();}
-}
-
-function delMgmtTask(id) {
-  MGMT_TASKS.splice(MGMT_TASKS.findIndex(x=>x.id==id),1);
-  autosave();renderMgmtTasks();updateTaskBadge();
-}
-
-let mgmtEditId = null;
-function editMgmtTask(id) {
-  const t = MGMT_TASKS.find(x=>x.id==id);
-  if(!t) return;
-  mgmtEditId = t.id;
-  document.getElementById('me-desc').value = t.desc;
-  // Set prop select
-  const pSel = document.getElementById('me-prop');
-  for(let i=0;i<pSel.options.length;i++) if(pSel.options[i].text===t.prop){pSel.selectedIndex=i;break;}
-  // Set owner select
-  const oSel = document.getElementById('me-owner');
-  for(let i=0;i<oSel.options.length;i++) if(oSel.options[i].text===t.owner){oSel.selectedIndex=i;break;}
-  document.getElementById('me-priority').value = t.priority;
-  document.getElementById('me-due').value = t.due||'';
-  document.getElementById('mgmt-edit-modal').style.display = 'flex';
-}
-
-function saveMgmtEdit() {
-  const t = MGMT_TASKS.find(x=>x.id==mgmtEditId);
-  if(!t) return;
-  t.desc = document.getElementById('me-desc').value.trim()||t.desc;
-  t.prop = document.getElementById('me-prop').value;
-  t.owner = document.getElementById('me-owner').value;
-  t.priority = document.getElementById('me-priority').value;
-  t.due = document.getElementById('me-due').value;
-  document.getElementById('mgmt-edit-modal').style.display = 'none';
-  autosave();
-  renderMgmtTasks();
-}
-
-document.getElementById('mgmt-edit-modal').addEventListener('click', e=>{
-  if(e.target===document.getElementById('mgmt-edit-modal'))
-    document.getElementById('mgmt-edit-modal').style.display='none';
-});
-
-function renderMgmtTasks() {
-  const filterProp = (document.getElementById('mgmt-prop-filter')||{}).value||'';
-  const filterOwner = (document.getElementById('mgmt-owner-filter')||{}).value||'';
-  
-  let tasks = MGMT_TASKS.filter(t => {
-    if (filterProp && t.prop !== filterProp) return false;
-    if (filterOwner && t.owner !== filterOwner) return false;
-    if (mgmtFilter==='urgent') return !t.done && t.priority==='urgent';
-    if (mgmtFilter==='open') return !t.done;
-    if (mgmtFilter==='done') return t.done;
-    return true;
-  });
-
-  const sorted = [...tasks].sort((a,b) => {
-    if(a.done!==b.done) return a.done?1:-1;
-    const po={urgent:0,normal:1,low:2};
-    return po[a.priority]-po[b.priority];
-  });
-
-  const ownerColors = {
-    'צביקה': '#7367c0',  // purple
-    'רועי':   '#2d8a5e',  // green
-    'אוהד':   '#c07330',  // orange
-    'יועד':   '#1a6fa8',  // blue
-  };
-  const ownerBg = {
-    'צביקה': '#ede9f8', 'רועי': '#e8f5ef', 'אוהד': '#fff3e0', 'יועד': '#e3f2fd'
-  };
-  const prioColors = {urgent:'badge-red',normal:'badge-amber',low:'badge-green'};
-  const prioLabels = {urgent:'דחוף',normal:'רגיל',low:'נמוך'};
-
-  const today = new Date().toISOString().split('T')[0];
-
-  document.getElementById('mgmt-board').innerHTML = sorted.length ? sorted.map(t => {
-    const isOverdue = !t.done && t.due && t.due < today;
-    const ownerColor = ownerColors[t.owner]||'#6b6560';
-    return `<div class="task-item ${t.done?'done':''}" style="${isOverdue?'border-right:3px solid #e8b0aa':''}">
-      <div class="priority-dot p-${t.priority}"></div>
-      <div class="task-check ${t.done?'checked':''}" onclick="toggleMgmtDone(${t.id})"></div>
-      <div class="task-body" style="flex:1">
-        <div class="task-desc">${t.desc}</div>
-        <div class="task-meta" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">
-          <span class="badge ${prioColors[t.priority]}">${prioLabels[t.priority]}</span>
-          <span style="background:${ownerBg[t.owner]||ownerColor+'22'};color:${ownerColor};padding:1px 7px;border-radius:10px;font-size:11px;font-weight:600">${t.owner}</span>
-          <span style="font-size:11px;color:var(--text3)">${t.prop}</span>
-          ${t.due?`<span style="font-size:11px;color:${isOverdue?'#b85a50':'var(--text3)'}">📅 ${t.due}${isOverdue?' (באיחור)':''}</span>`:''}
-        </div>
-      </div>
-      <div style="display:flex;gap:4px">
-        <button class="btn btn-sm" onclick="editMgmtTask(${t.id})">✏️</button>
-        <button class="btn btn-sm btn-danger" onclick="delMgmtTask(${t.id})">מחק</button>
-      </div>
-    </div>`;
-  }).join('') : '<div style="color:var(--text3);font-size:13px;padding:1rem;text-align:center">אין משימות</div>';
-}
 
 // ============ INIT ============
 document.getElementById('mv-date').value = new Date().toISOString().split('T')[0];
