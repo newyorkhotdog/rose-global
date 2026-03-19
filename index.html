@@ -1415,9 +1415,10 @@ function renderTenantMap() {
   }
   const cfSel = document.getElementById('tenant-company-filter');
   if (cfSel) {
-    const cur = cfSel.value;
+    const cur = companyFilter; // already read at top
     cfSel.innerHTML = '<option value="">כל התאגידים</option>' +
       [...allCompanies].sort().map(c=>`<option value="${c}" ${c===cur?'selected':''}>${c}</option>`).join('');
+    cfSel.value = cur; // restore selection explicitly
   }
 
   // Map
