@@ -3417,20 +3417,20 @@ function addMgmtTask() {
 }
 
 function toggleMgmtDone(id) {
-  const t = MGMT_TASKS.find(x=>x.id===id);
+  const t = MGMT_TASKS.find(x=>x.id==id);
   if(t){t.done=!t.done;autosave();renderMgmtTasks();updateTaskBadge();}
 }
 
 function delMgmtTask(id) {
-  MGMT_TASKS.splice(MGMT_TASKS.findIndex(x=>x.id===id),1);
+  MGMT_TASKS.splice(MGMT_TASKS.findIndex(x=>x.id==id),1);
   autosave();renderMgmtTasks();updateTaskBadge();
 }
 
 let mgmtEditId = null;
 function editMgmtTask(id) {
-  const t = MGMT_TASKS.find(x=>x.id===id);
+  const t = MGMT_TASKS.find(x=>x.id==id);
   if(!t) return;
-  mgmtEditId = id;
+  mgmtEditId = t.id;
   document.getElementById('me-desc').value = t.desc;
   // Set prop select
   const pSel = document.getElementById('me-prop');
@@ -3444,7 +3444,7 @@ function editMgmtTask(id) {
 }
 
 function saveMgmtEdit() {
-  const t = MGMT_TASKS.find(x=>x.id===mgmtEditId);
+  const t = MGMT_TASKS.find(x=>x.id==mgmtEditId);
   if(!t) return;
   t.desc = document.getElementById('me-desc').value.trim()||t.desc;
   t.prop = document.getElementById('me-prop').value;
