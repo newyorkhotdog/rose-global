@@ -1858,6 +1858,11 @@ function editTask(id) {
     renderTasks();
   }
 }
+const MGMT_TASKS = [];
+let mgmtNextId = 10;
+let mgmtFilter = 'all';
+let mgmtEditId = null;
+
 function updateTaskBadge(){
   const n=TASKS.filter(t=>!t.done).length + MGMT_TASKS.filter(t=>!t.done).length;
   document.getElementById('tasks-badge').textContent=n;
