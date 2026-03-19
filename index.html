@@ -3242,9 +3242,17 @@ document.getElementById('ef-date').value = new Date().toISOString().split('T')[0
 
 async function initApp() {
   showSaveIndicator('⏳ טוען נתונים...');
-  
-  // Try loading from Firebase first
+
+  // Wait for Firebase to be ready (ES module loads async)
+  let attempts = 0;
+  while (!window.loadFromCloud && attempts < 20) {
+    await new Promise(r => setTimeout(r, 200));
+    attempts++;
+  }
+
   let loaded = false;
+
+  // Always prefer cloud data
   if (window.loadFromCloud) {
     try {
       const cloudData = await window.loadFromCloud();
@@ -3252,20 +3260,25 @@ async function initApp() {
         applyData(cloudData);
         loaded = true;
         showSaveIndicator('☁️ נטען מהענן');
-        console.log('Loaded from Firebase, saved at:', cloudData._savedAt);
+        console.log('Loaded from Firebase:', cloudData._savedAt);
       }
     } catch(e) {
-      console.warn('Firebase load failed, trying backup:', e);
+      console.warn('Firebase load failed:', e);
     }
   }
 
-  // Fallback to localStorage backup
+  // Only use localStorage if Firebase completely failed
   if (!loaded) {
     try {
       const backup = localStorage.getItem('rose_global_backup');
       if (backup) {
         const data = JSON.parse(backup);
-        if (data.TENANTS) { applyData(data); loaded = true; showSaveIndicator('💾 נטען מגיבוי'); }
+        if (data.TENANTS) {
+          applyData(data);
+          loaded = true;
+          showSaveIndicator('💾 נטען מגיבוי מקומי');
+          console.warn('Using local backup - Firebase unavailable');
+        }
       }
     } catch(e) {}
   }
@@ -3273,15 +3286,17 @@ async function initApp() {
   updateTaskBadge();
   renderDashboard();
 
-  // Start real-time sync — update all clients when someone saves
+  // Real-time sync - updates ALL users when anyone saves
   if (window.startCloudSync) {
     window.startCloudSync((cloudData) => {
       if (cloudData && !cloudData._cleared && cloudData.TENANTS && !window._isSaving) {
+        console.log('Real-time sync received:', cloudData._savedAt);
         applyData(cloudData);
         refreshUI();
         showSaveIndicator('🔄 עודכן מהענן');
       }
     });
+    console.log('Real-time sync started');
   }
 }
 
