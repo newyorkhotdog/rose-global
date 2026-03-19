@@ -1125,9 +1125,12 @@ function getPropPL(prop, month) {
     water    = histRow.water||0;
     arnona   = histRow.arnona||0;
     other    = histRow.other||0;
-  } else if (isFixed || prop === 'חיים בר לב 104') {
-    // הערכה משוערת: 15,500 ₪ (חשמל+מים+ארנונה)
-    electric = 10000; water = 2500; arnona = 3000; isEstimated = true;
+  } else if (prop === 'עזאי 38') {
+    electric = 3000; water = 1000; arnona = 1000; isEstimated = true; // משוער 5,000 ₪
+  } else if (prop === 'נתן הנביא 42') {
+    electric = 5000; water = 1500; arnona = 1500; isEstimated = true; // משוער 8,000 ₪
+  } else if (prop === 'חיים בר לב 104') {
+    electric = 1500; water = 500; arnona = 500; isEstimated = true; // משוער 2,500 ₪
   } else {
     electric = null; water = null; arnona = null;
   }
