@@ -1125,20 +1125,9 @@ function getPropPL(prop, month) {
     water    = histRow.water||0;
     arnona   = histRow.arnona||0;
     other    = histRow.other||0;
-  } else if (prop === 'חיים בר לב 104') {
-    // Fixed estimate
-    electric = 1500; water = 500; arnona = 500; isEstimated = true;
-  } else if (isFixed) {
-    // Calculate average from past months in HISTORY
-    const pastRows = HISTORY.filter(h=>h.prop===prop&&(h.electric||h.water||h.arnona));
-    if (pastRows.length > 0) {
-      electric = Math.round(pastRows.reduce((s,h)=>s+(h.electric||0),0)/pastRows.length);
-      water    = Math.round(pastRows.reduce((s,h)=>s+(h.water||0),0)/pastRows.length);
-      arnona   = Math.round(pastRows.reduce((s,h)=>s+(h.arnona||0),0)/pastRows.length);
-      isEstimated = true;
-    } else {
-      electric = null; water = null; arnona = null;
-    }
+  } else if (isFixed || prop === 'חיים בר לב 104') {
+    // הערכה משוערת: 15,500 ₪ (חשמל+מים+ארנונה)
+    electric = 10000; water = 2500; arnona = 3000; isEstimated = true;
   } else {
     electric = null; water = null; arnona = null;
   }
@@ -1203,7 +1192,7 @@ function renderDashboard() {
         <div class="prop-stat-row"><span>הכנסה</span><span class="green">${fmt(ppL.income)} ₪</span></div>
         <div class="prop-stat-row"><span>שכירות</span><span class="red">${fmt(ppL.rent)} ₪</span></div>
         ${isFixed || p === 'חיים בר לב 104' ? `
-        <div class="prop-stat-row"><span>חשמל/מים/ארנונה</span><span class="${ppL.hasMissingUtils?'amber':'red'}">${ppL.hasMissingUtils?'<span class="badge badge-amber">לעדכן</span>':fmt(ppL.utilTotal)+' ₪'+(ppL.isEstimated?' <span style="font-size:10px;color:var(--amber)">(משוער)</span>':'')}</span></div>` : ''}
+        <div class="prop-stat-row"><span>חשמל/מים/ארנונה</span><span class="${ppL.hasMissingUtils?'amber':'red'}">${ppL.hasMissingUtils?'<span class="badge badge-amber">לעדכן</span>':fmt(ppL.utilTotal)+' ₪'+(ppL.isEstimated?' <span style="font-size:10px;color:var(--amber)">(סכום משוער)</span>':'')}</span></div>` : ''}
         <div class="prop-stat-row"><span>רווח גולמי</span><span class="${ppL.profit>=0?'green':'red'}" style="font-weight:600">${fmt(ppL.profit)} ₪</span></div>
         <div class="prop-stat-row"><span>דיירים</span><span>${ppl}</span></div>
         <div class="prop-stat-row"><span>מודל</span><span>${isFixed?'<span class="badge badge-purple">פיקס</span>':'<span class="badge badge-blue">לפי ראש</span>'}</span></div>
