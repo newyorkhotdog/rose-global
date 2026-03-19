@@ -823,6 +823,37 @@ textarea { resize: vertical; min-height: 70px; }
 </div>
 </div>
 
+<!-- MGMT TASK EDIT MODAL -->
+<div id="mgmt-edit-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);align-items:center;justify-content:center;z-index:300;padding:1rem">
+  <div style="background:#fff;border-radius:12px;padding:20px;width:100%;max-width:420px;border:1px solid #e0ddd8">
+    <div style="font-size:15px;font-weight:600;margin-bottom:16px">עריכת משימה ניהולית</div>
+    <div class="form-group"><label>תיאור</label>
+      <input id="me-desc" placeholder="תיאור המשימה" style="background:#f5f3ef;border:1px solid #ddd;border-radius:6px;padding:8px 10px;font-size:13px;font-family:inherit;width:100%"></div>
+    <div class="form-grid three" style="margin:10px 0">
+      <div class="form-group"><label>נכס</label>
+        <select id="me-prop" style="background:#f5f3ef;border:1px solid #ddd;border-radius:6px;padding:8px 10px;font-size:13px;font-family:inherit">
+          <option>כללי</option><option>לבנדה 32</option><option>עזאי 38</option>
+          <option>נתן הנביא 42</option><option>הירקון 41 ב"ב</option><option>חיים בר לב 104</option>
+        </select></div>
+      <div class="form-group"><label>אחריות</label>
+        <select id="me-owner" style="background:#f5f3ef;border:1px solid #ddd;border-radius:6px;padding:8px 10px;font-size:13px;font-family:inherit">
+          <option>צביקה</option><option>רועי</option><option>אוהד</option><option>יועד</option>
+        </select></div>
+      <div class="form-group"><label>עדיפות</label>
+        <select id="me-priority" style="background:#f5f3ef;border:1px solid #ddd;border-radius:6px;padding:8px 10px;font-size:13px;font-family:inherit">
+          <option value="urgent">דחוף</option>
+          <option value="normal">רגיל</option>
+          <option value="low">נמוך</option>
+        </select></div>
+    </div>
+    <div class="form-group" style="margin-bottom:14px"><label>תאריך יעד</label>
+      <input type="date" id="me-due" style="background:#f5f3ef;border:1px solid #ddd;border-radius:6px;padding:8px 10px;font-size:13px;font-family:inherit;width:100%"></div>
+    <div style="display:flex;gap:8px">
+      <button onclick="saveMgmtEdit()" style="flex:1;padding:9px;background:#2d2a26;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-family:inherit">שמור</button>
+      <button onclick="document.getElementById('mgmt-edit-modal').style.display='none'" style="padding:9px 16px;background:transparent;border:1px solid #ddd;border-radius:6px;cursor:pointer;font-size:13px;font-family:inherit">ביטול</button>
+    </div>
+  </div>
+</div>
 </main>
 </div>
 
@@ -3370,13 +3401,40 @@ function delMgmtTask(id) {
   autosave();renderMgmtTasks();updateTaskBadge();
 }
 
+let mgmtEditId = null;
 function editMgmtTask(id) {
   const t = MGMT_TASKS.find(x=>x.id===id);
   if(!t) return;
-  const newDesc = prompt('עריכת משימה:', t.desc);
-  if(newDesc===null) return;
-  if(newDesc.trim()){t.desc=newDesc.trim();autosave();renderMgmtTasks();}
+  mgmtEditId = id;
+  document.getElementById('me-desc').value = t.desc;
+  // Set prop select
+  const pSel = document.getElementById('me-prop');
+  for(let i=0;i<pSel.options.length;i++) if(pSel.options[i].text===t.prop){pSel.selectedIndex=i;break;}
+  // Set owner select
+  const oSel = document.getElementById('me-owner');
+  for(let i=0;i<oSel.options.length;i++) if(oSel.options[i].text===t.owner){oSel.selectedIndex=i;break;}
+  document.getElementById('me-priority').value = t.priority;
+  document.getElementById('me-due').value = t.due||'';
+  document.getElementById('mgmt-edit-modal').style.display = 'flex';
 }
+
+function saveMgmtEdit() {
+  const t = MGMT_TASKS.find(x=>x.id===mgmtEditId);
+  if(!t) return;
+  t.desc = document.getElementById('me-desc').value.trim()||t.desc;
+  t.prop = document.getElementById('me-prop').value;
+  t.owner = document.getElementById('me-owner').value;
+  t.priority = document.getElementById('me-priority').value;
+  t.due = document.getElementById('me-due').value;
+  document.getElementById('mgmt-edit-modal').style.display = 'none';
+  autosave();
+  renderMgmtTasks();
+}
+
+document.getElementById('mgmt-edit-modal').addEventListener('click', e=>{
+  if(e.target===document.getElementById('mgmt-edit-modal'))
+    document.getElementById('mgmt-edit-modal').style.display='none';
+});
 
 function renderMgmtTasks() {
   const filterProp = (document.getElementById('mgmt-prop-filter')||{}).value||'';
@@ -3398,7 +3456,13 @@ function renderMgmtTasks() {
   });
 
   const ownerColors = {
-    'צביקה': '#7367c0', 'רועי': '#2d8a5e', 'אוהד': '#c07330', 'יועד': '#5a6070'
+    'צביקה': '#7367c0',  // purple
+    'רועי':   '#2d8a5e',  // green
+    'אוהד':   '#c07330',  // orange
+    'יועד':   '#1a6fa8',  // blue
+  };
+  const ownerBg = {
+    'צביקה': '#ede9f8', 'רועי': '#e8f5ef', 'אוהד': '#fff3e0', 'יועד': '#e3f2fd'
   };
   const prioColors = {urgent:'badge-red',normal:'badge-amber',low:'badge-green'};
   const prioLabels = {urgent:'דחוף',normal:'רגיל',low:'נמוך'};
@@ -3415,7 +3479,7 @@ function renderMgmtTasks() {
         <div class="task-desc">${t.desc}</div>
         <div class="task-meta" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">
           <span class="badge ${prioColors[t.priority]}">${prioLabels[t.priority]}</span>
-          <span style="background:${ownerColor}22;color:${ownerColor};padding:1px 7px;border-radius:10px;font-size:11px;font-weight:500">${t.owner}</span>
+          <span style="background:${ownerBg[t.owner]||ownerColor+'22'};color:${ownerColor};padding:1px 7px;border-radius:10px;font-size:11px;font-weight:600">${t.owner}</span>
           <span style="font-size:11px;color:var(--text3)">${t.prop}</span>
           ${t.due?`<span style="font-size:11px;color:${isOverdue?'#b85a50':'var(--text3)'}">📅 ${t.due}${isOverdue?' (באיחור)':''}</span>`:''}
         </div>
