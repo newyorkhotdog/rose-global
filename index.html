@@ -863,6 +863,13 @@ function getRoomCost(prop, floor, room) {
 
 function getPropCost(prop) {
   if (FIXED_COSTS[prop]) return FIXED_COSTS[prop].cost;
+  // Read from MAP_DATA (live data) instead of static ROOM_COSTS
+  if (MAP_DATA[prop]) {
+    return Object.values(MAP_DATA[prop].floors||{})
+      .flat()
+      .reduce((s,r) => s + (r.cost||0), 0);
+  }
+  // Fallback to static ROOM_COSTS
   const list = ROOM_COSTS[prop];
   if (!list) return 0;
   return list.reduce((s,r) => s+r.c, 0);
