@@ -2406,15 +2406,18 @@ function autosave() {
   const data = getDataSnapshot();
   // Save to localStorage as backup
   try { localStorage.setItem('rose_global_backup', JSON.stringify(data)); } catch(e){}
-  // Save to Firebase
-  if (window.saveToCloud) {
-    window.saveToCloud(data).finally(() => {
-      setTimeout(() => { window._isSaving = false; }, 5000);
-    });
-  } else {
-    showSaveIndicator('✓ נשמר (מקומי)');
-    window._isSaving = false;
-  }
+  // Save to Firebase - wait for it to be ready
+  const doSave = () => {
+    if (window.saveToCloud) {
+      window.saveToCloud(data).finally(() => {
+        setTimeout(() => { window._isSaving = false; }, 5000);
+      });
+    } else {
+      // Firebase not ready yet - retry after 500ms
+      setTimeout(doSave, 500);
+    }
+  };
+  doSave();
 }
 
 function showSaveIndicator(msg) {
