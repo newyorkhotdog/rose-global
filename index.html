@@ -263,7 +263,7 @@ textarea { resize: vertical; min-height: 70px; }
   <div class="nav-item" onclick="nav('tenants',this)"><span class="nav-icon">🏠</span> דיירים וחדרים</div>
   <div class="nav-item" onclick="nav('movements',this)"><span class="nav-icon">🔄</span> תנועות</div>
   <div class="nav-item" onclick="nav('billing',this)"><span class="nav-icon">💳</span> חשבוניות</div>
-  <div class="nav-item" onclick="nav('tasks',this)" id="nav-tasks"><span class="nav-icon">🔧</span> תקלות ומשימות <span class="nav-badge" id="tasks-badge">0</span></div>
+  <div class="nav-item" onclick="nav('tasks',this)" id="nav-tasks"><span class="nav-icon">🔧</span> תקלות ותפעול <span class="nav-badge" id="tasks-badge">0</span></div>
   <div class="nav-item" onclick="nav('expenses',this)"><span class="nav-icon">📋</span> הוצאות</div>
   <div class="nav-item" onclick="nav('clients',this)"><span class="nav-icon">👥</span> לקוחות</div>
   <div class="nav-item" onclick="nav('history',this)"><span class="nav-icon">📈</span> רווח והפסד</div>
@@ -460,8 +460,15 @@ textarea { resize: vertical; min-height: 70px; }
 
 <!-- TASKS -->
 <div id="page-tasks" class="page">
-  <div class="page-title">תקלות ומשימות</div>
-  <div class="page-sub">לכל הנכסים — ממוין לפי עדיפות</div>
+  <div class="page-title">תקלות ותפעול</div>
+  <div class="page-sub">תקלות טכניות ומשימות ניהוליות</div>
+  <!-- Main tabs -->
+  <div class="tab-row" style="margin-bottom:16px" id="task-main-tabs">
+    <button class="tab active" onclick="setTaskMainTab('technical',this)">🔧 תקלות טכניות</button>
+    <button class="tab" onclick="setTaskMainTab('mgmt',this)">📋 משימות ניהוליות</button>
+  </div>
+
+  <div id="task-technical-view">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
     <div class="tab-row" style="margin:0" id="task-filters">
       <button class="tab active" onclick="setTaskFilter('all',this)">הכל</button>
@@ -489,6 +496,66 @@ textarea { resize: vertical; min-height: 70px; }
     <div class="btn-row"><button class="btn btn-primary" onclick="addTask()">שמור</button><button class="btn" onclick="toggleTaskForm()">ביטול</button></div>
   </div>
   <div id="tasks-board"></div>
+  </div><!-- end task-technical-view -->
+
+  <!-- MANAGEMENT TASKS -->
+  <div id="task-mgmt-view" style="display:none">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+      <div class="tab-row" style="margin:0" id="mgmt-filters">
+        <button class="tab active" onclick="setMgmtFilter('all',this)">הכל</button>
+        <button class="tab" onclick="setMgmtFilter('urgent',this)">דחוף</button>
+        <button class="tab" onclick="setMgmtFilter('open',this)">פתוח</button>
+        <button class="tab" onclick="setMgmtFilter('done',this)">טופל</button>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <select id="mgmt-prop-filter" onchange="renderMgmtTasks()" style="width:auto;font-size:13px">
+          <option value="">כל הנכסים</option>
+          <option>לבנדה 32</option><option>עזאי 38</option>
+          <option>נתן הנביא 42</option><option>הירקון 41 ב&quot;ב</option>
+          <option>חיים בר לב 104</option><option>כללי</option>
+        </select>
+        <select id="mgmt-owner-filter" onchange="renderMgmtTasks()" style="width:auto;font-size:13px">
+          <option value="">כל האחריות</option>
+          <option>אוהד</option><option>צביקה</option><option>רועי</option><option>יועד</option>
+        </select>
+        <button class="btn btn-primary btn-sm" onclick="toggleMgmtForm()">+ משימה</button>
+      </div>
+    </div>
+
+    <!-- Add mgmt task form -->
+    <div class="card" style="margin-bottom:12px;display:none" id="mgmt-add-form">
+      <div class="card-title">משימה ניהולית חדשה</div>
+      <div class="form-grid three" style="margin-bottom:10px">
+        <div class="form-group"><label>נכס</label>
+          <select id="mg-prop">
+            <option>כללי</option><option>לבנדה 32</option><option>עזאי 38</option>
+            <option>נתן הנביא 42</option><option>הירקון 41 ב"ב</option><option>חיים בר לב 104</option>
+          </select></div>
+        <div class="form-group"><label>אחריות</label>
+          <select id="mg-owner">
+            <option>צביקה</option><option>רועי</option><option>אוהד</option><option>יועד</option>
+          </select></div>
+        <div class="form-group"><label>עדיפות</label>
+          <select id="mg-priority">
+            <option value="urgent">דחוף</option>
+            <option value="normal" selected>רגיל</option>
+            <option value="low">נמוך</option>
+          </select></div>
+      </div>
+      <div class="form-grid" style="margin-bottom:10px">
+        <div class="form-group"><label>תיאור המשימה</label>
+          <input id="mg-desc" placeholder="תיאור המשימה..."></div>
+        <div class="form-group"><label>תאריך יעד</label>
+          <input type="date" id="mg-due"></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="addMgmtTask()">הוסף</button>
+        <button class="btn" onclick="toggleMgmtForm()">ביטול</button>
+      </div>
+    </div>
+
+    <div id="mgmt-board"></div>
+  </div>
 </div>
 
 <!-- EXPENSES -->
@@ -1720,7 +1787,7 @@ function editTask(id) {
   }
 }
 function updateTaskBadge(){
-  const n=TASKS.filter(t=>!t.done).length;
+  const n=TASKS.filter(t=>!t.done).length + MGMT_TASKS.filter(t=>!t.done).length;
   document.getElementById('tasks-badge').textContent=n;
 }
 
@@ -2378,6 +2445,7 @@ function getDataSnapshot() {
   return {
     HISTORY: JSON.parse(JSON.stringify(HISTORY)),
     GENERAL_EXPENSES: JSON.parse(JSON.stringify(GENERAL_EXPENSES)),
+    MGMT_TASKS: JSON.parse(JSON.stringify(MGMT_TASKS)),
     TENANTS: JSON.parse(JSON.stringify(TENANTS)),
     MOVEMENTS: JSON.parse(JSON.stringify(MOVEMENTS)),
     TASKS: JSON.parse(JSON.stringify(TASKS)),
@@ -2393,6 +2461,7 @@ function getDataSnapshot() {
 function applyData(data) {
   if (!data) return false;
   try {
+    if (data.MGMT_TASKS) { MGMT_TASKS.length=0; MGMT_TASKS.push(...data.MGMT_TASKS); }
     if (data.HISTORY) { HISTORY.length=0; HISTORY.push(...data.HISTORY); }
     if (data.GENERAL_EXPENSES) { GENERAL_EXPENSES.length=0; GENERAL_EXPENSES.push(...data.GENERAL_EXPENSES); }
     if (data.TENANTS) { TENANTS.length=0; TENANTS.push(...data.TENANTS); }
@@ -3241,6 +3310,122 @@ async function processInvoice(input) {
     console.error(e);
   }
   input.value = ''; // reset file input
+}
+
+
+// ============ MANAGEMENT TASKS ============
+const MGMT_TASKS = [
+  {id:1,prop:'לבנדה 32',desc:'לבדוק עם תאגיד המים כמות אנשים בנכס',owner:'צביקה',priority:'normal',done:false,due:'2026-04-01'},
+  {id:2,prop:'כללי',desc:'לסגור חוזה עם חיים בר לב 104',owner:'רועי',priority:'urgent',done:false,due:'2026-04-01'},
+  {id:3,prop:'כללי',desc:'להעביר צרכנים חשמל ומים — חיים בר לב',owner:'אוהד',priority:'urgent',done:false,due:'2026-04-01'},
+];
+let mgmtNextId = 10;
+let mgmtFilter = 'all';
+
+function setTaskMainTab(tab, el) {
+  document.querySelectorAll('#task-main-tabs .tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('task-technical-view').style.display = tab==='technical' ? 'block' : 'none';
+  document.getElementById('task-mgmt-view').style.display = tab==='mgmt' ? 'block' : 'none';
+  if (tab==='mgmt') renderMgmtTasks();
+}
+
+function setMgmtFilter(f, el) {
+  mgmtFilter = f;
+  document.querySelectorAll('#mgmt-filters .tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderMgmtTasks();
+}
+
+function toggleMgmtForm() {
+  const f = document.getElementById('mgmt-add-form');
+  f.style.display = f.style.display==='none'?'block':'none';
+  if (f.style.display==='block') {
+    document.getElementById('mg-due').value = new Date().toISOString().split('T')[0];
+  }
+}
+
+function addMgmtTask() {
+  const prop = document.getElementById('mg-prop').value;
+  const owner = document.getElementById('mg-owner').value;
+  const priority = document.getElementById('mg-priority').value;
+  const desc = document.getElementById('mg-desc').value.trim();
+  const due = document.getElementById('mg-due').value;
+  if (!desc) return;
+  MGMT_TASKS.push({id:mgmtNextId++,prop,desc,owner,priority,done:false,due});
+  document.getElementById('mg-desc').value='';
+  toggleMgmtForm();
+  autosave();
+  renderMgmtTasks();
+  updateTaskBadge();
+}
+
+function toggleMgmtDone(id) {
+  const t = MGMT_TASKS.find(x=>x.id===id);
+  if(t){t.done=!t.done;autosave();renderMgmtTasks();updateTaskBadge();}
+}
+
+function delMgmtTask(id) {
+  MGMT_TASKS.splice(MGMT_TASKS.findIndex(x=>x.id===id),1);
+  autosave();renderMgmtTasks();updateTaskBadge();
+}
+
+function editMgmtTask(id) {
+  const t = MGMT_TASKS.find(x=>x.id===id);
+  if(!t) return;
+  const newDesc = prompt('עריכת משימה:', t.desc);
+  if(newDesc===null) return;
+  if(newDesc.trim()){t.desc=newDesc.trim();autosave();renderMgmtTasks();}
+}
+
+function renderMgmtTasks() {
+  const filterProp = (document.getElementById('mgmt-prop-filter')||{}).value||'';
+  const filterOwner = (document.getElementById('mgmt-owner-filter')||{}).value||'';
+  
+  let tasks = MGMT_TASKS.filter(t => {
+    if (filterProp && t.prop !== filterProp) return false;
+    if (filterOwner && t.owner !== filterOwner) return false;
+    if (mgmtFilter==='urgent') return !t.done && t.priority==='urgent';
+    if (mgmtFilter==='open') return !t.done;
+    if (mgmtFilter==='done') return t.done;
+    return true;
+  });
+
+  const sorted = [...tasks].sort((a,b) => {
+    if(a.done!==b.done) return a.done?1:-1;
+    const po={urgent:0,normal:1,low:2};
+    return po[a.priority]-po[b.priority];
+  });
+
+  const ownerColors = {
+    'צביקה': '#7367c0', 'רועי': '#2d8a5e', 'אוהד': '#c07330', 'יועד': '#5a6070'
+  };
+  const prioColors = {urgent:'badge-red',normal:'badge-amber',low:'badge-green'};
+  const prioLabels = {urgent:'דחוף',normal:'רגיל',low:'נמוך'};
+
+  const today = new Date().toISOString().split('T')[0];
+
+  document.getElementById('mgmt-board').innerHTML = sorted.length ? sorted.map(t => {
+    const isOverdue = !t.done && t.due && t.due < today;
+    const ownerColor = ownerColors[t.owner]||'#6b6560';
+    return `<div class="task-item ${t.done?'done':''}" style="${isOverdue?'border-right:3px solid #e8b0aa':''}">
+      <div class="priority-dot p-${t.priority}"></div>
+      <div class="task-check ${t.done?'checked':''}" onclick="toggleMgmtDone(${t.id})"></div>
+      <div class="task-body" style="flex:1">
+        <div class="task-desc">${t.desc}</div>
+        <div class="task-meta" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">
+          <span class="badge ${prioColors[t.priority]}">${prioLabels[t.priority]}</span>
+          <span style="background:${ownerColor}22;color:${ownerColor};padding:1px 7px;border-radius:10px;font-size:11px;font-weight:500">${t.owner}</span>
+          <span style="font-size:11px;color:var(--text3)">${t.prop}</span>
+          ${t.due?`<span style="font-size:11px;color:${isOverdue?'#b85a50':'var(--text3)'}">📅 ${t.due}${isOverdue?' (באיחור)':''}</span>`:''}
+        </div>
+      </div>
+      <div style="display:flex;gap:4px">
+        <button class="btn btn-sm" onclick="editMgmtTask(${t.id})">✏️</button>
+        <button class="btn btn-sm btn-danger" onclick="delMgmtTask(${t.id})">מחק</button>
+      </div>
+    </div>`;
+  }).join('') : '<div style="color:var(--text3);font-size:13px;padding:1rem;text-align:center">אין משימות</div>';
 }
 
 // ============ INIT ============
