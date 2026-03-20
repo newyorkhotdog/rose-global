@@ -3247,31 +3247,30 @@ function addMgmtTask() {
 }
 
 function toggleMgmtDone(id) {
-  const t = MGMT_TASKS.find(x=>x.id==id);
+  const t = MGMT_TASKS.find(x=>String(x.id)===String(id));
   if(t){t.done=!t.done;autosave();renderMgmtTasks();updateTaskBadge();}
 }
 
 function delMgmtTask(id) {
-  MGMT_TASKS.splice(MGMT_TASKS.findIndex(x=>x.id==id),1);
+  MGMT_TASKS.splice(MGMT_TASKS.findIndex(x=>String(x.id)===String(id)),1);
   autosave();renderMgmtTasks();updateTaskBadge();
 }
 
 function editMgmtTask(id) {
-  const t = MGMT_TASKS.find(x=>x.id==id);
-  if(!t) return;
+  // Find by loose equality (handles string/number mismatch from Firebase)
+  const t = MGMT_TASKS.find(x => String(x.id) === String(id));
+  if(!t) { console.warn('Task not found:', id, MGMT_TASKS.map(x=>x.id)); return; }
   mgmtEditId = t.id;
-  document.getElementById('me-desc').value = t.desc;
-  const pSel = document.getElementById('me-prop');
-  for(let i=0;i<pSel.options.length;i++) if(pSel.options[i].text===t.prop){pSel.selectedIndex=i;break;}
-  const oSel = document.getElementById('me-owner');
-  for(let i=0;i<oSel.options.length;i++) if(oSel.options[i].text===t.owner){oSel.selectedIndex=i;break;}
-  document.getElementById('me-priority').value = t.priority;
-  document.getElementById('me-due').value = t.due||'';
+  document.getElementById('me-desc').value = t.desc || '';
+  document.getElementById('me-prop').value = t.prop || 'כללי';
+  document.getElementById('me-owner').value = t.owner || 'צביקה';
+  document.getElementById('me-priority').value = t.priority || 'normal';
+  document.getElementById('me-due').value = t.due || '';
   document.getElementById('mgmt-edit-modal').style.display = 'flex';
 }
 
 function saveMgmtEdit() {
-  const t = MGMT_TASKS.find(x=>x.id==mgmtEditId);
+  const t = MGMT_TASKS.find(x => String(x.id) === String(mgmtEditId));
   if(!t) return;
   t.desc = document.getElementById('me-desc').value.trim()||t.desc;
   t.prop = document.getElementById('me-prop').value;
