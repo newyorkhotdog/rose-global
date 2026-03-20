@@ -324,11 +324,15 @@ textarea { resize: vertical; min-height: 70px; }
     </div>
   </div>
 
-  <!-- URGENT + BILLING -->
-  <div class="grid2" style="margin-bottom:20px">
+  <!-- URGENT + MGMT + BILLING -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px">
     <div class="card" id="dash-urgent">
-      <div class="card-title">🔴 משימות דחופות</div>
+      <div class="card-title">🔴 תקלות דחופות</div>
       <div id="dash-urgent-list"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📋 משימות ניהוליות</div>
+      <div id="dash-mgmt-list"></div>
     </div>
     <div class="card" id="dash-billing">
       <div class="card-title">💳 גבייה — חודש נוכחי</div>
@@ -1245,6 +1249,20 @@ function renderDashboard() {
           <div style="font-size:11px;color:var(--text3);margin-top:2px">${t.prop}${t.opener?' — '+t.opener:''}</div></div>
         </div>`).join('')
     : '<div style="font-size:13px;color:var(--text3);padding:8px 0">אין משימות דחופות 🎉</div>';
+
+  // Mgmt tasks
+  const openMgmt = MGMT_TASKS.filter(t=>!t.done).slice(0,6);
+  const ownerColors2 = {'צביקה':'#7367c0','רועי':'#2d8a5e','אוהד':'#c07330','יועד':'#1a6fa8'};
+  document.getElementById('dash-mgmt-list').innerHTML = openMgmt.length
+    ? openMgmt.map(t=>`
+        <div style="display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:0.5px solid var(--border)">
+          <div style="width:7px;height:7px;border-radius:50%;background:${ownerColors2[t.owner]||'#888'};flex-shrink:0;margin-top:5px"></div>
+          <div style="flex:1">
+            <div style="font-size:13px;color:var(--text)">${t.desc}</div>
+            <div style="font-size:11px;color:var(--text3);margin-top:2px">${t.owner} · ${t.prop}${t.due?' · '+t.due:''}</div>
+          </div>
+        </div>`).join('')
+    : '<div style="font-size:13px;color:var(--text3);padding:8px 0">אין משימות פתוחות 🎉</div>';
 
   // Billing
   const byCompany = {};
@@ -2562,7 +2580,21 @@ function getDataSnapshot() {
 function applyData(data) {
   if (!data) return false;
   try {
-    if (data.MGMT_TASKS) { MGMT_TASKS.length=0; MGMT_TASKS.push(...data.MGMT_TASKS); }
+    if (data.MGMT_TASKS) { 
+      MGMT_TASKS.length=0;
+      // Fix duplicate IDs
+      let idCounter = 1;
+      const seen = new Set();
+      data.MGMT_TASKS.forEach(t => {
+        if (seen.has(t.id)) t.id = idCounter + 1000; // temp unique
+        seen.add(t.id);
+        idCounter++;
+      });
+      MGMT_TASKS.push(...data.MGMT_TASKS);
+      // Set next ID higher than all existing
+      const maxId = Math.max(0, ...MGMT_TASKS.map(t=>Number(t.id)||0));
+      mgmtNextId = maxId + 1;
+    }
     if (data.HISTORY) { HISTORY.length=0; HISTORY.push(...data.HISTORY); }
     if (data.GENERAL_EXPENSES) { GENERAL_EXPENSES.length=0; GENERAL_EXPENSES.push(...data.GENERAL_EXPENSES); }
     if (data.TENANTS) { TENANTS.length=0; TENANTS.push(...data.TENANTS); }
@@ -3120,6 +3152,20 @@ function populateClientSelects() {
   // Add room modal company select
   const arSel = document.getElementById('ar-company');
   if(arSel) { const v=arSel.value; arSel.innerHTML='<option value="">ריק</option><option value="שירות">🔧 חדר שירות</option>'+optsNoEmpty; arSel.value=v||''; }
+
+  // Mgmt tasks
+  const openMgmt = MGMT_TASKS.filter(t=>!t.done).slice(0,6);
+  const ownerColors2 = {'צביקה':'#7367c0','רועי':'#2d8a5e','אוהד':'#c07330','יועד':'#1a6fa8'};
+  document.getElementById('dash-mgmt-list').innerHTML = openMgmt.length
+    ? openMgmt.map(t=>`
+        <div style="display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:0.5px solid var(--border)">
+          <div style="width:7px;height:7px;border-radius:50%;background:${ownerColors2[t.owner]||'#888'};flex-shrink:0;margin-top:5px"></div>
+          <div style="flex:1">
+            <div style="font-size:13px;color:var(--text)">${t.desc}</div>
+            <div style="font-size:11px;color:var(--text3);margin-top:2px">${t.owner} · ${t.prop}${t.due?' · '+t.due:''}</div>
+          </div>
+        </div>`).join('')
+    : '<div style="font-size:13px;color:var(--text3);padding:8px 0">אין משימות פתוחות 🎉</div>';
 
   // Billing client filter
   populateBillClientFilter();
