@@ -3511,6 +3511,9 @@ document.addEventListener('click', e=>{
   if(modal && e.target===modal) modal.style.display='none';
 });
 
+const MONTHS_LIST = ['2025-11','2025-12','2026-01','2026-02','2026-03','2026-04'];
+const PROPS_LIST = ['לבנדה 32','עזאי 38','נתן הנביא 42','הירקון 41 ב"ב','חיים בר לב 104'];
+
 function renderHistEntryTable() {
   const tbody = document.getElementById('hist-entry-tbody');
   if (!tbody) return;
