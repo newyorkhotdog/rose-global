@@ -3182,6 +3182,132 @@ function renderPropsSheet() {
 
 
 
+
+// ============ MANAGEMENT TASKS FUNCTIONS ============
+function setTaskMainTab(tab, el) {
+  document.querySelectorAll('#task-main-tabs .tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('task-technical-view').style.display = tab==='technical' ? 'block' : 'none';
+  document.getElementById('task-mgmt-view').style.display = tab==='mgmt' ? 'block' : 'none';
+  if (tab==='mgmt') renderMgmtTasks();
+}
+
+function setMgmtFilter(f, el) {
+  mgmtFilter = f;
+  document.querySelectorAll('#mgmt-filters .tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderMgmtTasks();
+}
+
+function toggleMgmtForm() {
+  const f = document.getElementById('mgmt-add-form');
+  f.style.display = f.style.display==='none'?'block':'none';
+  if (f.style.display==='block') {
+    document.getElementById('mg-due').value = new Date().toISOString().split('T')[0];
+  }
+}
+
+function addMgmtTask() {
+  const prop = document.getElementById('mg-prop').value;
+  const owner = document.getElementById('mg-owner').value;
+  const priority = document.getElementById('mg-priority').value;
+  const desc = document.getElementById('mg-desc').value.trim();
+  const due = document.getElementById('mg-due').value;
+  if (!desc) return;
+  MGMT_TASKS.push({id:mgmtNextId++,prop,desc,owner,priority,done:false,due});
+  document.getElementById('mg-desc').value='';
+  toggleMgmtForm();
+  autosave();
+  renderMgmtTasks();
+  updateTaskBadge();
+}
+
+function toggleMgmtDone(id) {
+  const t = MGMT_TASKS.find(x=>x.id==id);
+  if(t){t.done=!t.done;autosave();renderMgmtTasks();updateTaskBadge();}
+}
+
+function delMgmtTask(id) {
+  MGMT_TASKS.splice(MGMT_TASKS.findIndex(x=>x.id==id),1);
+  autosave();renderMgmtTasks();updateTaskBadge();
+}
+
+function editMgmtTask(id) {
+  const t = MGMT_TASKS.find(x=>x.id==id);
+  if(!t) return;
+  mgmtEditId = t.id;
+  document.getElementById('me-desc').value = t.desc;
+  const pSel = document.getElementById('me-prop');
+  for(let i=0;i<pSel.options.length;i++) if(pSel.options[i].text===t.prop){pSel.selectedIndex=i;break;}
+  const oSel = document.getElementById('me-owner');
+  for(let i=0;i<oSel.options.length;i++) if(oSel.options[i].text===t.owner){oSel.selectedIndex=i;break;}
+  document.getElementById('me-priority').value = t.priority;
+  document.getElementById('me-due').value = t.due||'';
+  document.getElementById('mgmt-edit-modal').style.display = 'flex';
+}
+
+function saveMgmtEdit() {
+  const t = MGMT_TASKS.find(x=>x.id==mgmtEditId);
+  if(!t) return;
+  t.desc = document.getElementById('me-desc').value.trim()||t.desc;
+  t.prop = document.getElementById('me-prop').value;
+  t.owner = document.getElementById('me-owner').value;
+  t.priority = document.getElementById('me-priority').value;
+  t.due = document.getElementById('me-due').value;
+  document.getElementById('mgmt-edit-modal').style.display = 'none';
+  autosave();
+  renderMgmtTasks();
+}
+
+function renderMgmtTasks() {
+  const filterProp = (document.getElementById('mgmt-prop-filter')||{}).value||'';
+  const filterOwner = (document.getElementById('mgmt-owner-filter')||{}).value||'';
+
+  let tasks = MGMT_TASKS.filter(t => {
+    if (filterProp && t.prop !== filterProp) return false;
+    if (filterOwner && t.owner !== filterOwner) return false;
+    if (mgmtFilter==='urgent') return !t.done && t.priority==='urgent';
+    if (mgmtFilter==='open') return !t.done;
+    if (mgmtFilter==='done') return t.done;
+    return true;
+  });
+
+  const sorted = [...tasks].sort((a,b) => {
+    if(a.done!==b.done) return a.done?1:-1;
+    const po={urgent:0,normal:1,low:2};
+    return po[a.priority]-po[b.priority];
+  });
+
+  const ownerColors = {'צביקה':'#7367c0','רועי':'#2d8a5e','אוהד':'#c07330','יועד':'#1a6fa8'};
+  const ownerBg    = {'צביקה':'#ede9f8','רועי':'#e8f5ef','אוהד':'#fff3e0','יועד':'#e3f2fd'};
+  const prioColors = {urgent:'badge-red',normal:'badge-amber',low:'badge-green'};
+  const prioLabels = {urgent:'דחוף',normal:'רגיל',low:'נמוך'};
+  const today = new Date().toISOString().split('T')[0];
+
+  document.getElementById('mgmt-board').innerHTML = sorted.length ? sorted.map(t => {
+    const isOverdue = !t.done && t.due && t.due < today;
+    const ownerColor = ownerColors[t.owner]||'#6b6560';
+    const ownerBgColor = ownerBg[t.owner]||ownerColor+'22';
+    return `<div class="task-item ${t.done?'done':''}" style="${isOverdue?'border-right:3px solid #e8b0aa':''}">
+      <div class="priority-dot p-${t.priority}"></div>
+      <div class="task-check ${t.done?'checked':''}" onclick="toggleMgmtDone(${t.id})"></div>
+      <div class="task-body" style="flex:1">
+        <div class="task-desc">${t.desc}</div>
+        <div class="task-meta" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">
+          <span class="badge ${prioColors[t.priority]}">${prioLabels[t.priority]}</span>
+          <span style="background:${ownerBgColor};color:${ownerColor};padding:1px 7px;border-radius:10px;font-size:11px;font-weight:600">${t.owner}</span>
+          <span style="font-size:11px;color:var(--text3)">${t.prop}</span>
+          ${t.due?`<span style="font-size:11px;color:${isOverdue?'#b85a50':'var(--text3)'}">📅 ${t.due}${isOverdue?' (באיחור)':''}</span>`:''}
+        </div>
+      </div>
+      <div style="display:flex;gap:4px">
+        <button class="btn btn-sm" onclick="editMgmtTask(${t.id})">✏️</button>
+        <button class="btn btn-sm btn-danger" onclick="delMgmtTask(${t.id})">מחק</button>
+      </div>
+    </div>`;
+  }).join('') : '<div style="color:var(--text3);font-size:13px;padding:1rem;text-align:center">אין משימות</div>';
+}
+
 // ============ INIT ============
 document.getElementById('mv-date').value = new Date().toISOString().split('T')[0];
 document.getElementById('ef-date').value = new Date().toISOString().split('T')[0];
@@ -3357,6 +3483,10 @@ function closeRoomModal() {
 }
 
 document.getElementById('room-modal').addEventListener('click',e=>{if(e.target===document.getElementById('room-modal'))closeRoomModal();});
+document.addEventListener('click', e=>{
+  const modal = document.getElementById('mgmt-edit-modal');
+  if(modal && e.target===modal) modal.style.display='none';
+});
 </script>
 </body>
 </html>
