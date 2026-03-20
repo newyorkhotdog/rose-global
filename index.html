@@ -796,7 +796,32 @@ textarea { resize: vertical; min-height: 70px; }
 
   <div id="hist-entry-view" style="display:none">
   <div class="card">
-    <div class="card-title">הזנת נתונים היסטוריים — טבלה מרכזת</div>
+    <div class="card-title">הזנת נתונים היסטוריים</div>
+    <!-- Filters -->
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;align-items:flex-end">
+      <div class="form-group" style="margin:0">
+        <label style="font-size:11px;color:var(--text3)">סינון נכס</label>
+        <select id="entry-filter-prop" onchange="renderHistEntryTable()" style="width:auto;font-size:13px">
+          <option value="">כל הנכסים</option>
+          <option>לבנדה 32</option><option>עזאי 38</option>
+          <option>נתן הנביא 42</option><option>הירקון 41 ב"ב</option>
+          <option>חיים בר לב 104</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin:0">
+        <label style="font-size:11px;color:var(--text3)">סינון חודש</label>
+        <select id="entry-filter-month" onchange="renderHistEntryTable()" style="width:auto;font-size:13px">
+          <option value="">כל החודשים</option>
+          <option value="2025-11">נובמבר 2025</option>
+          <option value="2025-12">דצמבר 2025</option>
+          <option value="2026-01">ינואר 2026</option>
+          <option value="2026-02">פברואר 2026</option>
+          <option value="2026-03">מרץ 2026</option>
+          <option value="2026-04">אפריל 2026</option>
+        </select>
+      </div>
+      <button onclick="addHistEntryRow()" class="btn btn-sm" style="margin-bottom:1px">+ הוסף שורה</button>
+    </div>
     <div style="overflow-x:auto">
       <table id="hist-entry-table" style="min-width:900px">
         <thead>
@@ -809,15 +834,14 @@ textarea { resize: vertical; min-height: 70px; }
             <th style="min-width:80px">מים ₪</th>
             <th style="min-width:80px">ארנונה ₪</th>
             <th style="min-width:80px">אחר ₪</th>
-            <th style="min-width:70px">פעולות</th>
+            <th style="min-width:70px">מחק</th>
           </tr>
         </thead>
         <tbody id="hist-entry-tbody"></tbody>
       </table>
     </div>
-    <button onclick="addHistEntryRow()" class="btn btn-sm" style="margin-top:12px">+ הוסף שורה</button>
-    <div class="btn-row" style="margin-top:12px">
-      <button onclick="saveAllHistEntries()" class="btn btn-primary">שמור הכל</button>
+    <div class="btn-row" style="margin-top:14px">
+      <button onclick="saveAllHistEntries()" class="btn btn-primary">💾 שמור הכל</button>
     </div>
   </div>
 </div>
@@ -3489,4 +3513,67 @@ document.addEventListener('click', e=>{
 });
 </script>
 </body>
-</html>
+</html>function renderHistEntryTable() {
+  const tbody = document.getElementById('hist-entry-tbody');
+  if (!tbody) return;
+
+  const filterProp = (document.getElementById('entry-filter-prop')||{}).value||'';
+  const filterMonth = (document.getElementById('entry-filter-month')||{}).value||'';
+
+  let rows = [];
+  PROPS_LIST.forEach(prop => {
+    if (filterProp && prop !== filterProp) return;
+    MONTHS_LIST.forEach(month => {
+      if (filterMonth && month !== filterMonth) return;
+      const h = HISTORY.find(x=>x.month===month&&x.prop===prop);
+      rows.push({prop, month,
+        income: h ? h.income : '',
+        rent: h ? h.rent : '',
+        electric: h ? (h.electric||'') : '',
+        water: h ? (h.water||'') : '',
+        arnona: h ? (h.arnona||'') : '',
+        other: h ? (h.other||'') : '',
+        exists: !!h
+      });
+    });
+  });
+
+  tbody.innerHTML = rows.map((r,i) => `
+    <tr style="background:${r.exists?'var(--green-bg)':''}">
+      <td style="font-size:12px;font-weight:500;padding:6px 8px">${r.prop}</td>
+      <td style="font-size:12px;padding:6px 8px">${getMonthLabel(r.month)}</td>
+      <td><input type="number" value="${r.income}" placeholder="0" class="he-inline" data-i="${i}" data-f="income" style="width:80px"></td>
+      <td><input type="number" value="${r.rent}" placeholder="0" class="he-inline" data-i="${i}" data-f="rent" style="width:80px"></td>
+      <td><input type="number" value="${r.electric}" placeholder="0" class="he-inline" data-i="${i}" data-f="electric" style="width:70px"></td>
+      <td><input type="number" value="${r.water}" placeholder="0" class="he-inline" data-i="${i}" data-f="water" style="width:70px"></td>
+      <td><input type="number" value="${r.arnona}" placeholder="0" class="he-inline" data-i="${i}" data-f="arnona" style="width:70px"></td>
+      <td><input type="number" value="${r.other}" placeholder="0" class="he-inline" data-i="${i}" data-f="other" style="width:70px"></td>
+      <td>${r.exists?`<button onclick="clearHistRow(${i})" class="btn btn-sm btn-danger" style="padding:3px 8px">✕</button>`:'—'}</td>
+    </tr>`).join('');
+
+  tbody._rows = rows;
+}
+
+function addHistEntryRow() {
+  const tbody = document.getElementById('hist-entry-tbody');
+  if (!tbody) return;
+  const i = 'new_' + Date.now();
+  const propOpts = PROPS_LIST.map(p=>`<option>${p}</option>`).join('');
+  const monthOpts = MONTHS_LIST.map(m=>`<option value="${m}">${getMonthLabel(m)}</option>`).join('');
+  const tr = document.createElement('tr');
+  tr.style.background = 'var(--blue-bg, #e8f0fb)';
+  tr.innerHTML = `
+    <td><select class="he-inline" id="new-prop-${i}" style="width:130px">${propOpts}</select></td>
+    <td><select class="he-inline" id="new-month-${i}" style="width:110px">${monthOpts}</select></td>
+    <td><input type="number" id="new-income-${i}" placeholder="0" class="he-inline" style="width:80px"></td>
+    <td><input type="number" id="new-rent-${i}" placeholder="0" class="he-inline" style="width:80px"></td>
+    <td><input type="number" id="new-electric-${i}" placeholder="0" class="he-inline" style="width:70px"></td>
+    <td><input type="number" id="new-water-${i}" placeholder="0" class="he-inline" style="width:70px"></td>
+    <td><input type="number" id="new-arnona-${i}" placeholder="0" class="he-inline" style="width:70px"></td>
+    <td><input type="number" id="new-other-${i}" placeholder="0" class="he-inline" style="width:70px"></td>
+    <td><button onclick="saveNewHistRow('${i}',this.closest('tr'))" class="btn btn-sm btn-primary" style="padding:3px 8px">✓</button></td>`;
+  tbody.appendChild(tr);
+  tr.scrollIntoView({behavior:'smooth', block:'center'});
+}
+
+
