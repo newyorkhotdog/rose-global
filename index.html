@@ -3377,6 +3377,74 @@ function renderMgmtTasks() {
   }).join('') : '<div style="color:var(--text3);font-size:13px;padding:1rem;text-align:center">אין משימות</div>';
 }
 
+
+function saveNewHistRow(i, tr) {
+  const prop = document.getElementById('new-prop-'+i).value;
+  const month = document.getElementById('new-month-'+i).value;
+  const income = parseFloat(document.getElementById('new-income-'+i).value)||0;
+  const rent = parseFloat(document.getElementById('new-rent-'+i).value)||0;
+  const electric = parseFloat(document.getElementById('new-electric-'+i).value)||0;
+  const water = parseFloat(document.getElementById('new-water-'+i).value)||0;
+  const arnona = parseFloat(document.getElementById('new-arnona-'+i).value)||0;
+  const other = parseFloat(document.getElementById('new-other-'+i).value)||0;
+  const entry = {month,prop,income,tenants:0,pph:0,rent,electric,water,arnona,other};
+  const idx = HISTORY.findIndex(h=>h.month===month&&h.prop===prop);
+  if (idx>=0) HISTORY[idx]=entry; else HISTORY.push(entry);
+  HISTORY.sort((a,b)=>a.month.localeCompare(b.month)||a.prop.localeCompare(b.prop));
+  autosave();
+  tr.remove();
+  renderHistEntryTable();
+  showSaveIndicator('✓ נשמר');
+}
+
+function clearHistRow(i) {
+  const tbody = document.getElementById('hist-entry-tbody');
+  if (!tbody._rows || !tbody._rows[i]) return;
+  const r = tbody._rows[i];
+  if (!r.exists) return;
+  if (!confirm('למחוק את הנתונים של '+r.prop+' — '+getMonthLabel(r.month)+'?')) return;
+  const idx = HISTORY.findIndex(h=>h.month===r.month&&h.prop===r.prop);
+  if(idx>=0) HISTORY.splice(idx,1);
+  autosave();
+  renderHistEntryTable();
+}
+
+function saveAllHistEntries() {
+  const inputs = document.querySelectorAll('#hist-entry-tbody .he-inline[data-i]');
+  const changes = {};
+  inputs.forEach(inp => {
+    const i = inp.dataset.i;
+    const f = inp.dataset.f;
+    if (!changes[i]) changes[i] = {};
+    changes[i][f] = parseFloat(inp.value)||0;
+  });
+  const tbody = document.getElementById('hist-entry-tbody');
+  if (!tbody._rows) return;
+  Object.entries(changes).forEach(([i, vals]) => {
+    const r = tbody._rows[i];
+    if (!r) return;
+    const hasData = Object.values(vals).some(v=>v>0);
+    if (!hasData && !r.exists) return;
+    const entry = {month:r.month,prop:r.prop,income:vals.income||0,tenants:0,pph:0,
+      rent:vals.rent||0,electric:vals.electric||0,water:vals.water||0,
+      arnona:vals.arnona||0,other:vals.other||0};
+    if (!hasData) {
+      const idx = HISTORY.findIndex(h=>h.month===r.month&&h.prop===r.prop);
+      if (idx>=0) HISTORY.splice(idx,1);
+    } else {
+      const idx = HISTORY.findIndex(h=>h.month===r.month&&h.prop===r.prop);
+      if (idx>=0) HISTORY[idx]=entry; else HISTORY.push(entry);
+    }
+  });
+  HISTORY.sort((a,b)=>a.month.localeCompare(b.month)||a.prop.localeCompare(b.prop));
+  autosave();
+  renderHistEntryTable();
+  showSaveIndicator('✓ כל הנתונים נשמרו');
+  // Navigate to props sheet
+  const propsTab = document.querySelector('#hist-view-tabs .tab:nth-child(2)');
+  if (propsTab) setHistView('props', propsTab);
+}
+
 // ============ INIT ============
 document.getElementById('mv-date').value = new Date().toISOString().split('T')[0];
 document.getElementById('ef-date').value = new Date().toISOString().split('T')[0];
