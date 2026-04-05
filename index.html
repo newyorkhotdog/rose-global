@@ -1198,6 +1198,8 @@ function nav(page, el) {
   if (page==='expenses') renderExpenses();
   if (page==='clients') renderClients();
   if (page==='history') renderHistory();
+  if (page==='brokerage') renderBrokerage();
+  if (page==='leads') { renderLeads(); updateLeadsBadge(); }
   if (page==='map-lavanda') renderLavanda();
   if (page==='map-hirkon') renderHirkon();
 }
@@ -3767,6 +3769,27 @@ function updateLeadStatus(id, status) {
   if(l){l.status=status;autosave();renderLeads();updateLeadsBadge();}
 }
 
+function editLead(id) {
+  const l = LEADS.find(x=>String(x.id)===String(id));
+  if(!l) return;
+  // Fill form and scroll to it
+  document.getElementById('lead-name').value = l.name;
+  document.getElementById('lead-phone').value = l.phone;
+  document.getElementById('lead-company').value = l.company||'';
+  document.getElementById('lead-type').value = l.type;
+  document.getElementById('lead-workers').value = l.workers||1;
+  document.getElementById('lead-prop').value = l.prop||'כל נכס';
+  document.getElementById('lead-date').value = l.date||'';
+  document.getElementById('lead-status').value = l.status;
+  document.getElementById('lead-note').value = l.note||'';
+  // Remove old lead and open form
+  LEADS.splice(LEADS.findIndex(x=>String(x.id)===String(id)),1);
+  leadNextId = Math.max(leadNextId, Number(id));
+  document.getElementById('lead-add-form').style.display = 'block';
+  document.getElementById('lead-add-form').scrollIntoView({behavior:'smooth', block:'start'});
+  renderLeads();
+}
+
 function deleteLead(id) {
   if(!confirm('למחוק ליד זה?')) return;
   LEADS.splice(LEADS.findIndex(x=>String(x.id)===String(id)),1);
@@ -3873,7 +3896,7 @@ function renderLeads() {
     if(filterType && l.type!==filterType) return false;
     if(filterProp && l.prop!==filterProp && filterProp!=='כל נכס') return false;
     return true;
-  });
+  }).sort((a,b) => new Date(b.createdAt||b.date||0) - new Date(a.createdAt||a.date||0));
 
   const total = LEADS.length;
   const active = LEADS.filter(l=>l.status==='new'||l.status==='warm').length;
@@ -3912,6 +3935,7 @@ function renderLeads() {
         </div>
         <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
           <select onchange="updateLeadStatus(${l.id},this.value)" style="font-size:12px;padding:4px 8px;border:0.5px solid var(--border2);border-radius:6px;background:var(--bg2)">${statusOpts}</select>
+          <button onclick="editLead(${l.id})" class="btn btn-sm">✏️</button>
           <button onclick="whatsappLead('${l.phone}','${l.name}','')" style="background:#25d366;color:#fff;border:none;border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12px">📱 WA</button>
           <button onclick="deleteLead(${l.id})" class="btn btn-sm btn-danger">מחק</button>
         </div>
