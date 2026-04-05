@@ -2772,6 +2772,7 @@ function autosave() {
   // Save to localStorage as backup
   try { localStorage.setItem('rose_global_backup', JSON.stringify(data)); } catch(e){}
   // Save to Firebase - wait for it to be ready
+  window._lastSaveTime = new Date(data._savedAt||Date.now()).getTime();
   const doSave = () => {
     if (window.saveToCloud) {
       window.saveToCloud(data).finally(() => {
@@ -3971,6 +3972,13 @@ async function initApp() {
   if (window.startCloudSync) {
     window.startCloudSync((cloudData) => {
       if (cloudData && !cloudData._cleared && cloudData.TENANTS && !window._isSaving) {
+        // Only apply if cloud data is newer than what we have
+        const cloudTime = new Date(cloudData._savedAt||0).getTime();
+        const localTime = window._lastSaveTime || 0;
+        if (cloudTime <= localTime) {
+          console.log('Ignoring stale sync:', cloudData._savedAt);
+          return;
+        }
         console.log('Real-time sync received:', cloudData._savedAt);
         applyData(cloudData);
         refreshUI();
