@@ -428,6 +428,15 @@ textarea { resize: vertical; min-height: 70px; }
     <div style="display:flex;gap:8px">
       <select id="mv-filter-prop" onchange="renderMovements()" style="width:auto;font-size:12px"><option value="">כל הנכסים</option><option>לבנדה 32</option><option>הירקון 41 ב"ב</option><option>עזאי 38</option><option>נתן הנביא 42</option></select>
       <select id="mv-filter-type" onchange="renderMovements()" style="width:auto;font-size:12px"><option value="">הכל</option><option value="entry">כניסות</option><option value="exit">יציאות</option></select>
+    <select id="mv-filter-month" onchange="renderMovements()" style="width:auto;font-size:12px">
+      <option value="">כל החודשים</option>
+      <option value="2026-04">אפריל 2026</option>
+      <option value="2026-03">מרץ 2026</option>
+      <option value="2026-02">פברואר 2026</option>
+      <option value="2026-01">ינואר 2026</option>
+      <option value="2025-12">דצמבר 2025</option>
+      <option value="2025-11">נובמבר 2025</option>
+    </select>
     </div>
   </div>
   <div class="table-wrap"><div id="mv-table"></div></div>
@@ -1681,7 +1690,8 @@ function clearMvForm(){
 function renderMovements(){
   const fp=document.getElementById('mv-filter-prop').value;
   const ft=document.getElementById('mv-filter-type').value;
-  const list=MOVEMENTS.filter(m=>(!fp||m.prop===fp)&&(!ft||m.type===ft)).sort((a,b)=>b.date.localeCompare(a.date));
+  const fm=(document.getElementById('mv-filter-month')||{}).value||'';
+  const list=MOVEMENTS.filter(m=>(!fp||m.prop===fp)&&(!ft||m.type===ft)&&(!fm||m.date.startsWith(fm))).sort((a,b)=>b.date.localeCompare(a.date));
   if(!list.length){document.getElementById('mv-table').innerHTML='<div style="padding:2rem;text-align:center;color:var(--text3)">אין תנועות</div>';return;}
   let html='<table><thead><tr><th>תאריך</th><th>סוג</th><th>נכס</th><th>קומה/חדר</th><th>תאגיד</th><th>פועלים</th><th>הערה</th><th></th></tr></thead><tbody>';
   list.forEach(m=>{html+=`<tr><td>${m.date}</td><td><span class="badge ${m.type==='entry'?'badge-green':'badge-red'}">${m.type==='entry'?'כניסה':'יציאה'}</span></td><td>${m.prop}</td><td>ק${m.floor} ח${m.room}</td><td><strong>${m.company}</strong></td><td>${m.people}</td><td style="color:var(--text3)">${m.note||'—'}</td><td><button class="btn btn-sm btn-danger" onclick="delMv(${m.id})">מחק</button></td></tr>`;});
