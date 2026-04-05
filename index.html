@@ -268,6 +268,7 @@ textarea { resize: vertical; min-height: 70px; }
   <div class="nav-item" onclick="nav('clients',this)"><span class="nav-icon">👥</span> לקוחות</div>
   <div class="nav-item" onclick="nav('history',this)"><span class="nav-icon">📈</span> רווח והפסד</div>
   <div class="nav-item" onclick="nav('brokerage',this)"><span class="nav-icon">🤝</span> תיווך</div>
+  <div class="nav-item" onclick="nav('leads',this)"><span class="nav-icon">🎯</span> לידים <span class="nav-badge" id="leads-badge" style="background:#e8a030">0</span></div>
   </div>
   <div style="margin-top:auto;padding:16px 20px;border-top:1px solid var(--border)">
     <div style="font-size:11px;color:var(--text3)">נתונים מסונכרנים בענן ☁️</div>
@@ -932,6 +933,100 @@ textarea { resize: vertical; min-height: 70px; }
     <div class="card-title">היסטוריה</div>
     <div id="brok-table"></div>
   </div>
+</div>
+<div id="page-leads" class="page">
+  <div class="page-title">לידים ומכירות 🎯</div>
+  <div class="page-sub">ניהול לידים — חיבור חכם בין חדרים פנויים לאנשים שמחפשים</div>
+
+  <!-- Metrics -->
+  <div class="metrics" id="leads-metrics" style="margin-bottom:16px"></div>
+
+  <!-- AI Match Banner -->
+  <div id="leads-ai-banner" style="display:none;margin-bottom:16px"></div>
+
+  <!-- Filters + Add button -->
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <select id="lead-filter-status" onchange="renderLeads()" style="width:auto;font-size:13px">
+        <option value="">כל הסטטוסים</option>
+        <option value="new">חדש 🔥</option>
+        <option value="warm">חם ♨️</option>
+        <option value="cold">קר ❄️</option>
+        <option value="closed">סגור ✅</option>
+        <option value="lost">אבד ❌</option>
+      </select>
+      <select id="lead-filter-type" onchange="renderLeads()" style="width:auto;font-size:13px">
+        <option value="">כל הסוגים</option>
+        <option value="room">חדר בדירה</option>
+        <option value="apt">דירה שלמה</option>
+        <option value="both">גמיש</option>
+      </select>
+      <select id="lead-filter-prop" onchange="renderLeads()" style="width:auto;font-size:13px">
+        <option value="">כל הנכסים</option>
+        <option>לבנדה 32</option><option>עזאי 38</option>
+        <option>נתן הנביא 42</option><option>הירקון 41 ב"ב</option>
+        <option>חיים בר לב 104</option><option>כל נכס</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button onclick="runLeadAI()" class="btn btn-sm" style="background:#7367c0;color:#fff">🤖 מצא התאמות</button>
+      <button onclick="toggleLeadForm()" class="btn btn-primary btn-sm">+ ליד חדש</button>
+    </div>
+  </div>
+
+  <!-- Add Lead Form -->
+  <div class="card" id="lead-add-form" style="display:none;margin-bottom:16px">
+    <div class="card-title">ליד חדש</div>
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
+      <select id="lead-from-client" onchange="fillLeadFromClient()" style="flex:1;font-size:13px;padding:7px 10px;border:0.5px solid var(--border2);border-radius:var(--radius-sm);background:var(--bg2)">
+        <option value="">או בחר מרשימת לקוחות קיימים...</option>
+      </select>
+    </div>
+    <div class="form-grid" style="margin-bottom:10px">
+      <div class="form-group"><label>שם איש קשר *</label>
+        <input id="lead-name" placeholder="שם מלא"></div>
+      <div class="form-group"><label>טלפון *</label>
+        <input id="lead-phone" placeholder="05X-XXXXXXX" type="tel"></div>
+      <div class="form-group"><label>שם תאגיד</label>
+        <input id="lead-company" placeholder="שם חברה (אופציונלי)"></div>
+    </div>
+    <div class="form-grid three" style="margin-bottom:10px">
+      <div class="form-group"><label>מחפש</label>
+        <select id="lead-type">
+          <option value="room">חדר בדירה (לפי ראש)</option>
+          <option value="apt">דירה שלמה (פיקס)</option>
+          <option value="both">גמיש — שניהם</option>
+        </select></div>
+      <div class="form-group"><label>מספר עובדים</label>
+        <input type="number" id="lead-workers" placeholder="כמה עובדים?" min="1"></div>
+      <div class="form-group"><label>נכס מועדף</label>
+        <select id="lead-prop">
+          <option value="כל נכס">כל נכס</option>
+          <option>לבנדה 32</option><option>עזאי 38</option>
+          <option>נתן הנביא 42</option><option>הירקון 41 ב"ב</option>
+          <option>חיים בר לב 104</option>
+        </select></div>
+    </div>
+    <div class="form-grid" style="margin-bottom:10px">
+      <div class="form-group"><label>תאריך חיפוש</label>
+        <input type="date" id="lead-date"></div>
+      <div class="form-group"><label>סטטוס</label>
+        <select id="lead-status">
+          <option value="new">חדש 🔥</option>
+          <option value="warm">חם ♨️</option>
+          <option value="cold">קר ❄️</option>
+        </select></div>
+    </div>
+    <div class="form-group" style="margin-bottom:10px"><label>הערות</label>
+      <input id="lead-note" placeholder="פרטים נוספים, העדפות, תקציב..."></div>
+    <div class="btn-row">
+      <button onclick="saveLead()" class="btn btn-primary">שמור ליד</button>
+      <button onclick="toggleLeadForm()" class="btn">ביטול</button>
+    </div>
+  </div>
+
+  <!-- Leads board -->
+  <div id="leads-board"></div>
 </div>
 </main>
 </div>
@@ -2617,6 +2712,7 @@ function getDataSnapshot() {
   return {
     HISTORY: JSON.parse(JSON.stringify(HISTORY)),
     GENERAL_EXPENSES: JSON.parse(JSON.stringify(GENERAL_EXPENSES)),
+    LEADS: JSON.parse(JSON.stringify(LEADS)),
     BROKERAGE: JSON.parse(JSON.stringify(BROKERAGE)),
     MGMT_TASKS: JSON.parse(JSON.stringify(MGMT_TASKS)),
     TENANTS: JSON.parse(JSON.stringify(TENANTS)),
@@ -2634,6 +2730,11 @@ function getDataSnapshot() {
 function applyData(data) {
   if (!data) return false;
   try {
+    if (data.LEADS) { 
+      LEADS.length=0; LEADS.push(...data.LEADS);
+      const maxLId = Math.max(0,...data.LEADS.map(l=>Number(l.id)||0));
+      leadNextId = maxLId+1;
+    }
     if (data.BROKERAGE) { BROKERAGE.length=0; BROKERAGE.push(...data.BROKERAGE); }
     if (data.MGMT_TASKS) { 
       MGMT_TASKS.length=0;
@@ -2722,6 +2823,7 @@ function refreshUI() {
   else if (id==='expenses') renderExpenses();
   else if (id==='clients') renderClients();
   else if (id==='brokerage') renderBrokerage();
+  else if (id==='leads') { renderLeads(); updateLeadsBadge(); }
 }
 
 
@@ -3587,6 +3689,232 @@ function renderBrokerage() {
   });
   html += '</tbody></table>';
   document.getElementById('brok-table').innerHTML = html;
+}
+
+
+// ============ LEADS ============
+const LEADS = [];
+let leadNextId = 1;
+
+const LEAD_STATUS_LABEL = {new:'חדש 🔥', warm:'חם ♨️', cold:'קר ❄️', closed:'סגור ✅', lost:'אבד ❌'};
+const LEAD_STATUS_COLOR = {new:'badge-red', warm:'badge-amber', cold:'badge-blue', closed:'badge-green', lost:'badge-purple'};
+const LEAD_TYPE_LABEL = {room:'חדר', apt:'דירה שלמה', both:'גמיש'};
+
+function updateLeadsBadge() {
+  const n = LEADS.filter(l=>l.status==='new'||l.status==='warm').length;
+  const el = document.getElementById('leads-badge');
+  if(el) el.textContent = n;
+}
+
+function toggleLeadForm() {
+  const f = document.getElementById('lead-add-form');
+  f.style.display = f.style.display==='none'?'block':'none';
+  if(f.style.display==='block') {
+    document.getElementById('lead-date').value = new Date().toISOString().split('T')[0];
+    populateLeadClientSelect();
+  }
+}
+
+function populateLeadClientSelect() {
+  const sel = document.getElementById('lead-from-client');
+  if(!sel) return;
+  const all = CLIENTS.sort((a,b)=>a.name.localeCompare(b.name));
+  sel.innerHTML = '<option value="">או בחר מרשימת לקוחות קיימים...</option>' +
+    all.map(c=>`<option value="${c.id}">[${c.status==='active'?'פעיל':'פוטנציאל'}] ${c.name} — ${c.phone||'ללא טלפון'}</option>`).join('');
+}
+
+function fillLeadFromClient() {
+  const id = document.getElementById('lead-from-client').value;
+  if(!id) return;
+  const c = CLIENTS.find(x=>String(x.id)===String(id));
+  if(!c) return;
+  document.getElementById('lead-name').value = c.contact || c.name;
+  document.getElementById('lead-phone').value = c.phone || '';
+  document.getElementById('lead-company').value = c.name || '';
+}
+
+function saveLead() {
+  const name = document.getElementById('lead-name').value.trim();
+  const phone = document.getElementById('lead-phone').value.trim();
+  if(!name||!phone) { alert('שם וטלפון הם שדות חובה'); return; }
+  const lead = {
+    id: leadNextId++,
+    name, phone,
+    company: document.getElementById('lead-company').value.trim(),
+    type: document.getElementById('lead-type').value,
+    workers: parseInt(document.getElementById('lead-workers').value)||1,
+    prop: document.getElementById('lead-prop').value,
+    date: document.getElementById('lead-date').value,
+    status: document.getElementById('lead-status').value,
+    note: document.getElementById('lead-note').value.trim(),
+    createdAt: new Date().toISOString()
+  };
+  LEADS.unshift(lead);
+  ['lead-name','lead-phone','lead-company','lead-workers','lead-note'].forEach(id=>{
+    document.getElementById(id).value='';
+  });
+  toggleLeadForm();
+  autosave();
+  renderLeads();
+  updateLeadsBadge();
+}
+
+function updateLeadStatus(id, status) {
+  const l = LEADS.find(x=>String(x.id)===String(id));
+  if(l){l.status=status;autosave();renderLeads();updateLeadsBadge();}
+}
+
+function deleteLead(id) {
+  if(!confirm('למחוק ליד זה?')) return;
+  LEADS.splice(LEADS.findIndex(x=>String(x.id)===String(id)),1);
+  autosave();renderLeads();updateLeadsBadge();
+}
+
+function whatsappLead(phone, name, msg) {
+  const clean = phone.replace(/[^0-9]/g,'').replace(/^0/,'972');
+  const text = encodeURIComponent(msg || `שלום ${name}, יש לנו חדר פנוי שעשוי להתאים לכם — רוצה לשמוע פרטים?`);
+  window.open(`https://wa.me/${clean}?text=${text}`, '_blank');
+}
+
+function getEmptyRooms() {
+  const empty = [];
+  Object.keys(MAP_DATA||{}).forEach(prop => {
+    Object.entries(MAP_DATA[prop].floors||{}).forEach(([floor, rooms]) => {
+      rooms.forEach(r => {
+        if(!r.company && r.company !== 'שירות') {
+          empty.push({prop, floor, room:r.r, cost:r.cost, price:r.price||PRICE});
+        }
+      });
+    });
+  });
+  return empty;
+}
+
+async function runLeadAI() {
+  const banner = document.getElementById('leads-ai-banner');
+  banner.style.display='block';
+  banner.innerHTML = '<div class="card" style="border-right:3px solid #7367c0;padding:14px"><div style="color:var(--text2);font-size:13px">🤖 מנתח התאמות...</div></div>';
+
+  const emptyRooms = getEmptyRooms();
+  const activeLeads = LEADS.filter(l=>l.status==='new'||l.status==='warm');
+
+  if(!emptyRooms.length) {
+    banner.innerHTML = '<div class="card" style="padding:14px;font-size:13px;color:var(--text2)">אין חדרים פנויים כרגע — כל החדרים תפוסים ✅</div>';
+    return;
+  }
+  if(!activeLeads.length) {
+    banner.innerHTML = '<div class="card" style="padding:14px;font-size:13px;color:var(--text2)">אין לידים פעילים — הוסף לידים חדשים לקבלת התאמות</div>';
+    return;
+  }
+
+  const prompt = `יש לנו חדרים פנויים:
+${emptyRooms.map(r=>`• ${r.prop} קומה ${r.floor} חדר ${r.room} — ${r.price} ₪/ראש`).join('\n')}
+
+לידים פעילים שמחפשים:
+${activeLeads.map(l=>`• ${l.name} (${l.company||'ללא תאגיד'}) — ${LEAD_TYPE_LABEL[l.type]}, ${l.workers} עובדים, מועדף: ${l.prop}, סטטוס: ${LEAD_STATUS_LABEL[l.status]}, הערות: ${l.note||'אין'}, נוסף: ${l.date}`).join('\n')}
+
+אנא זהה את 3 ההתאמות הטובות ביותר בין חדרים פנויים ללידים. עבור כל התאמה ציין:
+1. שם הליד + שם החדר
+2. למה זה מתאים
+3. נוסח הודעת WhatsApp קצרה ומשכנעת בעברית
+
+פורמט: JSON בלבד:
+[{"lead_name":"...","room":"...","reason":"...","whatsapp":"..."}]`;
+
+  try {
+    const res = await fetch('https://rose-ai.ohadsheena.workers.dev', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-5',
+        max_tokens:1000,
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    const data = await res.json();
+    let text = data.content&&data.content[0]?data.content[0].text:'';
+    text = text.replace(/```json|```/g,'').trim();
+    const matches = JSON.parse(text);
+
+    banner.innerHTML = `<div class="card" style="border-right:3px solid #7367c0">
+      <div class="card-title">🤖 התאמות AI — ${emptyRooms.length} חדרים פנויים</div>
+      ${matches.map(m => {
+        const lead = activeLeads.find(l=>l.name===m.lead_name)||{phone:'',name:m.lead_name};
+        return `<div style="padding:12px 0;border-bottom:0.5px solid var(--border)">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+            <div style="flex:1">
+              <div style="font-size:14px;font-weight:600">${m.lead_name} ← ${m.room}</div>
+              <div style="font-size:12px;color:var(--text2);margin-top:4px">${m.reason}</div>
+              <div style="font-size:12px;color:var(--text3);margin-top:4px;font-style:italic">"${m.whatsapp}"</div>
+            </div>
+            <button onclick="whatsappLead('${lead.phone}','${lead.name}',\`${m.whatsapp.replace(/`/g,"'")}\`)"
+              style="background:#25d366;color:#fff;border:none;border-radius:8px;padding:8px 14px;cursor:pointer;font-size:13px;white-space:nowrap;flex-shrink:0">
+              📱 שלח WhatsApp
+            </button>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  } catch(e) {
+    banner.innerHTML = `<div class="alert alert-red">שגיאה: ${e.message}</div>`;
+  }
+}
+
+function renderLeads() {
+  const filterStatus = (document.getElementById('lead-filter-status')||{}).value||'';
+  const filterType = (document.getElementById('lead-filter-type')||{}).value||'';
+  const filterProp = (document.getElementById('lead-filter-prop')||{}).value||'';
+
+  let list = LEADS.filter(l => {
+    if(filterStatus && l.status!==filterStatus) return false;
+    if(filterType && l.type!==filterType) return false;
+    if(filterProp && l.prop!==filterProp && filterProp!=='כל נכס') return false;
+    return true;
+  });
+
+  const total = LEADS.length;
+  const active = LEADS.filter(l=>l.status==='new'||l.status==='warm').length;
+  const emptyRooms = getEmptyRooms().length;
+
+  document.getElementById('leads-metrics').innerHTML = `
+    <div class="metric"><div class="metric-label">לידים פעילים</div><div class="metric-value" style="color:#e8a030">${active}</div></div>
+    <div class="metric"><div class="metric-label">סה"כ לידים</div><div class="metric-value">${total}</div></div>
+    <div class="metric"><div class="metric-label">חדרים פנויים</div><div class="metric-value ${emptyRooms>0?'amber':'green'}">${emptyRooms}</div></div>
+    <div class="metric"><div class="metric-label">סגורים</div><div class="metric-value green">${LEADS.filter(l=>l.status==='closed').length}</div></div>
+  `;
+
+  if(!list.length) {
+    document.getElementById('leads-board').innerHTML = '<div style="text-align:center;padding:2rem;color:var(--text3)">אין לידים' + (filterStatus||filterType?' — נסה לשנות פילטר':'') + '</div>';
+    return;
+  }
+
+  document.getElementById('leads-board').innerHTML = list.map(l => {
+    const statusOpts = Object.entries(LEAD_STATUS_LABEL).map(([v,lab])=>
+      `<option value="${v}" ${l.status===v?'selected':''}>${lab}</option>`).join('');
+    return `<div class="card" style="margin-bottom:10px;padding:14px;border-right:3px solid ${l.status==='new'?'#c0655a':l.status==='warm'?'#e8a030':l.status==='closed'?'#2d8a5e':'#aaa'}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap">
+        <div style="flex:1;min-width:200px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+            <span style="font-size:14px;font-weight:600">${l.name}</span>
+            <span class="badge ${LEAD_STATUS_COLOR[l.status]}">${LEAD_STATUS_LABEL[l.status]}</span>
+            ${l.company?`<span style="font-size:12px;color:var(--text3)">${l.company}</span>`:''}
+          </div>
+          <div style="font-size:12px;color:var(--text2);display:flex;flex-wrap:wrap;gap:12px">
+            <span>📞 ${l.phone}</span>
+            <span>🏠 ${LEAD_TYPE_LABEL[l.type]} · ${l.workers} עובדים</span>
+            <span>📍 ${l.prop}</span>
+            <span>📅 ${l.date}</span>
+          </div>
+          ${l.note?`<div style="font-size:12px;color:var(--text3);margin-top:4px">💬 ${l.note}</div>`:''}
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+          <select onchange="updateLeadStatus(${l.id},this.value)" style="font-size:12px;padding:4px 8px;border:0.5px solid var(--border2);border-radius:6px;background:var(--bg2)">${statusOpts}</select>
+          <button onclick="whatsappLead('${l.phone}','${l.name}','')" style="background:#25d366;color:#fff;border:none;border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12px">📱 WA</button>
+          <button onclick="deleteLead(${l.id})" class="btn btn-sm btn-danger">מחק</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 // ============ INIT ============
