@@ -288,6 +288,8 @@ textarea { resize: vertical; min-height: 70px; }
   <div class="nav-item" onclick="nav('expenses',this)">📋 הוצאות</div>
   <div class="nav-item" onclick="nav('clients',this)">👥 לקוחות</div>
   <div class="nav-item" onclick="nav('history',this)">📈 רווח והפסד</div>
+  <div class="nav-item" onclick="nav('brokerage',this)">🤝 תיווך</div>
+  <div class="nav-item" onclick="nav('leads',this)">🎯 לידים</div>
 </div>
 
 <!-- DASHBOARD -->
@@ -2776,7 +2778,7 @@ function autosave() {
   const doSave = () => {
     if (window.saveToCloud) {
       window.saveToCloud(data).finally(() => {
-        setTimeout(() => { window._isSaving = false; }, 5000);
+        setTimeout(() => { window._isSaving = false; }, 8000);
       });
     } else {
       // Firebase not ready yet - retry after 500ms
@@ -3972,13 +3974,6 @@ async function initApp() {
   if (window.startCloudSync) {
     window.startCloudSync((cloudData) => {
       if (cloudData && !cloudData._cleared && cloudData.TENANTS && !window._isSaving) {
-        // Only apply if cloud data is newer than what we have
-        const cloudTime = new Date(cloudData._savedAt||0).getTime();
-        const localTime = window._lastSaveTime || 0;
-        if (cloudTime <= localTime) {
-          console.log('Ignoring stale sync:', cloudData._savedAt);
-          return;
-        }
         console.log('Real-time sync received:', cloudData._savedAt);
         applyData(cloudData);
         refreshUI();
