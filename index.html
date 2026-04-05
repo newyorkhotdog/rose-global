@@ -286,6 +286,7 @@ textarea { resize: vertical; min-height: 70px; }
   <div class="nav-item" onclick="nav('expenses',this)">📋 הוצאות</div>
   <div class="nav-item" onclick="nav('clients',this)">👥 לקוחות</div>
   <div class="nav-item" onclick="nav('history',this)">📈 רווח והפסד</div>
+  <div class="nav-item" onclick="nav('brokerage',this)">🤝 תיווך</div>
 </div>
 
 <!-- DASHBOARD -->
@@ -891,6 +892,47 @@ textarea { resize: vertical; min-height: 70px; }
     </div>
   </div>
 </div>
+<div id="page-brokerage" class="page" style="display:none">
+  <div class="page-title">תיווך עובדים</div>
+  <div class="page-sub">הכנסות עמלת תיווך — קורל ב. פרויקטים</div>
+
+  <!-- Metrics -->
+  <div class="metrics" id="brok-metrics" style="margin-bottom:16px"></div>
+
+  <!-- Entry form -->
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">הזנת חודש חדש</div>
+    <div class="form-grid" style="margin-bottom:12px">
+      <div class="form-group"><label>חודש</label>
+        <select id="brok-month">
+          <option value="2026-04">אפריל 2026</option>
+          <option value="2026-03">מרץ 2026</option>
+          <option value="2026-02">פברואר 2026</option>
+          <option value="2026-01">ינואר 2026</option>
+          <option value="2025-12">דצמבר 2025</option>
+          <option value="2025-11">נובמבר 2025</option>
+        </select></div>
+      <div class="form-group"><label>מספר עובדים</label>
+        <input type="number" id="brok-workers" placeholder="0" min="0" oninput="updateBrokPreview()"></div>
+      <div class="form-group"><label>עמלה לעובד ₪</label>
+        <input type="number" id="brok-rate" value="200" oninput="updateBrokPreview()"></div>
+      <div class="form-group"><label>הכנסה כוללת ₪</label>
+        <input type="number" id="brok-total" placeholder="מחושב אוטומטי"></div>
+    </div>
+    <div id="brok-preview" style="display:none;padding:8px 12px;background:var(--green-bg);border-radius:6px;font-size:13px;margin-bottom:12px"></div>
+    <div class="form-group"><label>הערות</label>
+      <input id="brok-note" placeholder="הערה אופציונלית"></div>
+    <div class="btn-row">
+      <button onclick="saveBrokEntry()" class="btn btn-primary">שמור</button>
+    </div>
+  </div>
+
+  <!-- History table -->
+  <div class="card">
+    <div class="card-title">היסטוריה</div>
+    <div id="brok-table"></div>
+  </div>
+</div>
 </main>
 </div>
 
@@ -1208,7 +1250,8 @@ function renderDashboard() {
   const openTasks = TASKS.filter(t=>!t.done).length;
 
   document.getElementById('dash-metrics').innerHTML = `
-    <div class="metric"><div class="metric-label">הכנסות חודשיות</div><div class="metric-value green">${fmt(pl.totalIncome)} ₪</div><div class="metric-sub">${totalPeople} דיירים</div></div>
+    <div class="metric"><div class="metric-label">הכנסות שכירות</div><div class="metric-value green">${fmt(pl.totalIncome)} ₪</div><div class="metric-sub">${totalPeople} דיירים</div></div>
+    <div class="metric"><div class="metric-label">הכנסות תיווך</div><div class="metric-value green">${fmt(getBrokerageTotal(month))} ₪</div><div class="metric-sub">קורל</div></div>
     <div class="metric"><div class="metric-label">הוצאות שכירות</div><div class="metric-value red">${fmt(pl.totalRent)} ₪</div><div class="metric-sub">5 נכסים</div></div>
     <div class="metric"><div class="metric-label">חשמל/מים/ארנונה</div><div class="metric-value red">${fmt(pl.totalUtil)} ₪</div><div class="metric-sub">${pl.hasEstimates?'<span style="color:var(--amber)">כולל הערכה</span>':'נתוני אמת'}</div></div>
     <div class="metric"><div class="metric-label">רווח גולמי</div><div class="metric-value ${pl.grossProfit>=0?'green':'red'}">${fmt(pl.grossProfit)} ₪</div></div>
@@ -2574,6 +2617,7 @@ function getDataSnapshot() {
   return {
     HISTORY: JSON.parse(JSON.stringify(HISTORY)),
     GENERAL_EXPENSES: JSON.parse(JSON.stringify(GENERAL_EXPENSES)),
+    BROKERAGE: JSON.parse(JSON.stringify(BROKERAGE)),
     MGMT_TASKS: JSON.parse(JSON.stringify(MGMT_TASKS)),
     TENANTS: JSON.parse(JSON.stringify(TENANTS)),
     MOVEMENTS: JSON.parse(JSON.stringify(MOVEMENTS)),
@@ -2590,6 +2634,7 @@ function getDataSnapshot() {
 function applyData(data) {
   if (!data) return false;
   try {
+    if (data.BROKERAGE) { BROKERAGE.length=0; BROKERAGE.push(...data.BROKERAGE); }
     if (data.MGMT_TASKS) { 
       MGMT_TASKS.length=0;
       // Fix duplicate IDs
@@ -2676,6 +2721,7 @@ function refreshUI() {
   else if (id==='tasks') renderTasks();
   else if (id==='expenses') renderExpenses();
   else if (id==='clients') renderClients();
+  else if (id==='brokerage') renderBrokerage();
 }
 
 
@@ -3453,6 +3499,94 @@ function saveAllHistEntries() {
   // Navigate to props sheet
   const propsTab = document.querySelector('#hist-view-tabs .tab:nth-child(2)');
   if (propsTab) setHistView('props', propsTab);
+}
+
+
+// ============ BROKERAGE ============
+const BROKERAGE = [
+  // Past entries can be added here
+];
+
+function updateBrokPreview() {
+  const workers = parseInt(document.getElementById('brok-workers').value)||0;
+  const rate = parseInt(document.getElementById('brok-rate').value)||200;
+  const total = workers * rate;
+  document.getElementById('brok-total').value = total || '';
+  const prev = document.getElementById('brok-preview');
+  if (total > 0) {
+    prev.style.display = 'block';
+    prev.innerHTML = `${workers} עובדים × ${rate.toLocaleString('he-IL')} ₪ = <strong>${total.toLocaleString('he-IL')} ₪</strong>`;
+  } else {
+    prev.style.display = 'none';
+  }
+}
+
+function saveBrokEntry() {
+  const month = document.getElementById('brok-month').value;
+  const workers = parseInt(document.getElementById('brok-workers').value)||0;
+  const rate = parseInt(document.getElementById('brok-rate').value)||200;
+  const total = parseFloat(document.getElementById('brok-total').value)||(workers*rate);
+  const note = document.getElementById('brok-note').value;
+  if (!workers && !total) return;
+
+  const idx = BROKERAGE.findIndex(b=>b.month===month);
+  const entry = {month, workers, rate, total, note};
+  if (idx>=0) BROKERAGE[idx]=entry; else BROKERAGE.push(entry);
+  BROKERAGE.sort((a,b)=>b.month.localeCompare(a.month));
+
+  document.getElementById('brok-workers').value='';
+  document.getElementById('brok-note').value='';
+  document.getElementById('brok-preview').style.display='none';
+
+  autosave();
+  renderBrokerage();
+  showSaveIndicator('✓ נשמר');
+}
+
+function delBrokEntry(month) {
+  if (!confirm('למחוק רשומה זו?')) return;
+  const idx = BROKERAGE.findIndex(b=>b.month===month);
+  if(idx>=0) BROKERAGE.splice(idx,1);
+  autosave();
+  renderBrokerage();
+}
+
+function getBrokerageTotal(month) {
+  const b = BROKERAGE.find(x=>x.month===month);
+  return b ? b.total : 0;
+}
+
+function renderBrokerage() {
+  const totalAll = BROKERAGE.reduce((s,b)=>s+b.total,0);
+  const lastEntry = BROKERAGE[0];
+  const currentMonth = getCurrentMonth();
+  const currentTotal = getBrokerageTotal(currentMonth);
+
+  document.getElementById('brok-metrics').innerHTML = `
+    <div class="metric"><div class="metric-label">חודש נוכחי</div><div class="metric-value green">${fmt(currentTotal)} ₪</div><div class="metric-sub">${(BROKERAGE.find(b=>b.month===currentMonth)||{workers:0}).workers||0} עובדים</div></div>
+    <div class="metric"><div class="metric-label">סה"כ היסטורי</div><div class="metric-value green">${fmt(totalAll)} ₪</div></div>
+    <div class="metric"><div class="metric-label">עמלה לעובד</div><div class="metric-value">${fmt((lastEntry||{rate:200}).rate||200)} ₪</div></div>
+    <div class="metric"><div class="metric-label">לקוח</div><div class="metric-value" style="font-size:14px">קורל</div></div>
+  `;
+
+  if (!BROKERAGE.length) {
+    document.getElementById('brok-table').innerHTML = '<div style="color:var(--text3);padding:1rem;text-align:center">אין רשומות עדיין</div>';
+    return;
+  }
+
+  let html = '<table><thead><tr><th>חודש</th><th>עובדים</th><th>עמלה לעובד</th><th>סה"כ</th><th>הערה</th><th></th></tr></thead><tbody>';
+  BROKERAGE.forEach(b => {
+    html += `<tr>
+      <td><strong>${getMonthLabel(b.month)}</strong></td>
+      <td>${b.workers}</td>
+      <td>${fmt(b.rate)} ₪</td>
+      <td class="green" style="font-weight:600">${fmt(b.total)} ₪</td>
+      <td style="color:var(--text2)">${b.note||'—'}</td>
+      <td><button onclick="delBrokEntry('${b.month}')" class="btn btn-sm btn-danger">מחק</button></td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  document.getElementById('brok-table').innerHTML = html;
 }
 
 // ============ INIT ============
