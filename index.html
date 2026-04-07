@@ -1275,8 +1275,10 @@ function getPropPL(prop, month) {
   
   // Income
   let income = 0;
+  const fixedDefaults = {'עזאי 38':{income:28500,cost:18000},'נתן הנביא 42':{income:73400,cost:39000}};
   if (isFixed) {
-    income = histRow ? histRow.income : (FIXED_COSTS[prop].income || 0);
+    const def = fixedDefaults[prop] || {};
+    income = histRow && histRow.income > 0 ? histRow.income : (FIXED_COSTS[prop]?.income || def.income || 0);
   } else {
     // Auto-calculate from MAP_DATA (people × price)
     if (MAP_DATA[prop]) {
@@ -1293,7 +1295,8 @@ function getPropPL(prop, month) {
   }
 
   // Rent (from ROOM_COSTS or FIXED_COSTS)
-  const rent = histRow ? histRow.rent : getPropCost(prop);
+  const fixedRentDefaults = {'עזאי 38':18000,'נתן הנביא 42':39000};
+  const rent = histRow && histRow.rent > 0 ? histRow.rent : (isFixed ? (FIXED_COSTS[prop]?.cost || fixedRentDefaults[prop] || getPropCost(prop)) : getPropCost(prop));
 
   // Utilities - from HISTORY if exists, else estimate from historical average
   let electric, water, arnona, other = 0, isEstimated = false;
