@@ -3249,7 +3249,7 @@ function saveGeneralExpenses() {
 function getGeneralTotal(month) {
   const g = GENERAL_EXPENSES.find(x=>x.month===month);
   if(!g) return 12000+1054.75+1500; // default
-  return g.yoad + (g.lawyer||1054.75) + (g.accountant||1500) + (g.extra||[]).reduce((s,e)=>s+e.amount,0);
+  return (g.yoad||0) + (g.lawyer||0) + (g.accountant||0) + (g.extra||[]).reduce((s,e)=>s+e.amount,0);
 }
 
 function renderHgExisting() {
@@ -3259,24 +3259,71 @@ function renderHgExisting() {
     const g = GENERAL_EXPENSES.find(x=>x.month===m);
     if(!g) return;
     const total = getGeneralTotal(m);
-    html += `<div class="card" style="margin-bottom:10px;padding:14px">
+    const mid = m.replace('-','_');
+    html += `<div class="card" style="margin-bottom:10px;padding:14px" id="hg-card-${mid}">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
         <div style="font-size:14px;font-weight:500">${getMonthLabel(m)}</div>
         <div style="display:flex;align-items:center;gap:10px">
-          <span style="font-weight:600;color:#b85a50">${total.toLocaleString('he-IL')} ₪</span>
-          <button onclick="loadGeneralExpenses('${m}')" class="btn btn-sm">✏️ ערוך</button>
+          <span style="font-weight:600;color:#b85a50" id="hg-total-${mid}">${total.toLocaleString('he-IL')} ₪</span>
+          <button onclick="toggleHgInlineEdit('${m}')" class="btn btn-sm">✏️ ערוך</button>
         </div>
       </div>
-      <div style="font-size:13px;color:var(--text2);display:flex;flex-direction:column;gap:4px">
+      <div id="hg-view-${mid}" style="font-size:13px;color:var(--text2);display:flex;flex-direction:column;gap:4px">
         <div style="display:flex;justify-content:space-between"><span>שכר יועד</span><span>${(g.yoad||0).toLocaleString('he-IL')} ₪</span></div>
-        <div style="display:flex;justify-content:space-between"><span>עורך דין</span><span>${(g.lawyer||1054.75).toLocaleString('he-IL')} ₪</span></div>
-        <div style="display:flex;justify-content:space-between"><span>הנהלת חשבונות</span><span>${(g.accountant||1500).toLocaleString('he-IL')} ₪</span></div>
+        <div style="display:flex;justify-content:space-between"><span>עורך דין</span><span>${(g.lawyer||0).toLocaleString('he-IL')} ₪</span></div>
+        <div style="display:flex;justify-content:space-between"><span>הנהלת חשבונות</span><span>${(g.accountant||0).toLocaleString('he-IL')} ₪</span></div>
         ${(g.extra||[]).map(e=>`<div style="display:flex;justify-content:space-between"><span>${e.desc}</span><span>${e.amount.toLocaleString('he-IL')} ₪</span></div>`).join('')}
+      </div>
+      <div id="hg-edit-${mid}" style="display:none;margin-top:10px;border-top:1px solid var(--border);padding-top:10px">
+        <div class="form-grid" style="margin-bottom:8px">
+          <div class="form-group"><label>שכר יועד ₪</label>
+            <input type="number" id="hge-yoad-${mid}" value="${g.yoad||0}"></div>
+          <div class="form-group"><label>עורך דין ₪</label>
+            <input type="number" id="hge-lawyer-${mid}" value="${g.lawyer||0}"></div>
+          <div class="form-group"><label>הנהלת חשבונות ₪</label>
+            <input type="number" id="hge-acc-${mid}" value="${g.accountant||0}"></div>
+        </div>
+        ${(g.extra||[]).map((e,i)=>`
+        <div style="display:flex;gap:8px;margin-bottom:6px">
+          <input placeholder="תיאור" value="${e.desc}" id="hge-edesc-${mid}-${i}" style="flex:1">
+          <input type="number" placeholder="סכום" value="${e.amount}" id="hge-eamt-${mid}-${i}" style="width:90px">
+        </div>`).join('')}
+        <div class="btn-row" style="margin-top:8px">
+          <button onclick="saveHgInline('${m}')" class="btn btn-primary btn-sm">שמור</button>
+          <button onclick="toggleHgInlineEdit('${m}')" class="btn btn-sm">ביטול</button>
+        </div>
       </div>
     </div>`;
   });
   const el = document.getElementById('hg-existing');
   if(el) el.innerHTML = html||'<div style="color:var(--text3);font-size:13px;padding:1rem">אין רשומות עדיין</div>';
+}
+
+function toggleHgInlineEdit(month) {
+  const mid = month.replace('-','_');
+  const view = document.getElementById('hg-view-'+mid);
+  const edit = document.getElementById('hg-edit-'+mid);
+  if (!view||!edit) return;
+  const isEditing = edit.style.display !== 'none';
+  view.style.display = isEditing ? 'flex' : 'none';
+  edit.style.display = isEditing ? 'none' : 'block';
+}
+
+function saveHgInline(month) {
+  const mid = month.replace('-','_');
+  const g = GENERAL_EXPENSES.find(x=>x.month===month);
+  if (!g) return;
+  g.yoad = parseFloat(document.getElementById('hge-yoad-'+mid).value)||0;
+  g.lawyer = parseFloat(document.getElementById('hge-lawyer-'+mid).value)||0;
+  g.accountant = parseFloat(document.getElementById('hge-acc-'+mid).value)||0;
+  // Extra rows
+  g.extra = (g.extra||[]).map((e,i)=>({
+    desc: (document.getElementById('hge-edesc-'+mid+'-'+i)||{}).value||e.desc,
+    amount: parseFloat((document.getElementById('hge-eamt-'+mid+'-'+i)||{}).value)||e.amount
+  }));
+  autosave();
+  renderHgExisting();
+  showSaveIndicator('✓ נשמר');
 }
 
 
