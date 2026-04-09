@@ -338,10 +338,7 @@ textarea { resize: vertical; min-height: 70px; }
       <div class="card-title">📋 משימות ניהוליות</div>
       <div id="dash-mgmt-list"></div>
     </div>
-    <div class="card">
-      <div class="card-title">🔔 תזכורות לצוות</div>
-      <div id="dash-reminders"></div>
-    </div>
+
     <div class="card" id="dash-billing">
       <div class="card-title">💳 גבייה — חודש נוכחי</div>
       <div id="dash-billing-list"></div>
@@ -3300,9 +3297,22 @@ function getQuarters() {
 }
 
 function getFullMonthPL(month) {
-  const propRows = HISTORY.filter(h=>h.month===month);
-  const income = propRows.reduce((s,h)=>s+h.income, 0);
-  const propExpenses = propRows.reduce((s,h)=>s+h.rent+h.electric+h.water+h.arnona+h.other, 0);
+  const props = ['לבנדה 32','עזאי 38','נתן הנביא 42','הירקון 41 ב"ב','חיים בר לב 104'];
+  let income=0, propExpenses=0;
+  props.forEach(p => {
+    const h = HISTORY.find(x=>x.month===month&&x.prop===p);
+    if (h) {
+      income += h.income;
+      propExpenses += h.rent+(h.electric||0)+(h.water||0)+(h.arnona||0)+(h.other||0);
+    } else {
+      // Fallback to dashboard calculation
+      const pl = getPropPL(p, month);
+      income += pl.income;
+      propExpenses += pl.rent + pl.utilTotal;
+    }
+  });
+  // Add brokerage income
+  income += getBrokerageTotal(month);
   const general = getGeneralTotal(month);
   const net = income - propExpenses - general;
   return { income, propExpenses, general, net };
