@@ -2124,6 +2124,13 @@ function delTask(id){
   renderTasks();updateTaskBadge();
 }
 
+function waTaskAlert(prop, desc, opener) {
+  const phone = TEAM_PHONES[opener]||'';
+  if(!phone) { alert('מספר טלפון של '+opener+' לא מוגדר'); return; }
+  const msg = 'שלום '+opener+', תזכורת לתקלה ב'+prop+':\n'+desc;
+  window.open('https://wa.me/'+phone+'?text='+encodeURIComponent(msg),'_blank');
+}
+
 function editTask(id) {
   const t = TASKS.find(x=>x.id===id);
   if (!t) return;
@@ -2923,12 +2930,6 @@ function refreshUI() {
 
 // ============ HISTORY ============
 const HISTORY = [
-  // אפריל 2026 — נתוני אמת + הערכות (≈)
-  {month:'2026-04',prop:'עזאי 38',income:28500,tenants:21,pph:0,rent:18000,electric:0,water:0,arnona:0,other:0},
-  {month:'2026-04',prop:'נתן הנביא 42',income:73400,tenants:65,pph:0,rent:39000,electric:0,water:0,arnona:0,other:0},
-  {month:'2026-04',prop:'לבנדה 32',income:149150,tenants:0,pph:1280,rent:136850,electric:0,water:0,arnona:0,other:0},
-  {month:'2026-04',prop:'הירקון 41 ב"ב',income:27500,tenants:0,pph:1250,rent:35700,electric:0,water:0,arnona:0,other:0},
-  {month:'2026-04',prop:'חיים בר לב 104',income:15000,tenants:0,pph:0,rent:7000,electric:0,water:0,arnona:0,other:0},
   // Pre-loaded from Excel data
   {month:'2025-11',prop:'עזאי 38',income:28500,tenants:21,pph:0,rent:18000,electric:1251,water:1500,arnona:0,other:0},
   {month:'2025-11',prop:'נתן הנביא 42',income:73400,tenants:65,pph:0,rent:39000,electric:5272,water:726,arnona:2826,other:0},
