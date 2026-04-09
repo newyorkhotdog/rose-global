@@ -2032,16 +2032,14 @@ function renderBilling(){
     });
   });
 
-  // Add חיים בר לב 104 as fixed price entry (always separate, never under company)
-  if (!filterProp || filterProp === 'חיים בר לב 104') {
-    if (!filterClient) {
-      const hblIncome = 15000;
-      // חיים בר לב משויך לח.ח.א כלקוח
-      const hblKey = 'ח.ח.א';
-      if (!byCompany[hblKey]) byCompany[hblKey] = {company:'ח.ח.א', lines:[], total:0, isFixed:false};
-      byCompany[hblKey].lines.push({label:'חיים בר לב 104 — שכירות חודשית', people:0, d:days, days, amount:hblIncome, isPartial:false});
-      byCompany[hblKey].total += hblIncome;
-    }
+  // Add חיים בר לב 104 under ח.ח.א
+  const hblVisible = (!filterProp || filterProp === 'חיים בר לב 104') &&
+                     (!filterClient || filterClient === 'ח.ח.א');
+  if (hblVisible) {
+    const hblIncome = 15000;
+    if (!byCompany['ח.ח.א']) byCompany['ח.ח.א'] = {company:'ח.ח.א', lines:[], total:0, isFixed:false};
+    byCompany['ח.ח.א'].lines.push({label:'חיים בר לב 104 — שכירות חודשית', people:0, d:days, days, amount:hblIncome, isPartial:false});
+    byCompany['ח.ח.א'].total += hblIncome;
   }
 
   // Filter קורל תיווך
@@ -2074,14 +2072,7 @@ function renderBilling(){
     <div class="metric"><div class="metric-label">פועלים</div><div class="metric-value">${totalPpl}</div></div>
   `;
 
-  let alerts='';
-  const lavData = MAP_DATA['לבנדה 32'];
-  if(lavData&&!filterProp){
-    const lavRev=companies.filter(c=>!c.isFixed).reduce((s,c)=>s+c.total,0);
-    const lavCost=getPropCost('לבנדה 32');
-    if(lavRev<lavCost) alerts+=`<div class="alert alert-red" style="margin-bottom:12px">לבנדה 32 — הפסד של ${fmt(lavCost-lavRev)} ₪ החודש</div>`;
-  }
-  document.getElementById('bill-alerts').innerHTML=alerts;
+  document.getElementById('bill-alerts').innerHTML='';
 
   document.getElementById('bill-content').innerHTML = companies.map(c=>`
     <div class="invoice-block">
