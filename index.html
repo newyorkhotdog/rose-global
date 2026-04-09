@@ -2034,7 +2034,7 @@ function renderBilling(){
   // Add חיים בר לב 104 as fixed price entry (always separate, never under company)
   if (!filterProp || filterProp === 'חיים בר לב 104') {
     if (!filterClient) {
-      const hblIncome = 7000;
+      const hblIncome = 15000;
       byCompany['חיים בר לב 104'] = {
         company: 'חיים בר לב 104 — שכירות',
         lines: [{label: 'חיים בר לב 104 — שכירות חודשית', people:0, d:days, days, amount:hblIncome, isPartial:false}],
@@ -2051,7 +2051,9 @@ function renderBilling(){
 
   // Add קורל תיווך
   const brokMonth = getBrokerageTotal(month);
-  if (brokMonth > 0 && !filterProp && !filterClient) {
+  const showKorel = !filterProp || filterProp === 'קורל_תיווך';
+  const korelClientMatch = !filterClient || filterClient === 'קורל' || filterClient === 'קורל ב. פרויקטים בע"מ';
+  if (brokMonth > 0 && showKorel && korelClientMatch) {
     const brokEntry = BROKERAGE.find(b=>b.month===month);
     byCompany['קורל_תיווך'] = {
       company: 'קורל ב. פרויקטים — תיווך עובדים',
