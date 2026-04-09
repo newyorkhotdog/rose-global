@@ -1387,9 +1387,10 @@ function getTotalPL(month) {
     if (pl.isEstimated) hasEstimates = true;
   });
   const general = getGeneralTotal(month);
-  const grossProfit = totalIncome - totalRent - totalUtil;
+  const brokerageIncome = getBrokerageTotal(month);
+  const grossProfit = totalIncome + brokerageIncome - totalRent - totalUtil;
   const netProfit = grossProfit - general;
-  return { totalIncome, totalRent, totalUtil, general, grossProfit, netProfit, hasEstimates };
+  return { totalIncome, totalRent, totalUtil, general, grossProfit, netProfit, hasEstimates, brokerageIncome };
 }
 
 function renderDashboard() {
