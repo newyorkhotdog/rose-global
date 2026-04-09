@@ -329,7 +329,7 @@ textarea { resize: vertical; min-height: 70px; }
   </div>
 
   <!-- URGENT + MGMT + BILLING -->
-  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px">
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-bottom:20px">
     <div class="card" id="dash-urgent">
       <div class="card-title">🔴 תקלות דחופות</div>
       <div id="dash-urgent-list"></div>
@@ -337,6 +337,10 @@ textarea { resize: vertical; min-height: 70px; }
     <div class="card">
       <div class="card-title">📋 משימות ניהוליות</div>
       <div id="dash-mgmt-list"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">🔔 תזכורות לצוות</div>
+      <div id="dash-reminders"></div>
     </div>
     <div class="card" id="dash-billing">
       <div class="card-title">💳 גבייה — חודש נוכחי</div>
@@ -483,6 +487,7 @@ textarea { resize: vertical; min-height: 70px; }
   <div class="tab-row" style="margin-bottom:16px" id="task-main-tabs">
     <button class="tab active" onclick="setTaskMainTab('technical',this)">🔧 תקלות טכניות</button>
     <button class="tab" onclick="setTaskMainTab('mgmt',this)">📋 משימות ניהוליות</button>
+    <button class="tab" onclick="setTaskMainTab('dudu',this)">🏗️ משימות דודו</button>
   </div>
 
   <div id="task-technical-view">
@@ -572,6 +577,51 @@ textarea { resize: vertical; min-height: 70px; }
     </div>
 
     <div id="mgmt-board"></div>
+  </div><!-- end task-mgmt-view -->
+
+  <!-- DUDU TASKS -->
+  <div id="task-dudu-view" style="display:none">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+      <div class="tab-row" style="margin:0" id="dudu-filters">
+        <button class="tab active" onclick="setDuduFilter('all',this)">הכל</button>
+        <button class="tab" onclick="setDuduFilter('urgent',this)">דחוף</button>
+        <button class="tab" onclick="setDuduFilter('open',this)">פתוח</button>
+        <button class="tab" onclick="setDuduFilter('done',this)">טופל</button>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="toggleDuduForm()">+ משימה</button>
+    </div>
+
+    <div class="card" id="dudu-add-form" style="display:none;margin-bottom:12px">
+      <div class="card-title">משימת דודו חדשה</div>
+      <div class="form-grid" style="margin-bottom:10px">
+        <div class="form-group"><label>תיאור *</label>
+          <input id="dd-desc" placeholder="תיאור המשימה..."></div>
+        <div class="form-group"><label>תאריך יעד</label>
+          <input type="date" id="dd-due"></div>
+      </div>
+      <div class="form-grid three" style="margin-bottom:10px">
+        <div class="form-group"><label>נכס</label>
+          <select id="dd-prop">
+            <option value="כללי">כללי</option>
+            <option>לבנדה 32</option><option>עזאי 38</option>
+            <option>נתן הנביא 42</option><option>הירקון 41 ב"ב</option>
+            <option>חיים בר לב 104</option>
+          </select></div>
+        <div class="form-group"><label>עדיפות</label>
+          <select id="dd-priority">
+            <option value="urgent">דחוף 🔴</option>
+            <option value="normal" selected>רגיל 🟡</option>
+            <option value="low">נמוך 🟢</option>
+          </select></div>
+        <div class="form-group"><label>הערות</label>
+          <input id="dd-note" placeholder="הערה..."></div>
+      </div>
+      <div class="btn-row">
+        <button onclick="addDuduTask()" class="btn btn-primary">הוסף</button>
+        <button onclick="toggleDuduForm()" class="btn">ביטול</button>
+      </div>
+    </div>
+    <div id="dudu-board"></div>
   </div>
 </div>
 
@@ -1404,6 +1454,7 @@ function renderDashboard() {
         </div>`).join('')
     : '<div style="font-size:13px;color:var(--text3);padding:8px 0">אין משימות דחופות 🎉</div>';
 
+  renderRemindersDashboard();
   // Mgmt tasks
   const openMgmt = MGMT_TASKS.filter(t=>!t.done).slice(0,6);
   const ownerColors2 = {'צביקה':'#7367c0','רועי':'#2d8a5e','אוהד':'#c07330','יועד':'#1a6fa8'};
@@ -2061,7 +2112,7 @@ let mgmtFilter = 'all';
 let mgmtEditId = null;
 
 function updateTaskBadge(){
-  const n=TASKS.filter(t=>!t.done).length + MGMT_TASKS.filter(t=>!t.done).length;
+  const n=TASKS.filter(t=>!t.done).length + MGMT_TASKS.filter(t=>!t.done).length + DUDU_TASKS.filter(t=>!t.done).length;
   document.getElementById('tasks-badge').textContent=n;
 }
 
@@ -2719,6 +2770,7 @@ function getDataSnapshot() {
   return {
     HISTORY: JSON.parse(JSON.stringify(HISTORY)),
     GENERAL_EXPENSES: JSON.parse(JSON.stringify(GENERAL_EXPENSES)),
+    DUDU_TASKS: JSON.parse(JSON.stringify(DUDU_TASKS)),
     LEADS: JSON.parse(JSON.stringify(LEADS)),
     BROKERAGE: JSON.parse(JSON.stringify(BROKERAGE)),
     MGMT_TASKS: JSON.parse(JSON.stringify(MGMT_TASKS)),
@@ -2737,6 +2789,11 @@ function getDataSnapshot() {
 function applyData(data) {
   if (!data) return false;
   try {
+    if (data.DUDU_TASKS) {
+      DUDU_TASKS.length=0; DUDU_TASKS.push(...data.DUDU_TASKS);
+      const maxDId = Math.max(0,...data.DUDU_TASKS.map(t=>Number(t.id)||0));
+      duduNextId = maxDId+1;
+    }
     if (data.LEADS) { 
       LEADS.length=0; LEADS.push(...data.LEADS);
       const maxLId = Math.max(0,...data.LEADS.map(l=>Number(l.id)||0));
@@ -3319,6 +3376,7 @@ function populateClientSelects() {
   const arSel = document.getElementById('ar-company');
   if(arSel) { const v=arSel.value; arSel.innerHTML='<option value="">ריק</option><option value="שירות">🔧 חדר שירות</option>'+optsNoEmpty; arSel.value=v||''; }
 
+  renderRemindersDashboard();
   // Mgmt tasks
   const openMgmt = MGMT_TASKS.filter(t=>!t.done).slice(0,6);
   const ownerColors2 = {'צביקה':'#7367c0','רועי':'#2d8a5e','אוהד':'#c07330','יועד':'#1a6fa8'};
@@ -3420,13 +3478,7 @@ function renderPropsSheet() {
 
 
 // ============ MANAGEMENT TASKS FUNCTIONS ============
-function setTaskMainTab(tab, el) {
-  document.querySelectorAll('#task-main-tabs .tab').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('task-technical-view').style.display = tab==='technical' ? 'block' : 'none';
-  document.getElementById('task-mgmt-view').style.display = tab==='mgmt' ? 'block' : 'none';
-  if (tab==='mgmt') renderMgmtTasks();
-}
+// setTaskMainTab moved to DUDU section
 
 function setMgmtFilter(f, el) {
   mgmtFilter = f;
@@ -3945,6 +3997,171 @@ function renderLeads() {
       </div>
     </div>`;
   }).join('');
+}
+
+
+// ============ DUDU TASKS ============
+const DUDU_TASKS = [];
+let duduNextId = 1;
+let duduFilter = 'all';
+
+// Phone numbers for WhatsApp reminders
+const TEAM_PHONES = {
+  'יועד': '972544885617',
+  'רועי': '972552848735',
+  'צביקה': '972544750571',
+  'אוהד': '',
+};
+
+function setTaskMainTab(tab, el) {
+  document.querySelectorAll('#task-main-tabs .tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('task-technical-view').style.display = tab==='technical' ? 'block' : 'none';
+  document.getElementById('task-mgmt-view').style.display = tab==='mgmt' ? 'block' : 'none';
+  document.getElementById('task-dudu-view').style.display = tab==='dudu' ? 'block' : 'none';
+  if (tab==='mgmt') renderMgmtTasks();
+  if (tab==='dudu') renderDuduTasks();
+}
+
+function setDuduFilter(f, el) {
+  duduFilter = f;
+  document.querySelectorAll('#dudu-filters .tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderDuduTasks();
+}
+
+function toggleDuduForm() {
+  const f = document.getElementById('dudu-add-form');
+  f.style.display = f.style.display==='none' ? 'block' : 'none';
+  if(f.style.display==='block') {
+    document.getElementById('dd-due').value = new Date().toISOString().split('T')[0];
+  }
+}
+
+function addDuduTask() {
+  const desc = document.getElementById('dd-desc').value.trim();
+  if(!desc) return;
+  DUDU_TASKS.push({
+    id: duduNextId++,
+    desc,
+    prop: document.getElementById('dd-prop').value,
+    priority: document.getElementById('dd-priority').value,
+    due: document.getElementById('dd-due').value,
+    note: document.getElementById('dd-note').value.trim(),
+    done: false,
+    createdAt: new Date().toISOString()
+  });
+  document.getElementById('dd-desc').value = '';
+  document.getElementById('dd-note').value = '';
+  toggleDuduForm();
+  autosave();
+  renderDuduTasks();
+  updateTaskBadge();
+}
+
+function toggleDuduDone(id) {
+  const t = DUDU_TASKS.find(x=>String(x.id)===String(id));
+  if(t){t.done=!t.done;autosave();renderDuduTasks();updateTaskBadge();}
+}
+
+function delDuduTask(id) {
+  DUDU_TASKS.splice(DUDU_TASKS.findIndex(x=>String(x.id)===String(id)),1);
+  autosave();renderDuduTasks();updateTaskBadge();
+}
+
+function renderDuduTasks() {
+  let tasks = DUDU_TASKS.filter(t => {
+    if(duduFilter==='urgent') return !t.done && t.priority==='urgent';
+    if(duduFilter==='open') return !t.done;
+    if(duduFilter==='done') return t.done;
+    return true;
+  });
+  const sorted = [...tasks].sort((a,b)=>{
+    if(a.done!==b.done) return a.done?1:-1;
+    const po={urgent:0,normal:1,low:2};
+    return po[a.priority]-po[b.priority];
+  });
+  const today = new Date().toISOString().split('T')[0];
+  const prioColors = {urgent:'badge-red',normal:'badge-amber',low:'badge-green'};
+  const prioLabels = {urgent:'דחוף',normal:'רגיל',low:'נמוך'};
+  document.getElementById('dudu-board').innerHTML = sorted.length ? sorted.map(t=>{
+    const isOverdue = !t.done && t.due && t.due < today;
+    return `<div class="task-item ${t.done?'done':''}" style="${isOverdue?'border-right:3px solid #e8b0aa':''}">
+      <div class="priority-dot p-${t.priority}"></div>
+      <div class="task-check ${t.done?'checked':''}" onclick="toggleDuduDone(${t.id})"></div>
+      <div class="task-body" style="flex:1">
+        <div class="task-desc">${t.desc}</div>
+        <div class="task-meta" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">
+          <span class="badge ${prioColors[t.priority]}">${prioLabels[t.priority]}</span>
+          <span style="font-size:11px;color:var(--text3)">${t.prop}</span>
+          ${t.due?`<span style="font-size:11px;color:${isOverdue?'#b85a50':'var(--text3)'}">📅 ${t.due}${isOverdue?' (באיחור)':''}</span>`:''}
+          ${t.note?`<span style="font-size:11px;color:var(--text3)">💬 ${t.note}</span>`:''}
+        </div>
+      </div>
+      <button onclick="delDuduTask(${t.id})" class="btn btn-sm btn-danger">מחק</button>
+    </div>`;
+  }).join('') : '<div style="color:var(--text3);font-size:13px;padding:1rem;text-align:center">אין משימות</div>';
+}
+
+// ============ REMINDERS ============
+function sendWhatsAppReminder(person, tasks) {
+  const phone = TEAM_PHONES[person];
+  if(!phone) { alert('מספר טלפון של '+person+' לא מוגדר — הגדר בהגדרות'); return; }
+  const text = 'שלום '+person+', תזכורת למשימות פתוחות:\n'+
+    tasks.map((t,i)=>`${i+1}. ${t.desc} (${t.due||'ללא תאריך'})`).join('\n');
+  const clean = phone.replace(/[^0-9]/g,'');
+  window.open('https://wa.me/'+clean+'?text='+encodeURIComponent(text),'_blank');
+}
+
+function renderRemindersDashboard() {
+  const today = new Date().toISOString().split('T')[0];
+  const in7days = new Date(Date.now()+7*86400000).toISOString().split('T')[0];
+  
+  // Collect tasks by owner for mgmt tasks
+  const byOwner = {};
+  MGMT_TASKS.filter(t=>!t.done).forEach(t=>{
+    if(!byOwner[t.owner]) byOwner[t.owner]=[];
+    byOwner[t.owner].push(t);
+  });
+  // Add dudu tasks (no owner - remind all)
+  const duduOpen = DUDU_TASKS.filter(t=>!t.done);
+
+  const el = document.getElementById('dash-reminders');
+  if(!el) return;
+
+  if(!Object.keys(byOwner).length && !duduOpen.length) {
+    el.innerHTML = '<div style="font-size:13px;color:var(--text3);padding:8px 0">אין משימות פתוחות 🎉</div>';
+    return;
+  }
+
+  const ownerColors = {'צביקה':'#7367c0','רועי':'#2d8a5e','אוהד':'#c07330','יועד':'#1a6fa8'};
+
+  let html = Object.entries(byOwner).map(([owner, tasks])=>{
+    const urgent = tasks.filter(t=>t.priority==='urgent').length;
+    const overdue = tasks.filter(t=>t.due&&t.due<today).length;
+    const color = ownerColors[owner]||'#888';
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:0.5px solid var(--border)">
+      <div>
+        <span style="font-weight:600;color:${color}">${owner}</span>
+        <span style="font-size:12px;color:var(--text2);margin-right:8px">${tasks.length} משימות פתוחות</span>
+        ${urgent?`<span class="badge badge-red">${urgent} דחוף</span>`:''}
+        ${overdue?`<span class="badge badge-amber">${overdue} באיחור</span>`:''}
+      </div>
+      <button onclick="sendWhatsAppReminder('${owner}',${JSON.stringify(tasks.map(t=>({desc:t.desc,due:t.due||''})))})" 
+        style="background:#25d366;color:#fff;border:none;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:12px">
+        📱 שלח תזכורת
+      </button>
+    </div>`;
+  }).join('');
+
+  if(duduOpen.length) {
+    html += `<div style="padding:8px 0;border-bottom:0.5px solid var(--border)">
+      <span style="font-weight:600;color:#8b4513">🏗️ דודו</span>
+      <span style="font-size:12px;color:var(--text2);margin-right:8px">${duduOpen.length} משימות פתוחות</span>
+    </div>`;
+  }
+
+  el.innerHTML = html;
 }
 
 // ============ INIT ============
