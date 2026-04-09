@@ -469,6 +469,8 @@ textarea { resize: vertical; min-height: 70px; }
       <option>הירקון 41 ב"ב</option>
       <option>עזאי 38</option>
       <option>נתן הנביא 42</option>
+      <option>חיים בר לב 104</option>
+      <option value="קורל_תיווך">קורל — תיווך</option>
     </select>
     <select id="bill-client" onchange="renderBilling()" style="width:auto">
       <option value="">כל הלקוחות</option>
@@ -1977,6 +1979,8 @@ function renderBilling(){
   // Get all rooms from MAP_DATA that are occupied
   Object.keys(MAP_DATA).forEach(prop => {
     if (filterProp && prop !== filterProp) return;
+    if (prop === 'חיים בר לב 104') return; // handled separately as fixed price
+    if (filterProp === 'קורל_תיווך') return; // show only brokerage
     if (FIXED_COSTS[prop]) {
       // Fixed price props — show as single entry
       const inc = FIXED_COSTS[prop].income || 0;
@@ -2026,6 +2030,35 @@ function renderBilling(){
       });
     });
   });
+
+  // Add חיים בר לב 104 as fixed price entry (always separate, never under company)
+  if (!filterProp || filterProp === 'חיים בר לב 104') {
+    if (!filterClient) {
+      const hblIncome = 7000;
+      byCompany['חיים בר לב 104'] = {
+        company: 'חיים בר לב 104 — שכירות',
+        lines: [{label: 'חיים בר לב 104 — שכירות חודשית', people:0, d:days, days, amount:hblIncome, isPartial:false}],
+        total: hblIncome, isFixed: true
+      };
+    }
+  }
+
+  // Filter קורל תיווך
+  if (filterProp === 'קורל_תיווך') {
+    // Clear everything and show only brokerage
+    Object.keys(byCompany).forEach(k => delete byCompany[k]);
+  }
+
+  // Add קורל תיווך
+  const brokMonth = getBrokerageTotal(month);
+  if (brokMonth > 0 && !filterProp && !filterClient) {
+    const brokEntry = BROKERAGE.find(b=>b.month===month);
+    byCompany['קורל_תיווך'] = {
+      company: 'קורל ב. פרויקטים — תיווך עובדים',
+      lines: [{label: `תיווך — ${(brokEntry||{workers:0}).workers||0} עובדים × ${(brokEntry||{rate:200}).rate||200} ₪`, people:0, d:days, days, amount:brokMonth, isPartial:false}],
+      total: brokMonth, isFixed: true
+    };
+  }
 
   const companies = Object.values(byCompany).sort((a,b)=>b.total-a.total);
   const grand = companies.reduce((s,c)=>s+c.total,0);
@@ -3441,26 +3474,30 @@ function renderPropsSheet() {
     rows.forEach((row, rowIdx) => {
       const vals = months.map(m => {
         const h = HISTORY.find(x=>x.month===m&&x.prop===prop);
-        if (!h) return null;
-        if (row.calc) return h.income - h.rent - (h.electric||0) - (h.water||0) - (h.arnona||0) - (h.other||0);
-        return h[row.key] || 0;
+        const pl = getPropPL(prop, m);
+        if (row.calc) { const v = h ? h.income-h.rent-(h.electric||0)-(h.water||0)-(h.arnona||0)-(h.other||0) : pl.profit; return {v, est:!h}; }
+        if (h) return {v:h[row.key]||0, est:false};
+        const em={income:pl.income,rent:pl.rent,electric:pl.electric||0,water:pl.water||0,arnona:pl.arnona||0,other:0};
+        return {v:em[row.key]||0, est:true};
       });
 
-      const total = vals.reduce((s,v)=>s+(v||0), 0);
-      const hasData = vals.some(v=>v!==null);
+      const total = vals.reduce((s,x)=>s+(x&&x.v?x.v:0), 0);
+      const hasData = vals.some(x=>x&&x.v);
       if (!hasData && !row.calc) return;
+      const anyEst = vals.some(x=>x&&x.est);
 
       const rowBg = row.bold ? 'background:var(--bg3)' : (rowIdx%2===0?'':'background:var(--bg2)');
 
       html += `<tr style="${rowBg}">
         <td style="padding:9px 14px;font-size:13px;color:var(--text2);border-bottom:0.5px solid var(--border);${row.bold?'font-weight:600':''}">
-          ${row.label}
+          ${row.label}${anyEst?' <span style="font-size:10px;color:#e8a030" title="לפי דשבורד — הכנס נתוני אמת">≈</span>':''}
         </td>
-        ${vals.map(v => {
-          if (v === null) return `<td style="padding:9px 12px;text-align:center;font-size:13px;color:var(--text3);border-bottom:0.5px solid var(--border);border-right:0.5px solid var(--border)">—</td>`;
-          const c = row.calc ? (v>=0?'#2d8a5e':'#b85a50') : (row.color||'var(--text)');
+        ${vals.map(x => {
+          if (!x || x.v===null) return `<td style="padding:9px 12px;text-align:center;font-size:13px;color:var(--text3);border-bottom:0.5px solid var(--border);border-right:0.5px solid var(--border)">—</td>`;
+          const c = row.calc ? (x.v>=0?'#2d8a5e':'#b85a50') : (row.color||'var(--text)');
           const fw = row.bold ? 'font-weight:600' : '';
-          return `<td style="padding:9px 12px;text-align:center;font-size:13px;color:${c};${fw};border-bottom:0.5px solid var(--border);border-right:0.5px solid var(--border)">${v!==0?Math.round(v).toLocaleString('he-IL')+' ₪':'—'}</td>`;
+          const op = x.est ? 'opacity:0.75;font-style:italic' : '';
+          return `<td style="padding:9px 12px;text-align:center;font-size:13px;color:${c};${fw};${op};border-bottom:0.5px solid var(--border);border-right:0.5px solid var(--border)">${x.v?Math.round(x.v).toLocaleString('he-IL')+' ₪'+(x.est?' ≈':''):'—'}</td>`;
         }).join('')}
         <td style="padding:9px 12px;text-align:center;font-size:13px;font-weight:600;color:${row.calc?(total>=0?'#2d8a5e':'#b85a50'):(row.color||'var(--text)')};border-bottom:0.5px solid var(--border);background:var(--bg2)">
           ${total?Math.round(total).toLocaleString('he-IL')+' ₪':'—'}
