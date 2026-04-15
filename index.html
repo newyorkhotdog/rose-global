@@ -817,7 +817,9 @@ textarea { resize: vertical; min-height: 70px; }
 
   <div id="hist-chart-view">
     <div id="hist-chart-container" class="card" style="margin-bottom:16px">
-      <canvas id="hist-chart" style="max-height:320px"></canvas>
+      <div style="position:relative;height:320px">
+        <canvas id="hist-chart"></canvas>
+      </div>
     </div>
     <div id="hist-summary-cards" class="metrics" style="margin-bottom:20px"></div>
   </div>
@@ -3101,7 +3103,7 @@ function renderHistChart() {
     },
     options: {
       responsive: true,
-      maintainAspectRatio: true,
+      maintainAspectRatio: false,
       animation: { duration: 0 },
       plugins: {
         legend: { position: 'top', labels: { font: { family: 'Heebo' } } },
@@ -3473,16 +3475,17 @@ function getFullMonthPL(month) {
 }
 
 function getQuarterPL(quarter) {
-  let income=0, propExpenses=0, general=0;
+  let income=0, propExpenses=0, general=0, yoadExp=0;
   quarter.months.forEach(m => {
     const pl = getFullMonthPL(m);
     income += pl.income;
     propExpenses += pl.propExpenses;
     general += pl.general;
+    yoadExp += (pl.yoadExp||0);
   });
-  const net = income - propExpenses - general;
+  const net = income - propExpenses - general - yoadExp;
   const perPartner = net / 3;
-  return { income, propExpenses, general, net, perPartner, months: quarter.months.length };
+  return { income, propExpenses, general, yoadExp, net, perPartner, months: quarter.months.length };
 }
 
 function getQuarterLabel(q) {
