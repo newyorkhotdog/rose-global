@@ -2019,17 +2019,21 @@ function renderBilling(){
         const startDay = entryDate >= mStart ? entryDate.getDate() : 1;
 
         // Check exit date — look for exit movement in this month
+        // Match company loosely (שיק סין vs שיק צין etc.)
+        const companyMatch = (a,b) => a===b || 
+          (a&&b&&(a.includes(b)||b.includes(a)||
+          (a.replace(/סין|צין/g,'שיק')===b.replace(/סין|צין/g,'שיק'))));
         const exitMv = MOVEMENTS.find(m2=>
           m2.type==='exit' &&
           m2.prop===prop &&
           m2.floor==floor &&
           m2.room===r.r &&
-          m2.company===r.company &&
+          companyMatch(m2.company, r.company) &&
           m2.date.startsWith(month)
         );
         // Also check TENANTS with exit date this month
         const exitTenant = TENANTS.find(t=>
-          t.prop===prop && t.room===r.r && t.company===r.company &&
+          t.prop===prop && t.room===r.r && companyMatch(t.company,r.company) &&
           t.to && t.to.startsWith(month)
         );
         const exitDate = exitMv ? new Date(exitMv.date) : exitTenant ? new Date(exitTenant.to) : null;
