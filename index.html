@@ -3456,17 +3456,16 @@ function getFullMonthPL(month) {
       income += h.income;
       propExpenses += h.rent+(h.electric||0)+(h.water||0)+(h.arnona||0)+(h.other||0);
     } else {
-      // Fallback to dashboard calculation
       const pl = getPropPL(p, month);
       income += pl.income;
       propExpenses += pl.rent + pl.utilTotal;
     }
   });
-  // Add brokerage income
   income += getBrokerageTotal(month);
   const general = getGeneralTotal(month);
-  const net = income - propExpenses - general;
-  return { income, propExpenses, general, net };
+  const yoadExp = getYoadExpensesTotal(month);
+  const net = income - propExpenses - general - yoadExp;
+  return { income, propExpenses, general, yoadExp, net };
 }
 
 function getQuarterPL(quarter) {
@@ -3527,6 +3526,10 @@ function renderQuarterly() {
           <span style="color:var(--text2)">הוצאות כלליות</span>
           <span class="red">${pl.general.toLocaleString('he-IL')} ₪</span>
         </div>
+        ${pl.yoadExp>0?`<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:0.5px solid var(--border)">
+          <span style="color:var(--text2)">הוצאות יועד בשטח</span>
+          <span class="red">${pl.yoadExp.toLocaleString('he-IL')} ₪</span>
+        </div>`:''}
         <div style="display:flex;justify-content:space-between;padding:6px 0;font-weight:600">
           <span>רווח נקי</span>
           <span style="color:${isProfit?'#3a8a68':'#b85a50'};font-size:15px">${pl.net.toLocaleString('he-IL')} ₪</span>
@@ -3670,6 +3673,29 @@ function renderPropsSheet() {
 
     html += '</tbody></table></div></div>';
   });
+
+  // Add יועד expenses summary
+  const allMonthsForYoad = [...new Set([...PROP_MONTHS, ...HISTORY.map(h=>h.month)])].sort();
+  const yoadMonths = filterMonth ? [filterMonth] : allMonthsForYoad;
+  const yoadTotals = yoadMonths.map(m=>getYoadExpensesTotal(m));
+  const anyYoad = yoadTotals.some(v=>v>0);
+  if (!filterProp && anyYoad) {
+    html += `<div style="border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-top:8px">
+      <div style="background:#fff3e0;padding:10px 16px;font-size:14px;font-weight:600;border-bottom:1px solid var(--border);color:#c07330">📋 הוצאות יועד בשטח</div>
+      <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse">
+        <thead><tr style="background:var(--bg3)">
+          <th style="padding:9px 14px;text-align:right;font-size:12px;color:var(--text2);border-bottom:1px solid var(--border);min-width:130px">סעיף</th>
+          ${yoadMonths.map(m=>`<th style="padding:9px 12px;text-align:center;font-size:12px;color:var(--text2);border-bottom:1px solid var(--border);border-right:0.5px solid var(--border);min-width:100px">${getMonthShort(m)}</th>`).join('')}
+          <th style="padding:9px 12px;text-align:center;font-size:12px;font-weight:600;border-bottom:1px solid var(--border);border-right:0.5px solid var(--border);min-width:90px;background:var(--bg2)">סה"כ</th>
+        </tr></thead>
+        <tbody><tr>
+          <td style="padding:9px 14px;font-size:13px;color:var(--text2)">📋 הוצאות יועד</td>
+          ${yoadTotals.map(v=>`<td style="padding:9px 12px;text-align:center;font-size:13px;color:#b85a50;border-right:0.5px solid var(--border)">${v?v.toLocaleString('he-IL')+' ₪':'—'}</td>`).join('')}
+          <td style="padding:9px 12px;text-align:center;font-size:13px;font-weight:600;color:#b85a50;background:var(--bg2)">${yoadTotals.reduce((s,v)=>s+v,0).toLocaleString('he-IL')} ₪</td>
+        </tr></tbody>
+      </table></div>
+    </div>`;
+  }
 
   html += '</div>';
   document.getElementById('hist-props-content').innerHTML = html;
