@@ -820,8 +820,8 @@ textarea { resize: vertical; min-height: 70px; }
       <canvas id="hist-chart" style="max-height:320px"></canvas>
     </div>
     <div id="hist-summary-cards" class="metrics" style="margin-bottom:20px"></div>
-    <div id="hist-quarterly"></div>
   </div>
+  <div id="hist-quarterly"></div>
 
   <div id="hist-table-view" style="display:none"></div>
 
@@ -3080,7 +3080,8 @@ function renderHistChart() {
   const months = [...new Set(HISTORY.map(h=>h.month))].sort();
   const incomes = months.map(m=>getMonthTotals(m).income);
   const expenses = months.map(m=>getMonthTotals(m).expenses);
-  const profits = months.map(m=>getMonthTotals(m).profit);
+  const yoadExps = months.map(m=>getYoadExpensesTotal(m));
+  const profits = months.map(m=>getMonthTotals(m).profit - getYoadExpensesTotal(m));
   const labels = months.map(getMonthLabel);
 
   const ctx = document.getElementById('hist-chart');
@@ -3093,12 +3094,15 @@ function renderHistChart() {
       labels,
       datasets: [
         { label: 'הכנסות', data: incomes, backgroundColor: 'rgba(52,211,153,0.7)', borderColor: '#34d399', borderWidth: 1 },
-        { label: 'הוצאות', data: expenses, backgroundColor: 'rgba(248,113,113,0.7)', borderColor: '#f87171', borderWidth: 1 },
-        { label: 'רווח גולמי', data: profits, type: 'line', borderColor: '#8b7fd4', backgroundColor: 'rgba(139,127,212,0.1)', tension: 0.3, borderWidth: 2, pointRadius: 4 },
+        { label: 'הוצאות נכסים', data: expenses, backgroundColor: 'rgba(248,113,113,0.7)', borderColor: '#f87171', borderWidth: 1 },
+        { label: 'הוצאות יועד', data: yoadExps, backgroundColor: 'rgba(184,135,58,0.7)', borderColor: '#b8873a', borderWidth: 1 },
+        { label: 'רווח נקי', data: profits, type: 'line', borderColor: '#8b7fd4', backgroundColor: 'rgba(139,127,212,0.1)', tension: 0.3, borderWidth: 2, pointRadius: 4 },
       ]
     },
     options: {
       responsive: true,
+      maintainAspectRatio: true,
+      animation: { duration: 0 },
       plugins: {
         legend: { position: 'top', labels: { font: { family: 'Heebo' } } },
         tooltip: { callbacks: { label: ctx => ctx.dataset.label+': '+Math.round(ctx.raw).toLocaleString('he-IL')+' ₪' } }
