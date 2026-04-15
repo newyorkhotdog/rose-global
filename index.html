@@ -264,7 +264,7 @@ textarea { resize: vertical; min-height: 70px; }
   <div class="nav-item" onclick="nav('movements',this)"><span class="nav-icon">🔄</span> תנועות</div>
   <div class="nav-item" onclick="nav('billing',this)"><span class="nav-icon">💳</span> חשבוניות</div>
   <div class="nav-item" onclick="nav('tasks',this)" id="nav-tasks"><span class="nav-icon">🔧</span> תקלות ותפעול <span class="nav-badge" id="tasks-badge">0</span></div>
-  <div class="nav-item" onclick="nav('expenses',this)"><span class="nav-icon">📋</span> הוצאות</div>
+  <div class="nav-item" onclick="nav('expenses',this)"><span class="nav-icon">📋</span> הוצאות יועד</div>
   <div class="nav-item" onclick="nav('clients',this)"><span class="nav-icon">👥</span> לקוחות</div>
   <div class="nav-item" onclick="nav('history',this)"><span class="nav-icon">📈</span> רווח והפסד</div>
   <div class="nav-item" onclick="nav('brokerage',this)"><span class="nav-icon">🤝</span> תיווך</div>
@@ -285,7 +285,7 @@ textarea { resize: vertical; min-height: 70px; }
   <div class="nav-item" onclick="nav('movements',this)">🔄 תנועות</div>
   <div class="nav-item" onclick="nav('billing',this)">💳 חשבוניות</div>
   <div class="nav-item" onclick="nav('tasks',this)">🔧 תקלות</div>
-  <div class="nav-item" onclick="nav('expenses',this)">📋 הוצאות</div>
+  <div class="nav-item" onclick="nav('expenses',this)">📋 הוצאות יועד</div>
   <div class="nav-item" onclick="nav('clients',this)">👥 לקוחות</div>
   <div class="nav-item" onclick="nav('history',this)">📈 רווח והפסד</div>
   <div class="nav-item" onclick="nav('brokerage',this)">🤝 תיווך</div>
@@ -628,11 +628,27 @@ textarea { resize: vertical; min-height: 70px; }
 
 <!-- EXPENSES -->
 <div id="page-expenses" class="page">
-  <div class="page-title">ניהול הוצאות</div>
-  <div class="page-sub">הוצאות תפעוליות (לא כולל שכירות נכסים)</div>
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-    <div class="metrics" id="exp-metrics" style="margin:0;flex:1"></div>
-    <button class="btn btn-primary btn-sm" style="margin-right:12px;flex-shrink:0" onclick="toggleExpForm()">+ הוצאה</button>
+  <div class="page-title">הוצאות יועד</div>
+  <div class="page-sub">הוצאות תפעוליות שיועד מוציא בשטח</div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <div class="metrics" id="exp-metrics" style="margin:0"></div>
+      <select id="exp-filter-month" onchange="renderExpenses()" style="width:auto;font-size:13px">
+        <option value="">כל החודשים</option>
+        <option value="2026-04">אפריל 2026</option>
+        <option value="2026-03">מרץ 2026</option>
+        <option value="2026-02">פברואר 2026</option>
+        <option value="2026-01">ינואר 2026</option>
+        <option value="2025-12">דצמבר 2025</option>
+        <option value="2025-11">נובמבר 2025</option>
+      </select>
+      <select id="exp-filter-prop" onchange="renderExpenses()" style="width:auto;font-size:13px">
+        <option value="">כל הנכסים</option>
+        <option>כללי</option><option>לבנדה 32</option><option>עזאי 38</option>
+        <option>נתן הנביא 42</option><option>הירקון 41 ב"ב</option><option>חיים בר לב 104</option>
+      </select>
+    </div>
+    <button class="btn btn-primary btn-sm" onclick="toggleExpForm()">+ הוצאה</button>
   </div>
   <div id="exp-add-form" style="display:none" class="card" style="margin-bottom:16px">
     <div class="card-title">הוצאה חדשה</div>
@@ -1385,10 +1401,11 @@ function getTotalPL(month) {
     if (pl.isEstimated) hasEstimates = true;
   });
   const general = getGeneralTotal(month);
+  const yoadExp = getYoadExpensesTotal(month);
   const brokerageIncome = getBrokerageTotal(month);
   const grossProfit = totalIncome + brokerageIncome - totalRent - totalUtil;
-  const netProfit = grossProfit - general;
-  return { totalIncome, totalRent, totalUtil, general, grossProfit, netProfit, hasEstimates, brokerageIncome };
+  const netProfit = grossProfit - general - yoadExp;
+  return { totalIncome, totalRent, totalUtil, general, yoadExp, grossProfit, netProfit, hasEstimates, brokerageIncome };
 }
 
 function renderDashboard() {
@@ -1410,6 +1427,7 @@ function renderDashboard() {
     <div class="metric"><div class="metric-label">חשמל/מים/ארנונה</div><div class="metric-value red">${fmt(pl.totalUtil)} ₪</div><div class="metric-sub">${pl.hasEstimates?'<span style="color:var(--amber)">כולל הערכה</span>':'נתוני אמת'}</div></div>
     <div class="metric"><div class="metric-label">רווח גולמי</div><div class="metric-value ${pl.grossProfit>=0?'green':'red'}">${fmt(pl.grossProfit)} ₪</div></div>
     <div class="metric"><div class="metric-label">הוצאות כלליות</div><div class="metric-value red">${fmt(pl.general)} ₪</div><div class="metric-sub">יועד+עו"ד+הנח"ש</div></div>
+    <div class="metric"><div class="metric-label">הוצאות יועד בשטח</div><div class="metric-value red">${fmt(pl.yoadExp)} ₪</div><div class="metric-sub">${EXPENSES.filter(e=>e.date&&e.date.startsWith(month)).length} פריטים</div></div>
     <div class="metric"><div class="metric-label">רווח נקי</div><div class="metric-value ${pl.netProfit>=0?'green':'red'}">${fmt(pl.netProfit)} ₪</div><div class="metric-sub">${pl.hasEstimates?'<span style="color:var(--amber)">כולל הערכות</span>':'נתוני אמת'}</div></div>
     <div class="metric"><div class="metric-label">תקלות פתוחות</div><div class="metric-value ${openTasks>5?'red':'amber'}">${openTasks}</div><div class="metric-sub">${TASKS.filter(t=>!t.done&&t.priority==='urgent').length} דחופות</div></div>
   `;
@@ -2291,15 +2309,17 @@ function addExpense(){
 function delExpense(id){EXPENSES.splice(EXPENSES.findIndex(e=>e.id===id),1);renderExpenses();}
 
 function renderExpenses(){
-  const total=EXPENSES.reduce((s,e)=>s+e.total,0);
-  const byProp={};
-  EXPENSES.forEach(e=>{byProp[e.prop]=(byProp[e.prop]||0)+e.total;});
+  const fm=(document.getElementById('exp-filter-month')||{}).value||'';
+  const fp=(document.getElementById('exp-filter-prop')||{}).value||'';
+  const filtered=EXPENSES.filter(e=>(!fm||e.date.startsWith(fm))&&(!fp||e.prop===fp));
+  const total=filtered.reduce((s,e)=>s+e.total,0);
+  const totalAll=EXPENSES.reduce((s,e)=>s+e.total,0);
   document.getElementById('exp-metrics').innerHTML=`
-    <div class="metric"><div class="metric-label">סה"כ הוצאות</div><div class="metric-value red">${fmt(total)} ₪</div></div>
-    ${Object.entries(byProp).map(([p,v])=>`<div class="metric"><div class="metric-label">${p}</div><div class="metric-value">${fmt(v)} ₪</div></div>`).join('')}
+    <div class="metric"><div class="metric-label">סה"כ ${fm?'בחודש':'הוצאות'}</div><div class="metric-value red">${fmt(total)} ₪</div></div>
+    ${fm||fp?`<div class="metric"><div class="metric-label">סה"כ כולל</div><div class="metric-value">${fmt(totalAll)} ₪</div></div>`:''}
   `;
   let html='<table><thead><tr><th>תאריך</th><th>נכס</th><th>תיאור</th><th>סכום</th><th>חשבונית</th><th></th></tr></thead><tbody>';
-  [...EXPENSES].sort((a,b)=>b.date.localeCompare(a.date)).forEach(e=>{
+  [...filtered].sort((a,b)=>b.date.localeCompare(a.date)).forEach(e=>{
     html+=`<tr><td>${e.date}</td><td>${e.prop}</td><td><strong>${e.desc}</strong></td><td>${fmt(e.total)} ₪</td><td style="color:var(--text3)">${e.invoice||'—'}</td><td><button class="btn btn-sm btn-danger" onclick="delExpense(${e.id})">מחק</button></td></tr>`;
   });
   html+='</tbody></table>';
@@ -3323,6 +3343,11 @@ function saveGeneralExpenses() {
   autosave();
   renderHgExisting();
   showSaveIndicator('✓ הוצאות כלליות נשמרו');
+}
+
+function getYoadExpensesTotal(month) {
+  // Sum of EXPENSES for the month (יועד field expenses)
+  return EXPENSES.filter(e=>e.date&&e.date.startsWith(month)).reduce((s,e)=>s+e.total,0);
 }
 
 function getGeneralTotal(month) {
