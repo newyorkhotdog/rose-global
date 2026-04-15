@@ -2054,6 +2054,61 @@ function renderBilling(){
     });
   });
 
+  // Add pro-rata charges for EXIT movements in this month
+  MOVEMENTS.filter(m=>m.type==='exit'&&m.date.startsWith(month)).forEach(mv => {
+    if (filterProp && mv.prop !== filterProp) return;
+    if (filterProp === 'קורל_תיווך') return;
+    if (FIXED_COSTS[mv.prop]) return; // fixed price props don't need pro-rata exit
+    // Get room price from MAP_DATA or use default
+    const mapProp = MAP_DATA[mv.prop];
+    let price = PRICE;
+    if (mapProp) {
+      const floorRooms = mapProp.floors[mv.floor] || mapProp.floors[String(mv.floor)] || [];
+      const mapRoom = floorRooms.find(r=>r.r===mv.room);
+      if (mapRoom && mapRoom.price) price = mapRoom.price;
+    }
+    // Check if this exit company is already billed for this room this month
+    // (i.e. they appear in MAP_DATA currently for this room)
+    const alreadyBilled = Object.values(MAP_DATA[mv.prop]?.floors||{})
+      .flat().some(r=>r.r===mv.room&&r.company===mv.company);
+    if (alreadyBilled) return; // already handled in main loop
+
+    const exitDate = new Date(mv.date);
+    const endDay = exitDate.getDate();
+    // Check entry date for this tenant
+    const entryMv = MOVEMENTS.filter(m2=>
+      m2.type==='entry'&&m2.prop===mv.prop&&m2.room===mv.room&&
+      m2.company===mv.company&&m2.date<=mv.date
+    ).sort((a,b)=>b.date.localeCompare(a.date))[0];
+    const entryInMonth = entryMv && entryMv.date.startsWith(month);
+    const startDay = entryInMonth ? new Date(entryMv.date).getDate() : 1;
+    const d = endDay - startDay + 1;
+    if (d <= 0) return;
+    const amount = Math.round(mv.people * price * d / days);
+    // Find company group
+    const getGrp = c => {
+      if(!c) return c;
+      if(c.includes('שיק סין')||c.includes('שיק צין')) return 'שיק_סין';
+      if(c.includes('יער')||c.includes('י.ע.ר')) return 'יער';
+      if(c.includes('שמרית')) return 'שמרית';
+      if(c.includes('בינה')) return 'בינה';
+      if(c.includes('ניו פאוור')||c.includes('מגיק פאוור')) return 'ניו_מגיק';
+      if(c.includes('ח.ח.א')) return 'ח.ח.א';
+      if(c.includes('קורפו')) return 'קורפו';
+      if(c.includes('משביר')) return 'משביר יעקב';
+      if(c.includes('קורל')) return 'קורל';
+      return c;
+    };
+    const grp = getGrp(mv.company);
+    if (filterClient && grp !== filterClient) return;
+    if (!byCompany[grp]) byCompany[grp] = {company: mv.company, lines:[], total:0, isFixed:false};
+    byCompany[grp].lines.push({
+      label: `ק${mv.floor} ח${mv.room} — ${mv.prop} (יציאה ${endDay}/${exitDate.getMonth()+1})`,
+      people: mv.people, d, days, amount, isPartial: true
+    });
+    byCompany[grp].total += amount;
+  });
+
   // Add חיים בר לב 104 under ח.ח.א
   const hblVisible = (!filterProp || filterProp === 'חיים בר לב 104') &&
                      (!filterClient || filterClient === 'ח.ח.א');
