@@ -3393,11 +3393,15 @@ function renderHgExisting() {
           <div class="form-group"><label>הנהלת חשבונות ₪</label>
             <input type="number" id="hge-acc-${mid}" value="${g.accountant||0}"></div>
         </div>
+        <div id="hge-extra-rows-${mid}">
         ${(g.extra||[]).map((e,i)=>`
-        <div style="display:flex;gap:8px;margin-bottom:6px">
+        <div style="display:flex;gap:8px;margin-bottom:6px" id="hge-row-${mid}-${i}">
           <input placeholder="תיאור" value="${e.desc}" id="hge-edesc-${mid}-${i}" style="flex:1">
           <input type="number" placeholder="סכום" value="${e.amount}" id="hge-eamt-${mid}-${i}" style="width:90px">
+          <button onclick="document.getElementById('hge-row-${mid}-${i}').remove()" class="btn btn-sm btn-danger" style="padding:4px 8px">✕</button>
         </div>`).join('')}
+        </div>
+        <button onclick="addHgeExtraRow('${mid}')" class="btn btn-sm" style="margin-bottom:8px">+ שורה</button>
         <div class="btn-row" style="margin-top:8px">
           <button onclick="saveHgInline('${m}')" class="btn btn-primary btn-sm">שמור</button>
           <button onclick="toggleHgInlineEdit('${m}')" class="btn btn-sm">ביטול</button>
@@ -3407,6 +3411,20 @@ function renderHgExisting() {
   });
   const el = document.getElementById('hg-existing');
   if(el) el.innerHTML = html||'<div style="color:var(--text3);font-size:13px;padding:1rem">אין רשומות עדיין</div>';
+}
+
+function addHgeExtraRow(mid) {
+  const container = document.getElementById('hge-extra-rows-'+mid);
+  if (!container) return;
+  const i = 'new'+Date.now();
+  const div = document.createElement('div');
+  div.style.cssText = 'display:flex;gap:8px;margin-bottom:6px';
+  div.id = 'hge-row-'+mid+'-'+i;
+  div.innerHTML = `
+    <input placeholder="תיאור" style="flex:1">
+    <input type="number" placeholder="סכום" style="width:90px">
+    <button onclick="this.closest('div').remove()" class="btn btn-sm btn-danger" style="padding:4px 8px">✕</button>`;
+  container.appendChild(div);
 }
 
 function toggleHgInlineEdit(month) {
@@ -3426,11 +3444,18 @@ function saveHgInline(month) {
   g.yoad = parseFloat(document.getElementById('hge-yoad-'+mid).value)||0;
   g.lawyer = parseFloat(document.getElementById('hge-lawyer-'+mid).value)||0;
   g.accountant = parseFloat(document.getElementById('hge-acc-'+mid).value)||0;
-  // Extra rows
-  g.extra = (g.extra||[]).map((e,i)=>({
-    desc: (document.getElementById('hge-edesc-'+mid+'-'+i)||{}).value||e.desc,
-    amount: parseFloat((document.getElementById('hge-eamt-'+mid+'-'+i)||{}).value)||e.amount
-  }));
+  // Extra rows - read all remaining rows
+  const extraContainer = document.getElementById('hge-extra-rows-'+mid);
+  g.extra = [];
+  if (extraContainer) {
+    extraContainer.querySelectorAll('[id^="hge-row-'+mid+'"]').forEach(row => {
+      const descEl = row.querySelector('input[placeholder="תיאור"]');
+      const amtEl = row.querySelector('input[type="number"]');
+      const desc = descEl ? descEl.value.trim() : '';
+      const amount = amtEl ? parseFloat(amtEl.value)||0 : 0;
+      if (desc || amount) g.extra.push({desc, amount});
+    });
+  }
   autosave();
   renderHgExisting();
   showSaveIndicator('✓ נשמר');
