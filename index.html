@@ -2012,17 +2012,36 @@ function renderBilling(){
           };
           if (getGroup(r.company) !== filterClient) return;
         }
-        // Check if this tenant existed in this month via TENANTS array
+        // Check entry date
         const tenant = TENANTS.find(t=>t.prop===prop&&t.room===r.r&&t.company===r.company&&!t.to);
         let entryDate = tenant ? new Date(tenant.from) : mStart;
         if (entryDate > mEnd) return;
         const startDay = entryDate >= mStart ? entryDate.getDate() : 1;
-        const d = days - startDay + 1;
+
+        // Check exit date — look for exit movement in this month
+        const exitMv = MOVEMENTS.find(m2=>
+          m2.type==='exit' &&
+          m2.prop===prop &&
+          m2.room===Number(floor) &&  // floor is the room's floor here
+          m2.company===r.company &&
+          m2.date.startsWith(month)
+        );
+        // Also check TENANTS with exit date this month
+        const exitTenant = TENANTS.find(t=>
+          t.prop===prop && t.room===r.r && t.company===r.company &&
+          t.to && t.to.startsWith(month)
+        );
+        const exitDate = exitMv ? new Date(exitMv.date) : exitTenant ? new Date(exitTenant.to) : null;
+        const endDay = exitDate ? exitDate.getDate() : days;
+
+        const d = endDay - startDay + 1;
         const isPartial = d < days;
         const amount = Math.round(r.people * r.price * d / days);
+        if (d <= 0) return; // already left before month started
         if (!byCompany[r.company]) byCompany[r.company] = {company:r.company, lines:[], total:0, isFixed:false};
+        const exitNote = exitDate ? ` (יציאה ${exitDate.getDate()}/${exitDate.getMonth()+1})` : '';
         byCompany[r.company].lines.push({
-          label:`ק${floor} ח${r.r} — ${prop}`,
+          label:`ק${floor} ח${r.r} — ${prop}${exitNote}`,
           people:r.people, d, days, amount, isPartial
         });
         byCompany[r.company].total += amount;
