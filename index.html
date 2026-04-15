@@ -2026,7 +2026,7 @@ function renderBilling(){
         const exitMv = MOVEMENTS.find(m2=>
           m2.type==='exit' &&
           m2.prop===prop &&
-          m2.floor==floor &&
+          (!m2.floor || m2.floor==floor) &&
           m2.room===r.r &&
           companyMatch(m2.company, r.company) &&
           m2.date.startsWith(month)
