@@ -435,6 +435,7 @@ textarea { resize: vertical; min-height: 70px; }
       <select id="mv-filter-type" onchange="renderMovements()" style="width:auto;font-size:12px"><option value="">הכל</option><option value="entry">כניסות</option><option value="exit">יציאות</option></select>
     <select id="mv-filter-month" onchange="renderMovements()" style="width:auto;font-size:12px">
       <option value="">כל החודשים</option>
+      <option value="2026-05">מאי 2026</option>
       <option value="2026-04">אפריל 2026</option>
       <option value="2026-03">מרץ 2026</option>
       <option value="2026-02">פברואר 2026</option>
@@ -453,6 +454,7 @@ textarea { resize: vertical; min-height: 70px; }
   <div class="page-sub">חישוב אוטומטי לפי ראש + פרו-ראטה לכניסות/יציאות באמצע חודש</div>
   <div style="display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap">
     <select id="bill-month" onchange="renderBilling()" style="width:auto">
+      <option value="2026-05" selected>מאי 2026</option>
       <option value="2026-04">אפריל 2026</option>
       <option value="2026-03">מרץ 2026</option>
       <option value="2026-02">פברואר 2026</option>
@@ -635,7 +637,8 @@ textarea { resize: vertical; min-height: 70px; }
       <div class="metrics" id="exp-metrics" style="margin:0"></div>
       <select id="exp-filter-month" onchange="renderExpenses()" style="width:auto;font-size:13px">
         <option value="">כל החודשים</option>
-        <option value="2026-04">אפריל 2026</option>
+        <option value="2026-05">מאי 2026</option>
+      <option value="2026-04">אפריל 2026</option>
         <option value="2026-03">מרץ 2026</option>
         <option value="2026-02">פברואר 2026</option>
         <option value="2026-01">ינואר 2026</option>
@@ -863,7 +866,8 @@ textarea { resize: vertical; min-height: 70px; }
             <option value="2026-01">ינואר 2026</option>
             <option value="2026-02">פברואר 2026</option>
             <option value="2026-03" selected>מרץ 2026</option>
-          <option value="2026-04">אפריל 2026</option>
+          <option value="2026-05">מאי 2026</option>
+      <option value="2026-04">אפריל 2026</option>
           </select>
         </div>
         <div class="form-group"><label>שכר יועד (₪)</label>
@@ -903,7 +907,8 @@ textarea { resize: vertical; min-height: 70px; }
           <option value="2026-01">ינואר 2026</option>
           <option value="2026-02">פברואר 2026</option>
           <option value="2026-03">מרץ 2026</option>
-          <option value="2026-04">אפריל 2026</option>
+          <option value="2026-05">מאי 2026</option>
+      <option value="2026-04">אפריל 2026</option>
         </select>
       </div>
       <button onclick="addHistEntryRow()" class="btn btn-sm" style="margin-bottom:1px">+ הוסף שורה</button>
@@ -977,7 +982,8 @@ textarea { resize: vertical; min-height: 70px; }
     <div class="form-grid" style="margin-bottom:12px">
       <div class="form-group"><label>חודש</label>
         <select id="brok-month">
-          <option value="2026-04">אפריל 2026</option>
+          <option value="2026-05">מאי 2026</option>
+      <option value="2026-04">אפריל 2026</option>
           <option value="2026-03">מרץ 2026</option>
           <option value="2026-02">פברואר 2026</option>
           <option value="2026-01">ינואר 2026</option>
@@ -3628,7 +3634,7 @@ function populateClientSelects() {
 }
 
 // ============ PROPERTY SHEET ============
-const PROP_MONTHS = ['2025-11','2025-12','2026-01','2026-02','2026-03','2026-04'];
+const PROP_MONTHS = ['2025-11','2025-12','2026-01','2026-02','2026-03','2026-04','2026-05'];
 const PROP_NAMES_LIST = ['לבנדה 32','עזאי 38','נתן הנביא 42','הירקון 41 ב"ב','חיים בר לב 104'];
 
 function getMonthShort(m) {
@@ -4603,7 +4609,7 @@ document.addEventListener('click', e=>{
   if(modal && e.target===modal) modal.style.display='none';
 });
 
-const MONTHS_LIST = ['2025-11','2025-12','2026-01','2026-02','2026-03','2026-04'];
+const MONTHS_LIST = ['2025-11','2025-12','2026-01','2026-02','2026-03','2026-04','2026-05'];
 const PROPS_LIST = ['לבנדה 32','עזאי 38','נתן הנביא 42','הירקון 41 ב"ב','חיים בר לב 104'];
 
 function renderHistEntryTable() {
