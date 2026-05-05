@@ -263,6 +263,7 @@ textarea { resize: vertical; min-height: 70px; }
   <div class="nav-item" onclick="nav('tenants',this)"><span class="nav-icon">🏠</span> דיירים וחדרים</div>
   <div class="nav-item" onclick="nav('movements',this)"><span class="nav-icon">🔄</span> תנועות</div>
   <div class="nav-item" onclick="nav('billing',this)"><span class="nav-icon">💳</span> חשבוניות</div>
+  <div class="nav-item" onclick="nav('invoicetrack',this)"><span class="nav-icon">📑</span> מעקב חשבוניות <span class="nav-badge" id="invtrack-badge" style="background:#e8a030">0</span></div>
   <div class="nav-item" onclick="nav('tasks',this)" id="nav-tasks"><span class="nav-icon">🔧</span> תקלות ותפעול <span class="nav-badge" id="tasks-badge">0</span></div>
   <div class="nav-item" onclick="nav('expenses',this)"><span class="nav-icon">📋</span> הוצאות יועד</div>
   <div class="nav-item" onclick="nav('clients',this)"><span class="nav-icon">👥</span> לקוחות</div>
@@ -284,6 +285,7 @@ textarea { resize: vertical; min-height: 70px; }
   <div class="nav-item" onclick="nav('tenants',this)">🏠 דיירים</div>
   <div class="nav-item" onclick="nav('movements',this)">🔄 תנועות</div>
   <div class="nav-item" onclick="nav('billing',this)">💳 חשבוניות</div>
+  <div class="nav-item" onclick="nav('invoicetrack',this)">📑 מעקב</div>
   <div class="nav-item" onclick="nav('tasks',this)">🔧 תקלות</div>
   <div class="nav-item" onclick="nav('expenses',this)">📋 הוצאות יועד</div>
   <div class="nav-item" onclick="nav('clients',this)">👥 לקוחות</div>
@@ -1105,6 +1107,33 @@ textarea { resize: vertical; min-height: 70px; }
   <!-- Leads board -->
   <div id="leads-board"></div>
 </div>
+<div id="page-invoicetrack" class="page">
+  <div class="page-title">מעקב חשבוניות ותשלומים 📑</div>
+  <div class="page-sub">האם מירי הוציאה חשבונית? האם הלקוח שילם?</div>
+
+  <!-- Filters -->
+  <div style="display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap">
+    <select id="invtrack-month" onchange="renderInvTrack()" style="width:auto;font-size:13px">
+      <option value="2026-05">מאי 2026</option>
+      <option value="2026-04">אפריל 2026</option>
+      <option value="2026-03">מרץ 2026</option>
+      <option value="2026-02">פברואר 2026</option>
+      <option value="2026-01">ינואר 2026</option>
+      <option value="2025-12">דצמבר 2025</option>
+      <option value="2025-11">נובמבר 2025</option>
+    </select>
+    <select id="invtrack-filter" onchange="renderInvTrack()" style="width:auto;font-size:13px">
+      <option value="">הכל</option>
+      <option value="pending">חשבונית לא יצאה</option>
+      <option value="issued">יצאה — ממתין לתשלום</option>
+      <option value="paid">שולם ✅</option>
+    </select>
+    <div id="invtrack-summary" style="font-size:13px;color:var(--text2);margin-right:auto"></div>
+  </div>
+
+  <!-- Table -->
+  <div id="invtrack-board"></div>
+</div>
 </main>
 </div>
 
@@ -1275,6 +1304,7 @@ function nav(page, el) {
   if (page==='history') renderHistory();
   if (page==='brokerage') renderBrokerage();
   if (page==='leads') { renderLeads(); updateLeadsBadge(); }
+  if (page==='invoicetrack') { renderInvTrack(); }
   if (page==='map-lavanda') renderLavanda();
   if (page==='map-hirkon') renderHirkon();
 }
@@ -2910,6 +2940,7 @@ function getDataSnapshot() {
   return {
     HISTORY: JSON.parse(JSON.stringify(HISTORY)),
     GENERAL_EXPENSES: JSON.parse(JSON.stringify(GENERAL_EXPENSES)),
+    INVOICE_TRACK: JSON.parse(JSON.stringify(INVOICE_TRACK)),
     DUDU_TASKS: JSON.parse(JSON.stringify(DUDU_TASKS)),
     LEADS: JSON.parse(JSON.stringify(LEADS)),
     BROKERAGE: JSON.parse(JSON.stringify(BROKERAGE)),
@@ -2929,6 +2960,7 @@ function getDataSnapshot() {
 function applyData(data) {
   if (!data) return false;
   try {
+    if (data.INVOICE_TRACK) { INVOICE_TRACK.length=0; INVOICE_TRACK.push(...data.INVOICE_TRACK); }
     if (data.DUDU_TASKS) {
       DUDU_TASKS.length=0; DUDU_TASKS.push(...data.DUDU_TASKS);
       const maxDId = Math.max(0,...data.DUDU_TASKS.map(t=>Number(t.id)||0));
@@ -4427,6 +4459,199 @@ function renderRemindersDashboard() {
   }
 
   el.innerHTML = html;
+}
+
+
+// ============ INVOICE TRACKING ============
+const INVOICE_TRACK = []; // {month, client, amount, issued, paid, issuedDate, paidDate}
+
+function getInvTrackKey(month, client) { return month+'__'+client; }
+
+function getOrCreateTrack(month, client, amount) {
+  let rec = INVOICE_TRACK.find(r=>r.month===month&&r.client===client);
+  if (!rec) {
+    rec = {month, client, amount, issued:false, paid:false, issuedDate:'', paidDate:''};
+    INVOICE_TRACK.push(rec);
+  }
+  return rec;
+}
+
+function toggleInvIssued(month, client) {
+  const rec = INVOICE_TRACK.find(r=>r.month===month&&r.client===client);
+  if (!rec) return;
+  rec.issued = !rec.issued;
+  if (!rec.issued) { rec.paid = false; rec.paidDate = ''; }
+  rec.issuedDate = rec.issued ? new Date().toISOString().split('T')[0] : '';
+  autosave();
+  renderInvTrack();
+  updateInvTrackBadge();
+}
+
+function toggleInvPaid(month, client) {
+  const rec = INVOICE_TRACK.find(r=>r.month===month&&r.client===client);
+  if (!rec || !rec.issued) return;
+  rec.paid = !rec.paid;
+  rec.paidDate = rec.paid ? new Date().toISOString().split('T')[0] : '';
+  autosave();
+  renderInvTrack();
+  updateInvTrackBadge();
+}
+
+function updateInvTrackBadge() {
+  const month = (document.getElementById('invtrack-month')||{}).value || getCurrentMonth();
+  const pending = INVOICE_TRACK.filter(r=>r.month===month&&(!r.issued||!r.paid)).length;
+  const el = document.getElementById('invtrack-badge');
+  if(el) el.textContent = pending||'';
+}
+
+function getBillingClientsForMonth(month) {
+  // Get all clients and amounts from billing calculation for this month
+  const [yr,mo] = month.split('-').map(Number);
+  const days = new Date(yr,mo,0).getDate();
+  const clients = [];
+
+  // Fixed price props
+  Object.keys(FIXED_COSTS).forEach(prop => {
+    const inc = FIXED_COSTS[prop].income||0;
+    if(inc) clients.push({client: prop+' (פיקס)', amount: inc});
+  });
+
+  // Per-head props
+  const groups = {};
+  Object.keys(MAP_DATA).forEach(prop => {
+    if(FIXED_COSTS[prop]) return;
+    if(prop === 'חיים בר לב 104') return;
+    Object.values(MAP_DATA[prop].floors||{}).forEach(rooms => {
+      rooms.forEach(r => {
+        if(!r.company||r.people<=0) return;
+        const g = getGroup(r.company);
+        if(!groups[g]) groups[g]=0;
+        groups[g] += r.people*(r.price||PRICE);
+      });
+    });
+  });
+  Object.entries(groups).forEach(([g,amt])=>clients.push({client:g, amount:amt}));
+
+  // ח.ח.א + חיים בר לב
+  if(!groups['ח.ח.א']) clients.push({client:'ח.ח.א', amount:15000});
+  else {
+    const idx = clients.findIndex(c=>c.client==='ח.ח.א');
+    if(idx>=0) clients[idx].amount += 15000;
+  }
+
+  // קורל תיווך
+  const brok = getBrokerageTotal(month);
+  if(brok>0) clients.push({client:'קורל — תיווך', amount:brok});
+
+  // Exit movements pro-rata
+  MOVEMENTS.filter(m=>m.type==='exit'&&m.date.startsWith(month)).forEach(mv=>{
+    if(FIXED_COSTS[mv.prop]) return;
+    const mapProp = MAP_DATA[mv.prop];
+    let price = PRICE;
+    if(mapProp){
+      const fl = mapProp.floors[mv.floor]||mapProp.floors[String(mv.floor)]||[];
+      const rm = fl.find(r=>r.r===mv.room);
+      if(rm&&rm.price) price=rm.price;
+    }
+    const exitDate = new Date(mv.date);
+    const endDay = exitDate.getDate();
+    const d = endDay;
+    const amount = Math.round(mv.people*price*d/days);
+    const g = getGroup(mv.company);
+    const existing = clients.find(c=>c.client===g);
+    if(existing) existing.amount += amount;
+    else clients.push({client:g, amount});
+  });
+
+  return clients.filter(c=>c.amount>0);
+}
+
+function getGroup(c) {
+  if(!c) return c;
+  if(c.includes('יער')||c.includes('י.ע.ר')) return 'י.ע.ר 2023';
+  if(c.includes('שמרית')) return 'שמרית';
+  if(c.includes('בינה')) return 'בינה';
+  if(c.includes('ניו פאוור')||c.includes('מגיק פאוור')) return 'ניו פאוור / מגיק';
+  if(c.includes('שיק סין')||c.includes('שיק צין')) return 'שיק סין';
+  if(c.includes('ח.ח.א')) return 'ח.ח.א';
+  if(c.includes('קורפו')) return 'קורפו';
+  if(c.includes('משביר')) return 'משביר יעקב';
+  if(c.includes('קורל')) return 'קורל — תיווך';
+  return c;
+}
+
+function renderInvTrack() {
+  const month = (document.getElementById('invtrack-month')||{}).value||getCurrentMonth();
+  const filter = (document.getElementById('invtrack-filter')||{}).value||'';
+
+  const billingClients = getBillingClientsForMonth(month);
+
+  // Ensure tracking records exist for all clients
+  billingClients.forEach(({client, amount}) => getOrCreateTrack(month, client, amount));
+
+  let rows = INVOICE_TRACK.filter(r=>r.month===month);
+  if(filter==='pending') rows = rows.filter(r=>!r.issued);
+  if(filter==='issued') rows = rows.filter(r=>r.issued&&!r.paid);
+  if(filter==='paid') rows = rows.filter(r=>r.paid);
+
+  const totalAmt = billingClients.reduce((s,c)=>s+c.amount,0);
+  const issuedCount = INVOICE_TRACK.filter(r=>r.month===month&&r.issued).length;
+  const paidCount = INVOICE_TRACK.filter(r=>r.month===month&&r.paid).length;
+  const totalCount = billingClients.length;
+  const paidAmt = INVOICE_TRACK.filter(r=>r.month===month&&r.paid).reduce((s,r)=>s+(r.amount||0),0);
+
+  document.getElementById('invtrack-summary').innerHTML =
+    `<span style="color:#2d8a5e;font-weight:600">${paidCount}/${totalCount} שולמו</span> · 
+     <span style="color:#e8a030">${issuedCount-paidCount} ממתינים</span> · 
+     <span style="color:#b85a50">${totalCount-issuedCount} לא יצאו</span> · 
+     <span style="font-weight:600">סה"כ: ${fmt(totalAmt)} ₪</span>`;
+
+  if(!rows.length) {
+    document.getElementById('invtrack-board').innerHTML = '<div style="text-align:center;padding:2rem;color:var(--text3)">אין נתונים</div>';
+    return;
+  }
+
+  let html = `<div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden">
+    <table style="width:100%;border-collapse:collapse">
+      <thead>
+        <tr style="background:var(--bg3)">
+          <th style="padding:10px 14px;text-align:right;font-size:12px;color:var(--text2);border-bottom:1px solid var(--border)">לקוח</th>
+          <th style="padding:10px 14px;text-align:center;font-size:12px;color:var(--text2);border-bottom:1px solid var(--border)">סכום</th>
+          <th style="padding:10px 14px;text-align:center;font-size:12px;color:var(--text2);border-bottom:1px solid var(--border)">חשבונית יצאה</th>
+          <th style="padding:10px 14px;text-align:center;font-size:12px;color:var(--text2);border-bottom:1px solid var(--border)">תשלום התקבל</th>
+        </tr>
+      </thead>
+      <tbody>`;
+
+  rows.forEach(r => {
+    const statusColor = r.paid ? '#2d8a5e' : r.issued ? '#e8a030' : '#b85a50';
+    html += `<tr style="border-bottom:0.5px solid var(--border)">
+      <td style="padding:12px 14px;font-size:13px;font-weight:500">${r.client}</td>
+      <td style="padding:12px 14px;text-align:center;font-size:13px;font-weight:600;color:#2d8a5e">${fmt(r.amount||0)} ₪</td>
+      <td style="padding:12px 14px;text-align:center">
+        <button onclick="toggleInvIssued('${r.month}','${r.client.replace(/'/g,"\'")}')"
+          style="padding:5px 14px;border:none;border-radius:20px;cursor:pointer;font-size:12px;font-weight:600;
+          background:${r.issued?'#e8f5ef':'#faeae8'};color:${r.issued?'#2d8a5e':'#b85a50'}">
+          ${r.issued?'✅ יצאה':'❌ לא יצאה'}
+        </button>
+        ${r.issuedDate?`<div style="font-size:10px;color:var(--text3);margin-top:2px">${r.issuedDate}</div>`:''}
+      </td>
+      <td style="padding:12px 14px;text-align:center">
+        <button onclick="toggleInvPaid('${r.month}','${r.client.replace(/'/g,"\'")}')"
+          ${!r.issued?'disabled':''} 
+          style="padding:5px 14px;border:none;border-radius:20px;cursor:${r.issued?'pointer':'not-allowed'};font-size:12px;font-weight:600;
+          background:${r.paid?'#e8f5ef':r.issued?'#fff3e0':'var(--bg3)'};color:${r.paid?'#2d8a5e':r.issued?'#e8a030':'var(--text3)'};
+          opacity:${r.issued?1:0.5}">
+          ${r.paid?'✅ שולם':'⏳ ממתין'}
+        </button>
+        ${r.paidDate?`<div style="font-size:10px;color:var(--text3);margin-top:2px">${r.paidDate}</div>`:''}
+      </td>
+    </tr>`;
+  });
+
+  html += '</tbody></table></div>';
+  document.getElementById('invtrack-board').innerHTML = html;
+  updateInvTrackBadge();
 }
 
 // ============ INIT ============
