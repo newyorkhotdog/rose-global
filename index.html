@@ -4742,6 +4742,123 @@ function toggleInvPaidByEl(btn) {
   var client = decodeURIComponent(btn.dataset.client);
   toggleInvPaid(month, client);
 }
+
+function getDynamicMonths(startMonth, extraFuture) {
+  startMonth = startMonth || '2026-01';
+  extraFuture = extraFuture !== undefined ? extraFuture : 1;
+  var months = [];
+  var parts = startMonth.split('-');
+  var startYr = parseInt(parts[0]), startMo = parseInt(parts[1]);
+  var now = new Date();
+  var endYr = now.getFullYear();
+  var endMo = now.getMonth() + 1 + extraFuture;
+  var heNames = ['','ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
+  var yr = startYr, mo = startMo;
+  while (yr < endYr || (yr === endYr && mo <= endMo)) {
+    var actualMo = ((mo-1)%12)+1;
+    var actualYr = yr + Math.floor((mo-1)/12);
+    var val = actualYr+'-'+String(actualMo).padStart(2,'0');
+    var label = heNames[actualMo]+' '+actualYr;
+    months.push({val:val, label:label});
+    mo++;
+  }
+  return months.reverse();
+}
+
+function buildMonthOptions(startMonth, selectedVal, extraFuture) {
+  var months = getDynamicMonths(startMonth, extraFuture);
+  return months.map(function(m){ return '<option value="'+m.val+'"'+(m.val===selectedVal?' selected':'')+'>'+m.label+'</option>'; }).join('');
+}
+
+function populateMonthSelects() {
+  var now = new Date();
+  var currentMonth = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+  var selectors = [
+    {id:'bill-month', start:'2026-01', selected:currentMonth, extra:''},
+    {id:'mv-filter-month', start:'2026-01', selected:'', extra:'<option value="">כל החודשים</option>'},
+    {id:'brok-month', start:'2026-01', selected:currentMonth, extra:''},
+    {id:'hg-month', start:'2026-01', selected:currentMonth, extra:''},
+    {id:'entry-filter-month', start:'2026-01', selected:'', extra:'<option value="">כל החודשים</option>'},
+    {id:'exp-filter-month', start:'2026-01', selected:'', extra:'<option value="">כל החודשים</option>'},
+    {id:'invtrack-month', start:'2026-01', selected:currentMonth, extra:''},
+    {id:'props-filter-month', start:'2026-01', selected:'', extra:'<option value="">כל החודשים</option>'},
+  ];
+  selectors.forEach(function(s) {
+    var el = document.getElementById(s.id);
+    if (!el) return;
+    var cur = el.value || s.selected;
+    el.innerHTML = (s.extra||'') + buildMonthOptions(s.start, cur);
+  });
+  var allMonths = getDynamicMonths('2025-11', 1).map(function(m){return m.val;}).reverse();
+  PROP_MONTHS.length = 0;
+  PROP_MONTHS.push.apply(PROP_MONTHS, allMonths);
+}
+
+
+// ============ INIT ============
+(function() {
+  var loaded = false;
+  
+  function tryLoad() {
+    if (!window.loadFromCloud) {
+      setTimeout(tryLoad, 200);
+      return;
+    }
+    window.loadFromCloud().then(function(cloudData) {
+      if (cloudData && !cloudData._cleared) {
+        window.applyData(cloudData);
+        loaded = true;
+        showSaveIndicator('☁️ נטען מהענן');
+        console.log('Loaded from Firebase:', cloudData._savedAt);
+      } else {
+        // Try localStorage backup
+        try {
+          var local = localStorage.getItem('rose_global_backup');
+          if (local) {
+            var data = JSON.parse(local);
+            if (data && !data._cleared) {
+              window.applyData(data);
+              loaded = true;
+              showSaveIndicator('💾 נטען מגיבוי מקומי');
+            }
+          }
+        } catch(e) {}
+      }
+      populateMonthSelects();
+      populateClientSelects();
+      renderDashboard();
+      updateTaskBadge();
+      updateLeadsBadge();
+      updateInvTrackBadge();
+      
+      // Start real-time sync
+      if (window.startCloudSync) {
+        window.startCloudSync(function(data) {
+          if (data && !data._cleared) {
+            window.applyData(data);
+            refreshUI();
+          }
+        });
+      }
+    }).catch(function(e) {
+      console.error('Load error:', e);
+      populateMonthSelects();
+      renderDashboard();
+      updateTaskBadge();
+    });
+  }
+  
+  document.addEventListener('DOMContentLoaded', function() {
+    // Set today's date in forms
+    var today = new Date().toISOString().split('T')[0];
+    ['mv-date','ef-date','lead-date','dd-due','mg-due'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el && !el.value) el.value = today;
+    });
+    tryLoad();
+  });
+})();
+
 </script>
 </body>
 </html>
