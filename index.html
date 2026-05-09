@@ -4644,95 +4644,81 @@ function renderInvTrack() {
   const month = (document.getElementById('invtrack-month')||{}).value||getCurrentMonth();
   const filter = (document.getElementById('invtrack-filter')||{}).value||'';
 
-  // Pull real amounts from billing calculation
   const billingClients = getBillingClientsForMonth(month);
-
-  // Sync: add new clients, update amounts from billing
-  billingClients.forEach(({client, amount}) => {
-    let rec = INVOICE_TRACK.find(r=>r.month===month&&r.client===client);
+  billingClients.forEach(function(item) {
+    var rec = INVOICE_TRACK.find(function(r){return r.month===month&&r.client===item.client;});
     if (!rec) {
-      rec = {month, client, amount, issued:false, paid:false, issuedDate:'', paidDate:''};
-      INVOICE_TRACK.push(rec);
+      INVOICE_TRACK.push({month:month, client:item.client, amount:item.amount, issued:false, paid:false, issuedDate:'', paidDate:''});
     } else if (!rec.manualAmount) {
-      rec.amount = amount; // update from billing unless manually overridden
+      rec.amount = item.amount;
     }
   });
 
-  let rows = INVOICE_TRACK.filter(r=>r.month===month);
-  if(filter==='pending') rows = rows.filter(r=>!r.issued);
-  if(filter==='issued') rows = rows.filter(r=>r.issued&&!r.paid);
-  if(filter==='paid') rows = rows.filter(r=>r.paid);
+  var allRows = INVOICE_TRACK.filter(function(r){return r.month===month;});
+  var rows = allRows;
+  if(filter==='pending') rows = rows.filter(function(r){return !r.issued;});
+  if(filter==='issued') rows = rows.filter(function(r){return r.issued&&!r.paid;});
+  if(filter==='paid') rows = rows.filter(function(r){return r.paid;});
 
-  const totalAmt = billingClients.reduce((s,c)=>s+c.amount,0);
-  const issuedCount = INVOICE_TRACK.filter(r=>r.month===month&&r.issued).length;
-  const paidCount = INVOICE_TRACK.filter(r=>r.month===month&&r.paid).length;
-  const totalCount = billingClients.length;
-  const paidAmt = INVOICE_TRACK.filter(r=>r.month===month&&r.paid).reduce((s,r)=>s+(r.amount||0),0);
+  var totalExpected = allRows.reduce(function(s,r){return s+(r.amount||0);},0);
+  var collectedAmt = allRows.filter(function(r){return r.paid;}).reduce(function(s,r){return s+(r.amount||0);},0);
+  var pendingAmt = allRows.filter(function(r){return r.issued&&!r.paid;}).reduce(function(s,r){return s+(r.amount||0);},0);
+  var notIssuedAmt = allRows.filter(function(r){return !r.issued;}).reduce(function(s,r){return s+(r.amount||0);},0);
+  var paidCount = allRows.filter(function(r){return r.paid;}).length;
+  var issuedCount = allRows.filter(function(r){return r.issued;}).length;
+  var totalCount = allRows.length;
 
   document.getElementById('invtrack-summary').innerHTML =
-    `<span style="color:#2d8a5e;font-weight:600">${paidCount}/${totalCount} שולמו</span> · 
-     <span style="color:#e8a030">${issuedCount-paidCount} ממתינים</span> · 
-     <span style="color:#b85a50">${totalCount-issuedCount} לא יצאו</span> · 
-     <span style="font-weight:600">סה"כ: ${fmt(totalAmt)} ₪</span>`;
+    '<span style="color:#2d8a5e;font-weight:600">'+paidCount+'/'+totalCount+' שולמו</span> · ' +
+    '<span style="color:#e8a030">'+(issuedCount-paidCount)+' ממתינים</span> · ' +
+    '<span style="color:#b85a50">'+(totalCount-issuedCount)+' לא יצאו</span> · ' +
+    '<span style="font-weight:600">סה"כ: '+fmt(totalExpected)+' ₪</span>';
+
+  var summaryHtml = '<div class="metrics" style="margin-bottom:16px">' +
+    '<div class="metric"><div class="metric-label">סה"כ לגבייה</div><div class="metric-value">'+fmt(totalExpected)+' ₪</div></div>' +
+    '<div class="metric"><div class="metric-label">גבינו ✅</div><div class="metric-value green">'+fmt(collectedAmt)+' ₪</div><div class="metric-sub">'+paidCount+' לקוחות</div></div>' +
+    '<div class="metric"><div class="metric-label">ממתין ⏳</div><div class="metric-value amber">'+fmt(pendingAmt)+' ₪</div></div>' +
+    '<div class="metric"><div class="metric-label">טרם הוצאה ❌</div><div class="metric-value red">'+fmt(notIssuedAmt)+' ₪</div></div>' +
+    '</div>';
 
   if(!rows.length) {
-    document.getElementById('invtrack-board').innerHTML = '<div style="text-align:center;padding:2rem;color:var(--text3)">אין נתונים</div>';
+    document.getElementById('invtrack-board').innerHTML = summaryHtml + '<div style="text-align:center;padding:2rem;color:var(--text3)">אין נתונים</div>';
     return;
   }
 
-  const collectedAmt = INVOICE_TRACK.filter(r=>r.month===month&&r.paid).reduce((s,r)=>s+(r.amount||0),0);
-  const pendingAmt = INVOICE_TRACK.filter(r=>r.month===month&&r.issued&&!r.paid).reduce((s,r)=>s+(r.amount||0),0);
-  const notIssuedAmt = INVOICE_TRACK.filter(r=>r.month===month&&!r.issued).reduce((s,r)=>s+(r.amount||0),0);
-  const totalExpected = INVOICE_TRACK.filter(r=>r.month===month).reduce((s,r)=>s+(r.amount||0),0);
+  var html = summaryHtml + '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden">' +
+    '<table style="width:100%;border-collapse:collapse">' +
+    '<thead><tr style="background:var(--bg3)">' +
+    '<th style="padding:10px 14px;text-align:right;font-size:12px;color:var(--text2);border-bottom:1px solid var(--border)">לקוח</th>' +
+    '<th style="padding:10px 14px;text-align:center;font-size:12px;color:var(--text2);border-bottom:1px solid var(--border)">סכום</th>' +
+    '<th style="padding:10px 14px;text-align:center;font-size:12px;color:var(--text2);border-bottom:1px solid var(--border)">חשבונית יצאה</th>' +
+    '<th style="padding:10px 14px;text-align:center;font-size:12px;color:var(--text2);border-bottom:1px solid var(--border)">תשלום התקבל</th>' +
+    '</tr></thead><tbody>';
 
-  document.getElementById('invtrack-board').insertAdjacentHTML?.('beforebegin','');
-  const summaryHtml = `<div class="metrics" style="margin-bottom:16px">
-    <div class="metric"><div class="metric-label">סה"כ לגבייה</div><div class="metric-value">${fmt(totalExpected)} ₪</div></div>
-    <div class="metric"><div class="metric-label">גבינו ✅</div><div class="metric-value green">${fmt(collectedAmt)} ₪</div><div class="metric-sub">${paidCount} לקוחות</div></div>
-    <div class="metric"><div class="metric-label">ממתין לתשלום ⏳</div><div class="metric-value amber">${fmt(pendingAmt)} ₪</div></div>
-    <div class="metric"><div class="metric-label">טרם הוצאה ❌</div><div class="metric-value red">${fmt(notIssuedAmt)} ₪</div></div>
-  </div>`;
-
-  let html = summaryHtml + `<div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden">
-    <table style="width:100%;border-collapse:collapse">
-      <thead>
-        <tr style="background:var(--bg3)">
-          <th style="padding:10px 14px;text-align:right;font-size:12px;color:var(--text2);border-bottom:1px solid var(--border)">לקוח</th>
-          <th style="padding:10px 14px;text-align:center;font-size:12px;color:var(--text2);border-bottom:1px solid var(--border)">סכום</th>
-          <th style="padding:10px 14px;text-align:center;font-size:12px;color:var(--text2);border-bottom:1px solid var(--border)">חשבונית יצאה</th>
-          <th style="padding:10px 14px;text-align:center;font-size:12px;color:var(--text2);border-bottom:1px solid var(--border)">תשלום התקבל</th>
-        </tr>
-      </thead>
-      <tbody>`;
-
-  rows.forEach(r => {
-    const statusColor = r.paid ? '#2d8a5e' : r.issued ? '#e8a030' : '#b85a50';
-    const safeClient = r.client.replace(/'/g,"\'");
-    html += `<tr style="border-bottom:0.5px solid var(--border)">
-      <td style="padding:12px 14px;font-size:13px;font-weight:500">
-        ${r.client}
-        <button onclick="editInvRow('${r.month}','${safeClient}')" style="background:none;border:none;cursor:pointer;font-size:11px;color:var(--text3);padding:0 4px">✏️</button>
-      </td>
-      <td style="padding:12px 14px;text-align:center;font-size:13px;font-weight:600;color:#2d8a5e">${fmt(r.amount||0)} ₪</td>
-      <td style="padding:12px 14px;text-align:center">
-        <button onclick="toggleInvIssued('${r.month}','${r.client.replace(/'/g,"\'")}')"
-          style="padding:5px 14px;border:none;border-radius:20px;cursor:pointer;font-size:12px;font-weight:600;
-          background:${r.issued?'#e8f5ef':'#faeae8'};color:${r.issued?'#2d8a5e':'#b85a50'}">
-          ${r.issued?'✅ יצאה':'❌ לא יצאה'}
-        </button>
-        ${r.issuedDate?`<div style="font-size:10px;color:var(--text3);margin-top:2px">${r.issuedDate}</div>`:''}
-      </td>
-      <td style="padding:12px 14px;text-align:center">
-        <button onclick="toggleInvPaid('${r.month}','${r.client.replace(/'/g,"\'")}')"
-          ${!r.issued?'disabled':''} 
-          style="padding:5px 14px;border:none;border-radius:20px;cursor:${r.issued?'pointer':'not-allowed'};font-size:12px;font-weight:600;
-          background:${r.paid?'#e8f5ef':r.issued?'#fff3e0':'var(--bg3)'};color:${r.paid?'#2d8a5e':r.issued?'#e8a030':'var(--text3)'};
-          opacity:${r.issued?1:0.5}">
-          ${r.paid?'✅ שולם':'⏳ ממתין'}
-        </button>
-        ${r.paidDate?`<div style="font-size:10px;color:var(--text3);margin-top:2px">${r.paidDate}</div>`:''}
-      </td>
-    </tr>`;
+  rows.forEach(function(r) {
+    var m = r.month;
+    var cl = r.client;
+    html += '<tr style="border-bottom:0.5px solid var(--border)">' +
+      '<td style="padding:12px 14px;font-size:13px;font-weight:500">' + cl +
+        ' <button onclick="editInvRow(this)" data-month="'+m+'" data-client="'+encodeURIComponent(cl)+'" style="background:none;border:none;cursor:pointer;font-size:11px;color:var(--text3)">✏️</button>' +
+      '</td>' +
+      '<td style="padding:12px 14px;text-align:center;font-size:13px;font-weight:600;color:#2d8a5e">'+fmt(r.amount||0)+' ₪</td>' +
+      '<td style="padding:12px 14px;text-align:center">' +
+        '<button onclick="toggleInvIssuedByEl(this)" data-month="'+m+'" data-client="'+encodeURIComponent(cl)+'" '+
+          'style="padding:5px 14px;border:none;border-radius:20px;cursor:pointer;font-size:12px;font-weight:600;'+
+          'background:'+(r.issued?'#e8f5ef':'#faeae8')+';color:'+(r.issued?'#2d8a5e':'#b85a50')+'">'+
+          (r.issued?'✅ יצאה':'❌ לא יצאה')+'</button>' +
+        (r.issuedDate?'<div style="font-size:10px;color:var(--text3);margin-top:2px">'+r.issuedDate+'</div>':'') +
+      '</td>' +
+      '<td style="padding:12px 14px;text-align:center">' +
+        '<button onclick="toggleInvPaidByEl(this)" data-month="'+m+'" data-client="'+encodeURIComponent(cl)+'" '+
+          (r.issued?'':' disabled ') +
+          'style="padding:5px 14px;border:none;border-radius:20px;font-size:12px;font-weight:600;cursor:'+(r.issued?'pointer':'not-allowed')+';'+
+          'background:'+(r.paid?'#e8f5ef':r.issued?'#fff3e0':'var(--bg3)')+';color:'+(r.paid?'#2d8a5e':r.issued?'#e8a030':'var(--text3)')+';'+
+          'opacity:'+(r.issued?1:0.5)+'">'+
+          (r.paid?'✅ שולם':'⏳ ממתין')+'</button>' +
+        (r.paidDate?'<div style="font-size:10px;color:var(--text3);margin-top:2px">'+r.paidDate+'</div>':'') +
+      '</td></tr>';
   });
 
   html += '</tbody></table></div>';
@@ -4740,310 +4726,15 @@ function renderInvTrack() {
   updateInvTrackBadge();
 }
 
-
-// ============ DYNAMIC MONTHS ============
-function getDynamicMonths(startMonth='2025-11', extraFuture=1) {
-  const months = [];
-  const [startYr, startMo] = startMonth.split('-').map(Number);
-  const now = new Date();
-  const endYr = now.getFullYear();
-  const endMo = now.getMonth() + 1 + extraFuture;
-  const heNames = ['','ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
-  let yr = startYr, mo = startMo;
-  while (yr < endYr || (yr === endYr && mo <= endMo)) {
-    const actualMo = ((mo-1)%12)+1;
-    const actualYr = yr + Math.floor((mo-1)/12);
-    const val = actualYr+'-'+String(actualMo).padStart(2,'0');
-    const label = heNames[actualMo]+' '+actualYr;
-    months.push({val, label});
-    mo++;
-  }
-  return months.reverse(); // newest first
+function toggleInvIssuedByEl(btn) {
+  var month = btn.dataset.month;
+  var client = decodeURIComponent(btn.dataset.client);
+  toggleInvIssued(month, client);
+}
+function toggleInvPaidByEl(btn) {
+  var month = btn.dataset.month;
+  var client = decodeURIComponent(btn.dataset.client);
+  toggleInvPaid(month, client);
 }
 
-function buildMonthOptions(startMonth='2025-11', selectedVal='', extraFuture=1) {
-  const months = getDynamicMonths(startMonth, extraFuture);
-  return months.map(m=>`<option value="${m.val}" ${m.val===selectedVal?'selected':''}>${m.label}</option>`).join('');
-}
-
-function populateMonthSelects() {
-  const now = new Date();
-  const currentMonth = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
-  
-  const selectors = [
-    {id:'bill-month', start:'2025-11', selected:currentMonth},
-    {id:'mv-filter-month', start:'2025-11', selected:'', extra:'<option value="">כל החודשים</option>'},
-    {id:'brok-month', start:'2025-11', selected:currentMonth},
-    {id:'hg-month', start:'2025-11', selected:currentMonth},
-    {id:'entry-filter-month', start:'2025-11', selected:'', extra:'<option value="">כל החודשים</option>'},
-    {id:'exp-filter-month', start:'2025-11', selected:'', extra:'<option value="">כל החודשים</option>'},
-    {id:'invtrack-month', start:'2026-01', selected:currentMonth},
-  ];
-  
-  selectors.forEach(({id, start, selected, extra}) => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    const cur = el.value || selected;
-    el.innerHTML = (extra||'') + buildMonthOptions(start, cur);
-  });
-  
-  // Also update PROP_MONTHS and MONTHS_LIST dynamically
-  const allMonths = getDynamicMonths('2025-11', 1).map(m=>m.val).reverse();
-  PROP_MONTHS.length = 0;
-  PROP_MONTHS.push(...allMonths);
-  MONTHS_LIST.length = 0;
-  MONTHS_LIST.push(...allMonths);
-}
-
-// ============ INIT ============
-document.getElementById('mv-date').value = new Date().toISOString().split('T')[0];
-document.getElementById('ef-date').value = new Date().toISOString().split('T')[0];
-
-async function initApp() {
-  showSaveIndicator('⏳ טוען נתונים...');
-
-  // Wait for Firebase to be ready (ES module loads async)
-  let attempts = 0;
-  while (!window.loadFromCloud && attempts < 20) {
-    await new Promise(r => setTimeout(r, 200));
-    attempts++;
-  }
-
-  let loaded = false;
-
-  // Always prefer cloud data
-  if (window.loadFromCloud) {
-    try {
-      const cloudData = await window.loadFromCloud();
-      if (cloudData && !cloudData._cleared && cloudData.TENANTS) {
-        applyData(cloudData);
-        loaded = true;
-        showSaveIndicator('☁️ נטען מהענן');
-        console.log('Loaded from Firebase:', cloudData._savedAt);
-      }
-    } catch(e) {
-      console.warn('Firebase load failed:', e);
-    }
-  }
-
-  // Only use localStorage if Firebase completely failed
-  if (!loaded) {
-    try {
-      const backup = localStorage.getItem('rose_global_backup');
-      if (backup) {
-        const data = JSON.parse(backup);
-        if (data.TENANTS) {
-          applyData(data);
-          loaded = true;
-          showSaveIndicator('💾 נטען מגיבוי מקומי');
-          console.warn('Using local backup - Firebase unavailable');
-        }
-      }
-    } catch(e) {}
-  }
-
-  updateTaskBadge();
-  populateMonthSelects();
-  renderDashboard();
-
-  // Real-time sync - updates ALL users when anyone saves
-  if (window.startCloudSync) {
-    window.startCloudSync((cloudData) => {
-      if (cloudData && !cloudData._cleared && cloudData.TENANTS && !window._isSaving) {
-        console.log('Real-time sync received:', cloudData._savedAt);
-        applyData(cloudData);
-        refreshUI();
-        showSaveIndicator('🔄 עודכן מהענן');
-      }
-    });
-    console.log('Real-time sync started');
-  }
-}
-
-initApp();
-
-// ============ MAPS ============
-const LAV_FLOORS = { 1:[1,2,3,4,5], 2:[1,2,3,4,5,6,7,8,9,10,11,12], 3:[1,2,3,4,5,6,7,8,9,10,11,12,13] };
-
-
-
-
-
-function updateRoomPreview(){
-  const people=parseInt(document.getElementById('rm-people').value)||0;
-  const price=parseInt(document.getElementById('rm-price').value)||0;
-  const cost=parseInt(document.getElementById('rm-cost').value)||0;
-  const inc=people*price, p=inc-cost;
-  const col=p>500?'#2d8a5e':p>=-500?'#a07830':'#b85a50';
-  document.getElementById('rm-preview').innerHTML=`הכנסה: <strong>${Math.round(inc).toLocaleString('he-IL')} ₪</strong> | עלות: <strong>${Math.round(cost).toLocaleString('he-IL')} ₪</strong> | <span style="color:${col};font-weight:600">רווח: ${p>=0?'+':''}${Math.round(p).toLocaleString('he-IL')} ₪</span>`;
-}
-['rm-people','rm-price','rm-cost'].forEach(id=>document.getElementById(id).addEventListener('input',updateRoomPreview));
-
-
-
-function openAddRoomModal() {
-  // Pre-select current prop
-  const sel = document.getElementById('ar-prop');
-  const propNames = ['לבנדה 32','עזאי 38','נתן הנביא 42','הירקון 41 ב"ב'];
-  for (let i = 0; i < sel.options.length; i++) {
-    if (sel.options[i].text === currentTenantProp) { sel.selectedIndex = i; break; }
-  }
-  document.getElementById('ar-error').style.display = 'none';
-  document.getElementById('ar-room').value = '';
-  document.getElementById('ar-people').value = 0;
-  document.getElementById('ar-price').value = 1250;
-  document.getElementById('ar-cost').value = 5100;
-  document.getElementById('ar-company').value = '';
-  document.getElementById('ar-note').value = '';
-  populateClientSelects();
-  document.getElementById('add-room-modal').style.display = 'flex';
-}
-
-function arUpdateFloors() {
-  // Could update floor options based on prop — keep simple for now
-}
-
-function saveAddRoom() {
-  const propSel = document.getElementById('ar-prop');
-  const prop = propSel.options[propSel.selectedIndex].text;
-  const floor = parseInt(document.getElementById('ar-floor').value);
-  const roomNum = parseInt(document.getElementById('ar-room').value);
-  const company = document.getElementById('ar-company').value;
-  const people = parseInt(document.getElementById('ar-people').value) || 0;
-  const price = parseInt(document.getElementById('ar-price').value) || 0;
-  const cost = parseInt(document.getElementById('ar-cost').value) || 0;
-  const note = document.getElementById('ar-note').value;
-
-  const errEl = document.getElementById('ar-error');
-  if (!roomNum) { errEl.textContent = 'נא להזין מספר חדר'; errEl.style.display = 'block'; return; }
-
-  // Check if room already exists
-  if (!MAP_DATA[prop]) MAP_DATA[prop] = { floors: {} };
-  const floorKey = floor; // use as-is (integer from parseInt)
-  if (!MAP_DATA[prop].floors[floorKey]) MAP_DATA[prop].floors[floorKey] = [];
-  const exists = MAP_DATA[prop].floors[floorKey].find(r => r.r === roomNum);
-  if (exists) { errEl.textContent = 'חדר '+roomNum+' כבר קיים בקומה '+floor; errEl.style.display = 'block'; return; }
-
-  MAP_DATA[prop].floors[floor].push({ r: roomNum, company, people, price, cost, note });
-  MAP_DATA[prop].floors[floor].sort((a,b) => a.r - b.r);
-  // Sync to TENANTS if occupied
-  if(company && people > 0 && !FIXED_COSTS[prop]) {
-    const existingT = TENANTS.find(t=>t.prop===prop&&t.floor===floor&&t.room===roomNum&&!t.to);
-    if(!existingT) TENANTS.push({id:nextId++,prop,floor,room:roomNum,company,people,from:new Date().toISOString().split('T')[0],to:null});
-  }
-  autosave();
-  document.getElementById('add-room-modal').style.display = 'none';
-  currentTenantProp = prop;
-  // Sync tab
-  const tabs = document.querySelectorAll('#tenant-tabs .tab');
-  const propNames = ['לבנדה 32','עזאי 38','נתן הנביא 42','הירקון 41 ב"ב'];
-  tabs.forEach((t,i) => t.classList.toggle('active', propNames[i] === prop));
-  renderTenantMap();
-}
-
-document.getElementById('add-room-modal').addEventListener('click', e => {
-  if (e.target === document.getElementById('add-room-modal'))
-    document.getElementById('add-room-modal').style.display = 'none';
-});
-
-
-function deleteMapRoom(propRaw, floor, roomNum) {
-  const prop = propRaw.replace(/__/g, '"');
-  if (!confirm('למחוק את חדר ' + roomNum + ' מקומה ' + floor + '?')) return;
-  const floors = MAP_DATA[prop] && MAP_DATA[prop].floors;
-  if (!floors) return;
-  const floorKey = floors[floor] !== undefined ? floor :
-                   floors[String(floor)] !== undefined ? String(floor) :
-                   floors[Number(floor)] !== undefined ? Number(floor) : null;
-  if (floorKey === null) return;
-  floors[floorKey] = floors[floorKey].filter(r => r.r !== roomNum);
-  if (floors[floor].length === 0) delete floors[floor];
-  autosave();
-  renderTenantMap();
-}
-
-
-
-function closeRoomModal() {
-  document.getElementById('room-modal').style.display = 'none';
-  mapEditRoomRef = null;
-  mapEditPropName = null;
-}
-
-document.getElementById('room-modal').addEventListener('click',e=>{if(e.target===document.getElementById('room-modal'))closeRoomModal();});
-document.addEventListener('click', e=>{
-  const modal = document.getElementById('mgmt-edit-modal');
-  if(modal && e.target===modal) modal.style.display='none';
-});
-
-const MONTHS_LIST = ['2025-11','2025-12','2026-01','2026-02','2026-03','2026-04','2026-05'];
-const PROPS_LIST = ['לבנדה 32','עזאי 38','נתן הנביא 42','הירקון 41 ב"ב','חיים בר לב 104'];
-
-function renderHistEntryTable() {
-  const tbody = document.getElementById('hist-entry-tbody');
-  if (!tbody) return;
-
-  const filterProp = (document.getElementById('entry-filter-prop')||{}).value||'';
-  const filterMonth = (document.getElementById('entry-filter-month')||{}).value||'';
-
-  let rows = [];
-  PROPS_LIST.forEach(prop => {
-    if (filterProp && prop !== filterProp) return;
-    MONTHS_LIST.forEach(month => {
-      if (filterMonth && month !== filterMonth) return;
-      const h = HISTORY.find(x=>x.month===month&&x.prop===prop);
-      rows.push({prop, month,
-        income: h ? h.income : '',
-        rent: h ? h.rent : '',
-        electric: h ? (h.electric||'') : '',
-        water: h ? (h.water||'') : '',
-        arnona: h ? (h.arnona||'') : '',
-        other: h ? (h.other||'') : '',
-        exists: !!h
-      });
-    });
-  });
-
-  tbody.innerHTML = rows.map((r,i) => `
-    <tr style="background:${r.exists?'var(--green-bg)':''}">
-      <td style="font-size:12px;font-weight:500;padding:6px 8px">${r.prop}</td>
-      <td style="font-size:12px;padding:6px 8px">${getMonthLabel(r.month)}</td>
-      <td><input type="number" value="${r.income}" placeholder="0" class="he-inline" data-i="${i}" data-f="income" style="width:80px"></td>
-      <td><input type="number" value="${r.rent}" placeholder="0" class="he-inline" data-i="${i}" data-f="rent" style="width:80px"></td>
-      <td><input type="number" value="${r.electric}" placeholder="0" class="he-inline" data-i="${i}" data-f="electric" style="width:70px"></td>
-      <td><input type="number" value="${r.water}" placeholder="0" class="he-inline" data-i="${i}" data-f="water" style="width:70px"></td>
-      <td><input type="number" value="${r.arnona}" placeholder="0" class="he-inline" data-i="${i}" data-f="arnona" style="width:70px"></td>
-      <td><input type="number" value="${r.other}" placeholder="0" class="he-inline" data-i="${i}" data-f="other" style="width:70px"></td>
-      <td>${r.exists?`<button onclick="clearHistRow(${i})" class="btn btn-sm btn-danger" style="padding:3px 8px">✕</button>`:'—'}</td>
-    </tr>`).join('');
-
-  tbody._rows = rows;
-}
-
-function addHistEntryRow() {
-  const tbody = document.getElementById('hist-entry-tbody');
-  if (!tbody) return;
-  const i = 'new_' + Date.now();
-  const propOpts = PROPS_LIST.map(p=>`<option>${p}</option>`).join('');
-  const monthOpts = MONTHS_LIST.map(m=>`<option value="${m}">${getMonthLabel(m)}</option>`).join('');
-  const tr = document.createElement('tr');
-  tr.style.background = 'var(--blue-bg, #e8f0fb)';
-  tr.innerHTML = `
-    <td><select class="he-inline" id="new-prop-${i}" style="width:130px">${propOpts}</select></td>
-    <td><select class="he-inline" id="new-month-${i}" style="width:110px">${monthOpts}</select></td>
-    <td><input type="number" id="new-income-${i}" placeholder="0" class="he-inline" style="width:80px"></td>
-    <td><input type="number" id="new-rent-${i}" placeholder="0" class="he-inline" style="width:80px"></td>
-    <td><input type="number" id="new-electric-${i}" placeholder="0" class="he-inline" style="width:70px"></td>
-    <td><input type="number" id="new-water-${i}" placeholder="0" class="he-inline" style="width:70px"></td>
-    <td><input type="number" id="new-arnona-${i}" placeholder="0" class="he-inline" style="width:70px"></td>
-    <td><input type="number" id="new-other-${i}" placeholder="0" class="he-inline" style="width:70px"></td>
-    <td><button onclick="saveNewHistRow('${i}',this.closest('tr'))" class="btn btn-sm btn-primary" style="padding:3px 8px">✓</button></td>`;
-  tbody.appendChild(tr);
-  tr.scrollIntoView({behavior:'smooth', block:'center'});
-}
-
-
-
-</script>
-</body>
-</html>
+>
