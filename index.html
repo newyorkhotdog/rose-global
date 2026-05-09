@@ -1129,6 +1129,7 @@ textarea { resize: vertical; min-height: 70px; }
       <option value="paid">שולם ✅</option>
     </select>
     <div id="invtrack-summary" style="font-size:13px;color:var(--text2);margin-right:auto"></div>
+    <button onclick="addInvRow((document.getElementById('invtrack-month')||{}).value||getCurrentMonth())" class="btn btn-sm btn-primary">+ הוסף שורה</button>
   </div>
 
   <!-- Table -->
@@ -1948,9 +1949,44 @@ function renderMovements(){
   const list=MOVEMENTS.filter(m=>(!fp||m.prop===fp)&&(!ft||m.type===ft)&&(!fm||m.date.startsWith(fm))).sort((a,b)=>b.date.localeCompare(a.date));
   if(!list.length){document.getElementById('mv-table').innerHTML='<div style="padding:2rem;text-align:center;color:var(--text3)">אין תנועות</div>';return;}
   let html='<table><thead><tr><th>תאריך</th><th>סוג</th><th>נכס</th><th>קומה/חדר</th><th>תאגיד</th><th>פועלים</th><th>הערה</th><th></th></tr></thead><tbody>';
-  list.forEach(m=>{html+=`<tr><td>${m.date}</td><td><span class="badge ${m.type==='entry'?'badge-green':'badge-red'}">${m.type==='entry'?'כניסה':'יציאה'}</span></td><td>${m.prop}</td><td>ק${m.floor} ח${m.room}</td><td><strong>${m.company}</strong></td><td>${m.people}</td><td style="color:var(--text3)">${m.note||'—'}</td><td><button class="btn btn-sm btn-danger" onclick="delMv(${m.id})">מחק</button></td></tr>`;});
+  list.forEach(m=>{html+=`<tr>
+    <td>${m.date}</td>
+    <td><span class="badge ${m.type==='entry'?'badge-green':'badge-red'}">${m.type==='entry'?'כניסה':'יציאה'}</span></td>
+    <td>${m.prop}</td>
+    <td>ק${m.floor} ח${m.room}</td>
+    <td><strong>${m.company}</strong></td>
+    <td>${m.people}</td>
+    <td style="color:var(--text3)">${m.note||'—'}</td>
+    <td style="display:flex;gap:4px">
+      <button class="btn btn-sm" onclick="editMv(${m.id})">✏️</button>
+      <button class="btn btn-sm btn-danger" onclick="delMv(${m.id})">מחק</button>
+    </td>
+  </tr>`;});
   html+='</tbody></table>';
   document.getElementById('mv-table').innerHTML=html;
+}
+
+function editMv(id) {
+  const m = MOVEMENTS.find(x=>x.id===id);
+  if(!m) return;
+  // Fill form with existing data
+  document.getElementById('mv-type').value = m.type;
+  document.getElementById('mv-prop').value = m.prop;
+  document.getElementById('mv-floor').value = m.floor;
+  document.getElementById('mv-room').value = m.room;
+  document.getElementById('mv-people').value = m.people;
+  document.getElementById('mv-date').value = m.date;
+  document.getElementById('mv-note').value = m.note||'';
+  // Set company
+  const cSel = document.getElementById('mv-company');
+  if(cSel) { for(let i=0;i<cSel.options.length;i++) if(cSel.options[i].value===m.company){cSel.selectedIndex=i;break;} }
+  updateProrata();
+  // Remove old entry
+  MOVEMENTS.splice(MOVEMENTS.findIndex(x=>x.id===id),1);
+  autosave();
+  renderMovements();
+  // Scroll to form
+  document.getElementById('mv-type').scrollIntoView({behavior:'smooth', block:'start'});
 }
 
 function delMv(id){MOVEMENTS.splice(MOVEMENTS.findIndex(m=>m.id===id),1);autosave();renderMovements();}
@@ -3049,6 +3085,7 @@ function clearData() {
 
 function refreshUI() {
   updateTaskBadge();
+  populateMonthSelects();
   const active = document.querySelector('.page.active');
   if (!active) return;
   const id = active.id.replace('page-','');
@@ -4476,6 +4513,29 @@ function getOrCreateTrack(month, client, amount) {
   return rec;
 }
 
+function editInvRow(month, client) {
+  const rec = INVOICE_TRACK.find(r=>r.month===month&&r.client===client);
+  if (!rec) return;
+  const newClient = prompt('שם לקוח:', rec.client);
+  if (newClient === null) return;
+  const newAmt = parseFloat(prompt('סכום ₪:', rec.amount||0));
+  if (isNaN(newAmt)) return;
+  if (newClient.trim()) rec.client = newClient.trim();
+  rec.amount = newAmt;
+  rec.manualAmount = true; // mark as manually set
+  autosave();
+  renderInvTrack();
+}
+
+function addInvRow(month) {
+  const client = prompt('שם לקוח חדש:');
+  if (!client) return;
+  const amount = parseFloat(prompt('סכום ₪:'))||0;
+  INVOICE_TRACK.push({month, client, amount, issued:false, paid:false, issuedDate:'', paidDate:'', manualAmount:true});
+  autosave();
+  renderInvTrack();
+}
+
 function toggleInvIssued(month, client) {
   const rec = INVOICE_TRACK.find(r=>r.month===month&&r.client===client);
   if (!rec) return;
@@ -4584,10 +4644,19 @@ function renderInvTrack() {
   const month = (document.getElementById('invtrack-month')||{}).value||getCurrentMonth();
   const filter = (document.getElementById('invtrack-filter')||{}).value||'';
 
+  // Pull real amounts from billing calculation
   const billingClients = getBillingClientsForMonth(month);
 
-  // Ensure tracking records exist for all clients
-  billingClients.forEach(({client, amount}) => getOrCreateTrack(month, client, amount));
+  // Sync: add new clients, update amounts from billing
+  billingClients.forEach(({client, amount}) => {
+    let rec = INVOICE_TRACK.find(r=>r.month===month&&r.client===client);
+    if (!rec) {
+      rec = {month, client, amount, issued:false, paid:false, issuedDate:'', paidDate:''};
+      INVOICE_TRACK.push(rec);
+    } else if (!rec.manualAmount) {
+      rec.amount = amount; // update from billing unless manually overridden
+    }
+  });
 
   let rows = INVOICE_TRACK.filter(r=>r.month===month);
   if(filter==='pending') rows = rows.filter(r=>!r.issued);
@@ -4611,7 +4680,20 @@ function renderInvTrack() {
     return;
   }
 
-  let html = `<div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden">
+  const collectedAmt = INVOICE_TRACK.filter(r=>r.month===month&&r.paid).reduce((s,r)=>s+(r.amount||0),0);
+  const pendingAmt = INVOICE_TRACK.filter(r=>r.month===month&&r.issued&&!r.paid).reduce((s,r)=>s+(r.amount||0),0);
+  const notIssuedAmt = INVOICE_TRACK.filter(r=>r.month===month&&!r.issued).reduce((s,r)=>s+(r.amount||0),0);
+  const totalExpected = INVOICE_TRACK.filter(r=>r.month===month).reduce((s,r)=>s+(r.amount||0),0);
+
+  document.getElementById('invtrack-board').insertAdjacentHTML?.('beforebegin','');
+  const summaryHtml = `<div class="metrics" style="margin-bottom:16px">
+    <div class="metric"><div class="metric-label">סה"כ לגבייה</div><div class="metric-value">${fmt(totalExpected)} ₪</div></div>
+    <div class="metric"><div class="metric-label">גבינו ✅</div><div class="metric-value green">${fmt(collectedAmt)} ₪</div><div class="metric-sub">${paidCount} לקוחות</div></div>
+    <div class="metric"><div class="metric-label">ממתין לתשלום ⏳</div><div class="metric-value amber">${fmt(pendingAmt)} ₪</div></div>
+    <div class="metric"><div class="metric-label">טרם הוצאה ❌</div><div class="metric-value red">${fmt(notIssuedAmt)} ₪</div></div>
+  </div>`;
+
+  let html = summaryHtml + `<div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden">
     <table style="width:100%;border-collapse:collapse">
       <thead>
         <tr style="background:var(--bg3)">
@@ -4625,8 +4707,12 @@ function renderInvTrack() {
 
   rows.forEach(r => {
     const statusColor = r.paid ? '#2d8a5e' : r.issued ? '#e8a030' : '#b85a50';
+    const safeClient = r.client.replace(/'/g,"\'");
     html += `<tr style="border-bottom:0.5px solid var(--border)">
-      <td style="padding:12px 14px;font-size:13px;font-weight:500">${r.client}</td>
+      <td style="padding:12px 14px;font-size:13px;font-weight:500">
+        ${r.client}
+        <button onclick="editInvRow('${r.month}','${safeClient}')" style="background:none;border:none;cursor:pointer;font-size:11px;color:var(--text3);padding:0 4px">✏️</button>
+      </td>
       <td style="padding:12px 14px;text-align:center;font-size:13px;font-weight:600;color:#2d8a5e">${fmt(r.amount||0)} ₪</td>
       <td style="padding:12px 14px;text-align:center">
         <button onclick="toggleInvIssued('${r.month}','${r.client.replace(/'/g,"\'")}')"
@@ -4652,6 +4738,61 @@ function renderInvTrack() {
   html += '</tbody></table></div>';
   document.getElementById('invtrack-board').innerHTML = html;
   updateInvTrackBadge();
+}
+
+
+// ============ DYNAMIC MONTHS ============
+function getDynamicMonths(startMonth='2025-11', extraFuture=1) {
+  const months = [];
+  const [startYr, startMo] = startMonth.split('-').map(Number);
+  const now = new Date();
+  const endYr = now.getFullYear();
+  const endMo = now.getMonth() + 1 + extraFuture;
+  const heNames = ['','ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
+  let yr = startYr, mo = startMo;
+  while (yr < endYr || (yr === endYr && mo <= endMo)) {
+    const actualMo = ((mo-1)%12)+1;
+    const actualYr = yr + Math.floor((mo-1)/12);
+    const val = actualYr+'-'+String(actualMo).padStart(2,'0');
+    const label = heNames[actualMo]+' '+actualYr;
+    months.push({val, label});
+    mo++;
+  }
+  return months.reverse(); // newest first
+}
+
+function buildMonthOptions(startMonth='2025-11', selectedVal='', extraFuture=1) {
+  const months = getDynamicMonths(startMonth, extraFuture);
+  return months.map(m=>`<option value="${m.val}" ${m.val===selectedVal?'selected':''}>${m.label}</option>`).join('');
+}
+
+function populateMonthSelects() {
+  const now = new Date();
+  const currentMonth = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+  
+  const selectors = [
+    {id:'bill-month', start:'2025-11', selected:currentMonth},
+    {id:'mv-filter-month', start:'2025-11', selected:'', extra:'<option value="">כל החודשים</option>'},
+    {id:'brok-month', start:'2025-11', selected:currentMonth},
+    {id:'hg-month', start:'2025-11', selected:currentMonth},
+    {id:'entry-filter-month', start:'2025-11', selected:'', extra:'<option value="">כל החודשים</option>'},
+    {id:'exp-filter-month', start:'2025-11', selected:'', extra:'<option value="">כל החודשים</option>'},
+    {id:'invtrack-month', start:'2026-01', selected:currentMonth},
+  ];
+  
+  selectors.forEach(({id, start, selected, extra}) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const cur = el.value || selected;
+    el.innerHTML = (extra||'') + buildMonthOptions(start, cur);
+  });
+  
+  // Also update PROP_MONTHS and MONTHS_LIST dynamically
+  const allMonths = getDynamicMonths('2025-11', 1).map(m=>m.val).reverse();
+  PROP_MONTHS.length = 0;
+  PROP_MONTHS.push(...allMonths);
+  MONTHS_LIST.length = 0;
+  MONTHS_LIST.push(...allMonths);
 }
 
 // ============ INIT ============
@@ -4702,6 +4843,7 @@ async function initApp() {
   }
 
   updateTaskBadge();
+  populateMonthSelects();
   renderDashboard();
 
   // Real-time sync - updates ALL users when anyone saves
