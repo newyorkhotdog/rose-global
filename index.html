@@ -3661,7 +3661,13 @@ function renderQuarterly() {
 
 // ============ POPULATE CLIENT SELECTS ============
 function getActiveClientOptions(includeEmpty=true) {
-  const active = CLIENTS.filter(c=>c.status==='active').sort((a,b)=>a.name.localeCompare(b.name));
+  const seen = new Set();
+  const active = CLIENTS.filter(c=>{
+    if(c.status!=='active') return false;
+    if(seen.has(c.name)) return false;
+    seen.add(c.name);
+    return true;
+  }).sort((a,b)=>a.name.localeCompare(b.name));
   let opts = includeEmpty ? '<option value="">בחר לקוח...</option>' : '';
   opts += active.map(c=>`<option value="${c.name}">${c.name}</option>`).join('');
   return opts;
