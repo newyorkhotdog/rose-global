@@ -4580,22 +4580,91 @@ function toggleInvIssuedByEl(btn) {
 function editInvRowByEl(btn) {
   var month = btn.dataset.month;
   var client = decodeURIComponent(btn.dataset.client);
-  var rec = INVOICE_TRACK.find(function(r){return r.month===month&&r.client===client;});
-  if (!rec) return;
-  var newClient = prompt('שם לקוח:', rec.client);
-  if (newClient === null) return;
-  var newAmt = parseFloat(prompt('סכום לחיוב ₪:', rec.amount||0));
-  if (isNaN(newAmt)) return;
-  var newPaid = parseFloat(prompt('סכום ששולם ₪ (0 אם לא שולם):', rec.paidAmount||0));
-  if (newClient.trim()) rec.client = newClient.trim();
-  rec.amount = newAmt;
-  rec.manualAmount = true;
-  if (!isNaN(newPaid)) {
+  openInvEditModal(month, client);
+}
+
+function addManualInvRow() {
+  var month = (document.getElementById('invtrack-month')||{}).value||getCurrentMonth();
+  openInvEditModal(month, null);
+}
+
+function openInvEditModal(month, client) {
+  var rec = client ? INVOICE_TRACK.find(function(r){return r.month===month&&r.client===client;}) : null;
+  
+  // Create modal
+  var existing = document.getElementById('inv-edit-modal');
+  if (existing) existing.remove();
+  
+  var modal = document.createElement('div');
+  modal.id = 'inv-edit-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:500;padding:1rem';
+  modal.innerHTML = `
+    <div style="background:#fff;border-radius:12px;padding:20px;width:100%;max-width:380px;border:1px solid #e0ddd8">
+      <div style="font-size:15px;font-weight:600;margin-bottom:16px">${rec?'עריכת חשבונית':'הוסף חשבונית ידנית'}</div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">
+        <div><label style="font-size:11px;color:#a09890;text-transform:uppercase;display:block;margin-bottom:4px">שם לקוח</label>
+          <input id="inv-edit-client" value="${rec?rec.client:''}" placeholder="שם הלקוח / תאגיד" style="width:100%;background:#f5f3ef;border:1px solid #ddd;border-radius:6px;padding:8px 10px;font-size:13px;font-family:inherit"></div>
+        <div><label style="font-size:11px;color:#a09890;text-transform:uppercase;display:block;margin-bottom:4px">סכום לחיוב ₪</label>
+          <input type="number" id="inv-edit-amount" value="${rec?rec.amount||0:''}" placeholder="0" style="width:100%;background:#f5f3ef;border:1px solid #ddd;border-radius:6px;padding:8px 10px;font-size:13px;font-family:inherit"></div>
+        <div><label style="font-size:11px;color:#a09890;text-transform:uppercase;display:block;margin-bottom:4px">סכום ששולם ₪</label>
+          <input type="number" id="inv-edit-paid" value="${rec?rec.paidAmount||0:0}" placeholder="0" style="width:100%;background:#f5f3ef;border:1px solid #ddd;border-radius:6px;padding:8px 10px;font-size:13px;font-family:inherit"></div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <label style="font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px">
+            <input type="checkbox" id="inv-edit-issued" ${rec&&rec.issued?'checked':''} style="width:16px;height:16px">
+            חשבונית יצאה ✅
+          </label>
+        </div>
+        <div><label style="font-size:11px;color:#a09890;text-transform:uppercase;display:block;margin-bottom:4px">הערה</label>
+          <input id="inv-edit-note" value="${rec&&rec.note?rec.note:''}" placeholder="הערה אופציונלית" style="width:100%;background:#f5f3ef;border:1px solid #ddd;border-radius:6px;padding:8px 10px;font-size:13px;font-family:inherit"></div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button onclick="saveInvEditModal('${month}','${client?encodeURIComponent(client):''}')" style="flex:1;padding:9px;background:#2d2a26;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-family:inherit">שמור</button>
+        <button onclick="document.getElementById('inv-edit-modal').remove()" style="padding:9px 16px;background:transparent;border:1px solid #ddd;border-radius:6px;cursor:pointer;font-size:13px;font-family:inherit">ביטול</button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+  modal.addEventListener('click', function(e){ if(e.target===modal) modal.remove(); });
+  document.getElementById('inv-edit-client').focus();
+}
+
+function saveInvEditModal(month, encodedClient) {
+  var oldClient = encodedClient ? decodeURIComponent(encodedClient) : null;
+  var newClient = document.getElementById('inv-edit-client').value.trim();
+  var newAmt = parseFloat(document.getElementById('inv-edit-amount').value)||0;
+  var newPaid = parseFloat(document.getElementById('inv-edit-paid').value)||0;
+  var issued = document.getElementById('inv-edit-issued').checked;
+  var note = document.getElementById('inv-edit-note').value.trim();
+  
+  if (!newClient) { alert('נא להזין שם לקוח'); return; }
+  
+  var rec = oldClient ? INVOICE_TRACK.find(function(r){return r.month===month&&r.client===oldClient;}) : null;
+  
+  if (rec) {
+    // Update existing
+    rec.client = newClient;
+    rec.amount = newAmt;
+    rec.manualAmount = true;
+    rec.issued = issued;
     rec.paidAmount = newPaid;
-    rec.paid = newPaid >= newAmt;
+    rec.paid = newPaid >= newAmt && newAmt > 0;
+    rec.note = note;
+    if (issued && !rec.issuedDate) rec.issuedDate = new Date().toISOString().split('T')[0];
+    if (!issued) { rec.issuedDate = ''; rec.paid = false; rec.paidAmount = 0; rec.paidDate = ''; }
     if (newPaid > 0 && !rec.paidDate) rec.paidDate = new Date().toISOString().split('T')[0];
     if (newPaid === 0) { rec.paid = false; rec.paidDate = ''; }
+  } else {
+    // Add new manual row
+    INVOICE_TRACK.push({
+      month: month, client: newClient, amount: newAmt,
+      issued: issued, paid: newPaid >= newAmt && newAmt > 0,
+      paidAmount: newPaid, note: note,
+      issuedDate: issued ? new Date().toISOString().split('T')[0] : '',
+      paidDate: newPaid > 0 ? new Date().toISOString().split('T')[0] : '',
+      manualAmount: true
+    });
   }
+  
+  document.getElementById('inv-edit-modal').remove();
   autosave();
   renderInvTrack();
 }
