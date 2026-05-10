@@ -4931,6 +4931,17 @@ function saveManualBackup() {
   } catch(e) { alert('שגיאה: ' + e.message); }
 }
 
+
+function updateRoomPreview(){
+  const people=parseInt(document.getElementById('rm-people').value)||0;
+  const price=parseInt(document.getElementById('rm-price').value)||0;
+  const cost=parseInt(document.getElementById('rm-cost').value)||0;
+  const inc=people*price, p=inc-cost;
+  const col=p>500?'#2d8a5e':p>=-500?'#a07830':'#b85a50';
+  const el=document.getElementById('rm-preview');
+  if(el) el.innerHTML=`הכנסה: <strong>${Math.round(inc).toLocaleString('he-IL')} ₪</strong> | עלות: <strong>${Math.round(cost).toLocaleString('he-IL')} ₪</strong> | <span style="color:${col};font-weight:600">רווח: ${p>=0?'+':''}${Math.round(p).toLocaleString('he-IL')} ₪</span>`;
+}
+
 async function initApp() {
   showSaveIndicator('⏳ טוען נתונים...');
 
