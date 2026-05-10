@@ -2891,19 +2891,26 @@ function applyData(data) {
 
 function autosave() {
   window._isSaving = true;
+  // Keep isSaving true for 15 seconds to prevent real-time sync from overwriting
+  clearTimeout(window._isSavingTimeout);
+  window._isSavingTimeout = setTimeout(() => { window._isSaving = false; }, 15000);
+  
   const data = getDataSnapshot();
-  // Save to localStorage as backup
+  // Save to localStorage as backup immediately
   try { localStorage.setItem('rose_global_backup', JSON.stringify(data)); } catch(e){}
-  // Save to Firebase - wait for it to be ready
-  window._lastSaveTime = new Date(data._savedAt||Date.now()).getTime();
+  
+  window._lastSaveTime = Date.now();
   const doSave = () => {
     if (window.saveToCloud) {
-      window.saveToCloud(data).finally(() => {
-        setTimeout(() => { window._isSaving = false; }, 8000);
+      window.saveToCloud(data).then(() => {
+        // After confirmed save, allow sync again after 3 seconds
+        clearTimeout(window._isSavingTimeout);
+        window._isSavingTimeout = setTimeout(() => { window._isSaving = false; }, 3000);
+      }).catch(() => {
+        window._isSaving = false;
       });
     } else {
-      // Firebase not ready yet - retry after 500ms
-      setTimeout(doSave, 500);
+      setTimeout(doSave, 300);
     }
   };
   doSave();
@@ -4865,10 +4872,16 @@ async function initApp() {
   if (window.startCloudSync) {
     window.startCloudSync((cloudData) => {
       if (cloudData && !cloudData._cleared && cloudData.TENANTS && !window._isSaving) {
-        console.log('Real-time sync received:', cloudData._savedAt);
-        applyData(cloudData);
-        refreshUI();
-        showSaveIndicator('🔄 עודכן מהענן');
+        // Only apply if cloud data is newer than our last save
+        const cloudTime = new Date(cloudData._savedAt||0).getTime();
+        const localTime = window._lastSaveTime || 0;
+        if (cloudTime >= localTime) {
+          console.log('Real-time sync applied:', cloudData._savedAt);
+          applyData(cloudData);
+          refreshUI();
+        } else {
+          console.log('Real-time sync skipped - local is newer');
+        }
       }
     });
     console.log('Real-time sync started');
