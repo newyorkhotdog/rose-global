@@ -4942,6 +4942,13 @@ function updateRoomPreview(){
   if(el) el.innerHTML=`הכנסה: <strong>${Math.round(inc).toLocaleString('he-IL')} ₪</strong> | עלות: <strong>${Math.round(cost).toLocaleString('he-IL')} ₪</strong> | <span style="color:${col};font-weight:600">רווח: ${p>=0?'+':''}${Math.round(p).toLocaleString('he-IL')} ₪</span>`;
 }
 
+
+function closeRoomModal() {
+  document.getElementById('room-modal').style.display = 'none';
+  mapEditRoomRef = null;
+  mapEditPropName = null;
+}
+
 async function initApp() {
   showSaveIndicator('⏳ טוען נתונים...');
 
