@@ -272,7 +272,8 @@ textarea { resize: vertical; min-height: 70px; }
   <div class="nav-item" onclick="nav('leads',this)"><span class="nav-icon">🎯</span> לידים <span class="nav-badge" id="leads-badge" style="background:#e8a030">0</span></div>
   </div>
   <div style="margin-top:auto;padding:16px 20px;border-top:1px solid var(--border)">
-    <div style="font-size:11px;color:var(--text3)">נתונים מסונכרנים בענן ☁️</div>
+    <div style="font-size:11px;color:var(--text3);margin-bottom:8px">נתונים מסונכרנים בענן ☁️</div>
+    <button onclick="showBackupsModal()" class="btn btn-sm" style="width:100%;font-size:11px;padding:5px">🗄️ גיבויים יומיים</button>
   </div>
 </nav>
 
@@ -4822,6 +4823,92 @@ async function processInvoice(input) {
 document.getElementById('mv-date').value = new Date().toISOString().split('T')[0];
 document.getElementById('ef-date').value = new Date().toISOString().split('T')[0];
 
+
+// ============ DAILY BACKUP ============
+function saveDailyBackup(data) {
+  try {
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    const key = 'rose_backup_' + today;
+    // Only save once per day
+    if (!localStorage.getItem(key)) {
+      localStorage.setItem(key, JSON.stringify(data));
+      console.log('Daily backup saved:', key);
+    }
+    // Keep last 7 days only
+    const allKeys = Object.keys(localStorage).filter(k=>k.startsWith('rose_backup_'));
+    allKeys.sort().reverse(); // newest first
+    allKeys.slice(7).forEach(k => localStorage.removeItem(k));
+  } catch(e) { console.warn('Daily backup failed:', e); }
+}
+
+function listBackups() {
+  const keys = Object.keys(localStorage).filter(k=>k.startsWith('rose_backup_')).sort().reverse();
+  return keys.map(k => {
+    try {
+      const d = JSON.parse(localStorage.getItem(k));
+      return {date: k.replace('rose_backup_',''), key: k, savedAt: d._savedAt, size: localStorage.getItem(k).length};
+    } catch(e) { return {date: k, key: k, error: true}; }
+  });
+}
+
+function restoreBackup(key) {
+  if (!confirm('לשחזר גיבוי מ-' + key.replace('rose_backup_','') + '? הנתונים הנוכחיים יוחלפו.')) return;
+  try {
+    const data = JSON.parse(localStorage.getItem(key));
+    if (!data || !data.TENANTS) { alert('גיבוי לא תקין'); return; }
+    applyData(data);
+    autosave();
+    renderDashboard();
+    showSaveIndicator('✅ שוחזר מגיבוי ' + key.replace('rose_backup_',''));
+    document.getElementById('backup-modal').remove();
+  } catch(e) { alert('שגיאה בשחזור: ' + e.message); }
+}
+
+function showBackupsModal() {
+  const backups = listBackups();
+  const existing = document.getElementById('backup-modal');
+  if (existing) existing.remove();
+  
+  const modal = document.createElement('div');
+  modal.id = 'backup-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:500;padding:1rem';
+  
+  const rows = backups.length ? backups.map(b => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:0.5px solid var(--border)">
+      <div>
+        <div style="font-size:13px;font-weight:600">${b.date}</div>
+        <div style="font-size:11px;color:var(--text3)">${b.savedAt ? new Date(b.savedAt).toLocaleString('he-IL') : ''} · ${Math.round((b.size||0)/1024)}KB</div>
+      </div>
+      <button onclick="restoreBackup('${b.key}')" class="btn btn-sm" style="background:#e8f5ef;color:#2d8a5e;border-color:#a8d9be">שחזר</button>
+    </div>`).join('') : '<div style="padding:1rem;text-align:center;color:var(--text3)">אין גיבויים עדיין</div>';
+  
+  modal.innerHTML = `
+    <div style="background:#fff;border-radius:12px;padding:20px;width:100%;max-width:420px;border:1px solid #e0ddd8;max-height:80vh;overflow-y:auto">
+      <div style="font-size:15px;font-weight:600;margin-bottom:4px">🗄️ גיבויים יומיים</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:16px">נשמרים אוטומטית כל יום — 7 ימים אחרונים</div>
+      ${rows}
+      <div style="margin-top:14px;display:flex;gap:8px">
+        <button onclick="saveManualBackup()" class="btn btn-primary btn-sm">💾 שמור עכשיו</button>
+        <button onclick="document.getElementById('backup-modal').remove()" class="btn btn-sm">סגור</button>
+      </div>
+    </div>`;
+  
+  document.body.appendChild(modal);
+  modal.addEventListener('click', e => { if(e.target===modal) modal.remove(); });
+}
+
+function saveManualBackup() {
+  try {
+    const now = new Date();
+    const key = 'rose_backup_' + now.toISOString().split('T')[0] + '_' + now.getHours() + 'h';
+    const data = getDataSnapshot();
+    localStorage.setItem(key, JSON.stringify(data));
+    showSaveIndicator('💾 גיבוי נשמר');
+    document.getElementById('backup-modal').remove();
+    setTimeout(showBackupsModal, 500);
+  } catch(e) { alert('שגיאה: ' + e.message); }
+}
+
 async function initApp() {
   showSaveIndicator('⏳ טוען נתונים...');
 
@@ -4843,6 +4930,7 @@ async function initApp() {
         loaded = true;
         showSaveIndicator('☁️ נטען מהענן');
         console.log('Loaded from Firebase:', cloudData._savedAt);
+        saveDailyBackup(cloudData);
       }
     } catch(e) {
       console.warn('Firebase load failed:', e);
