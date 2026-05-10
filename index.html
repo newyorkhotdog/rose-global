@@ -1129,7 +1129,6 @@ textarea { resize: vertical; min-height: 70px; }
       <option value="paid">שולם ✅</option>
     </select>
     <div id="invtrack-summary" style="font-size:13px;color:var(--text2);margin-right:auto"></div>
-    <button onclick="addInvRow((document.getElementById('invtrack-month')||{}).value||getCurrentMonth())" class="btn btn-sm btn-primary">+ הוסף שורה</button>
   </div>
 
   <!-- Table -->
@@ -1949,44 +1948,9 @@ function renderMovements(){
   const list=MOVEMENTS.filter(m=>(!fp||m.prop===fp)&&(!ft||m.type===ft)&&(!fm||m.date.startsWith(fm))).sort((a,b)=>b.date.localeCompare(a.date));
   if(!list.length){document.getElementById('mv-table').innerHTML='<div style="padding:2rem;text-align:center;color:var(--text3)">אין תנועות</div>';return;}
   let html='<table><thead><tr><th>תאריך</th><th>סוג</th><th>נכס</th><th>קומה/חדר</th><th>תאגיד</th><th>פועלים</th><th>הערה</th><th></th></tr></thead><tbody>';
-  list.forEach(m=>{html+=`<tr>
-    <td>${m.date}</td>
-    <td><span class="badge ${m.type==='entry'?'badge-green':'badge-red'}">${m.type==='entry'?'כניסה':'יציאה'}</span></td>
-    <td>${m.prop}</td>
-    <td>ק${m.floor} ח${m.room}</td>
-    <td><strong>${m.company}</strong></td>
-    <td>${m.people}</td>
-    <td style="color:var(--text3)">${m.note||'—'}</td>
-    <td style="display:flex;gap:4px">
-      <button class="btn btn-sm" onclick="editMv(${m.id})">✏️</button>
-      <button class="btn btn-sm btn-danger" onclick="delMv(${m.id})">מחק</button>
-    </td>
-  </tr>`;});
+  list.forEach(m=>{html+=`<tr><td>${m.date}</td><td><span class="badge ${m.type==='entry'?'badge-green':'badge-red'}">${m.type==='entry'?'כניסה':'יציאה'}</span></td><td>${m.prop}</td><td>ק${m.floor} ח${m.room}</td><td><strong>${m.company}</strong></td><td>${m.people}</td><td style="color:var(--text3)">${m.note||'—'}</td><td><button class="btn btn-sm btn-danger" onclick="delMv(${m.id})">מחק</button></td></tr>`;});
   html+='</tbody></table>';
   document.getElementById('mv-table').innerHTML=html;
-}
-
-function editMv(id) {
-  const m = MOVEMENTS.find(x=>x.id===id);
-  if(!m) return;
-  // Fill form with existing data
-  document.getElementById('mv-type').value = m.type;
-  document.getElementById('mv-prop').value = m.prop;
-  document.getElementById('mv-floor').value = m.floor;
-  document.getElementById('mv-room').value = m.room;
-  document.getElementById('mv-people').value = m.people;
-  document.getElementById('mv-date').value = m.date;
-  document.getElementById('mv-note').value = m.note||'';
-  // Set company
-  const cSel = document.getElementById('mv-company');
-  if(cSel) { for(let i=0;i<cSel.options.length;i++) if(cSel.options[i].value===m.company){cSel.selectedIndex=i;break;} }
-  updateProrata();
-  // Remove old entry
-  MOVEMENTS.splice(MOVEMENTS.findIndex(x=>x.id===id),1);
-  autosave();
-  renderMovements();
-  // Scroll to form
-  document.getElementById('mv-type').scrollIntoView({behavior:'smooth', block:'start'});
 }
 
 function delMv(id){MOVEMENTS.splice(MOVEMENTS.findIndex(m=>m.id===id),1);autosave();renderMovements();}
@@ -3085,7 +3049,6 @@ function clearData() {
 
 function refreshUI() {
   updateTaskBadge();
-  populateMonthSelects();
   const active = document.querySelector('.page.active');
   if (!active) return;
   const id = active.id.replace('page-','');
@@ -3661,13 +3624,7 @@ function renderQuarterly() {
 
 // ============ POPULATE CLIENT SELECTS ============
 function getActiveClientOptions(includeEmpty=true) {
-  const seen = new Set();
-  const active = CLIENTS.filter(c=>{
-    if(c.status!=='active') return false;
-    if(seen.has(c.name)) return false;
-    seen.add(c.name);
-    return true;
-  }).sort((a,b)=>a.name.localeCompare(b.name));
+  const active = CLIENTS.filter(c=>c.status==='active').sort((a,b)=>a.name.localeCompare(b.name));
   let opts = includeEmpty ? '<option value="">בחר לקוח...</option>' : '';
   opts += active.map(c=>`<option value="${c.name}">${c.name}</option>`).join('');
   return opts;
@@ -4519,29 +4476,6 @@ function getOrCreateTrack(month, client, amount) {
   return rec;
 }
 
-function editInvRow(month, client) {
-  const rec = INVOICE_TRACK.find(r=>r.month===month&&r.client===client);
-  if (!rec) return;
-  const newClient = prompt('שם לקוח:', rec.client);
-  if (newClient === null) return;
-  const newAmt = parseFloat(prompt('סכום ₪:', rec.amount||0));
-  if (isNaN(newAmt)) return;
-  if (newClient.trim()) rec.client = newClient.trim();
-  rec.amount = newAmt;
-  rec.manualAmount = true; // mark as manually set
-  autosave();
-  renderInvTrack();
-}
-
-function addInvRow(month) {
-  const client = prompt('שם לקוח חדש:');
-  if (!client) return;
-  const amount = parseFloat(prompt('סכום ₪:'))||0;
-  INVOICE_TRACK.push({month, client, amount, issued:false, paid:false, issuedDate:'', paidDate:'', manualAmount:true});
-  autosave();
-  renderInvTrack();
-}
-
 function toggleInvIssued(month, client) {
   const rec = INVOICE_TRACK.find(r=>r.month===month&&r.client===client);
   if (!rec) return;
@@ -4651,80 +4585,68 @@ function renderInvTrack() {
   const filter = (document.getElementById('invtrack-filter')||{}).value||'';
 
   const billingClients = getBillingClientsForMonth(month);
-  billingClients.forEach(function(item) {
-    var rec = INVOICE_TRACK.find(function(r){return r.month===month&&r.client===item.client;});
-    if (!rec) {
-      INVOICE_TRACK.push({month:month, client:item.client, amount:item.amount, issued:false, paid:false, issuedDate:'', paidDate:''});
-    } else if (!rec.manualAmount) {
-      rec.amount = item.amount;
-    }
-  });
 
-  var allRows = INVOICE_TRACK.filter(function(r){return r.month===month;});
-  var rows = allRows;
-  if(filter==='pending') rows = rows.filter(function(r){return !r.issued;});
-  if(filter==='issued') rows = rows.filter(function(r){return r.issued&&!r.paid;});
-  if(filter==='paid') rows = rows.filter(function(r){return r.paid;});
+  // Ensure tracking records exist for all clients
+  billingClients.forEach(({client, amount}) => getOrCreateTrack(month, client, amount));
 
-  var totalExpected = allRows.reduce(function(s,r){return s+(r.amount||0);},0);
-  var collectedAmt = allRows.filter(function(r){return r.paid;}).reduce(function(s,r){return s+(r.amount||0);},0);
-  var pendingAmt = allRows.filter(function(r){return r.issued&&!r.paid;}).reduce(function(s,r){return s+(r.amount||0);},0);
-  var notIssuedAmt = allRows.filter(function(r){return !r.issued;}).reduce(function(s,r){return s+(r.amount||0);},0);
-  var paidCount = allRows.filter(function(r){return r.paid;}).length;
-  var issuedCount = allRows.filter(function(r){return r.issued;}).length;
-  var totalCount = allRows.length;
+  let rows = INVOICE_TRACK.filter(r=>r.month===month);
+  if(filter==='pending') rows = rows.filter(r=>!r.issued);
+  if(filter==='issued') rows = rows.filter(r=>r.issued&&!r.paid);
+  if(filter==='paid') rows = rows.filter(r=>r.paid);
+
+  const totalAmt = billingClients.reduce((s,c)=>s+c.amount,0);
+  const issuedCount = INVOICE_TRACK.filter(r=>r.month===month&&r.issued).length;
+  const paidCount = INVOICE_TRACK.filter(r=>r.month===month&&r.paid).length;
+  const totalCount = billingClients.length;
+  const paidAmt = INVOICE_TRACK.filter(r=>r.month===month&&r.paid).reduce((s,r)=>s+(r.amount||0),0);
 
   document.getElementById('invtrack-summary').innerHTML =
-    '<span style="color:#2d8a5e;font-weight:600">'+paidCount+'/'+totalCount+' שולמו</span> · ' +
-    '<span style="color:#e8a030">'+(issuedCount-paidCount)+' ממתינים</span> · ' +
-    '<span style="color:#b85a50">'+(totalCount-issuedCount)+' לא יצאו</span> · ' +
-    '<span style="font-weight:600">סה"כ: '+fmt(totalExpected)+' ₪</span>';
-
-  var summaryHtml = '<div class="metrics" style="margin-bottom:16px">' +
-    '<div class="metric"><div class="metric-label">סה"כ לגבייה</div><div class="metric-value">'+fmt(totalExpected)+' ₪</div></div>' +
-    '<div class="metric"><div class="metric-label">גבינו ✅</div><div class="metric-value green">'+fmt(collectedAmt)+' ₪</div><div class="metric-sub">'+paidCount+' לקוחות</div></div>' +
-    '<div class="metric"><div class="metric-label">ממתין ⏳</div><div class="metric-value amber">'+fmt(pendingAmt)+' ₪</div></div>' +
-    '<div class="metric"><div class="metric-label">טרם הוצאה ❌</div><div class="metric-value red">'+fmt(notIssuedAmt)+' ₪</div></div>' +
-    '</div>';
+    `<span style="color:#2d8a5e;font-weight:600">${paidCount}/${totalCount} שולמו</span> · 
+     <span style="color:#e8a030">${issuedCount-paidCount} ממתינים</span> · 
+     <span style="color:#b85a50">${totalCount-issuedCount} לא יצאו</span> · 
+     <span style="font-weight:600">סה"כ: ${fmt(totalAmt)} ₪</span>`;
 
   if(!rows.length) {
-    document.getElementById('invtrack-board').innerHTML = summaryHtml + '<div style="text-align:center;padding:2rem;color:var(--text3)">אין נתונים</div>';
+    document.getElementById('invtrack-board').innerHTML = '<div style="text-align:center;padding:2rem;color:var(--text3)">אין נתונים</div>';
     return;
   }
 
-  var html = summaryHtml + '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden">' +
-    '<table style="width:100%;border-collapse:collapse">' +
-    '<thead><tr style="background:var(--bg3)">' +
-    '<th style="padding:10px 14px;text-align:right;font-size:12px;color:var(--text2);border-bottom:1px solid var(--border)">לקוח</th>' +
-    '<th style="padding:10px 14px;text-align:center;font-size:12px;color:var(--text2);border-bottom:1px solid var(--border)">סכום</th>' +
-    '<th style="padding:10px 14px;text-align:center;font-size:12px;color:var(--text2);border-bottom:1px solid var(--border)">חשבונית יצאה</th>' +
-    '<th style="padding:10px 14px;text-align:center;font-size:12px;color:var(--text2);border-bottom:1px solid var(--border)">תשלום התקבל</th>' +
-    '</tr></thead><tbody>';
+  let html = `<div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden">
+    <table style="width:100%;border-collapse:collapse">
+      <thead>
+        <tr style="background:var(--bg3)">
+          <th style="padding:10px 14px;text-align:right;font-size:12px;color:var(--text2);border-bottom:1px solid var(--border)">לקוח</th>
+          <th style="padding:10px 14px;text-align:center;font-size:12px;color:var(--text2);border-bottom:1px solid var(--border)">סכום</th>
+          <th style="padding:10px 14px;text-align:center;font-size:12px;color:var(--text2);border-bottom:1px solid var(--border)">חשבונית יצאה</th>
+          <th style="padding:10px 14px;text-align:center;font-size:12px;color:var(--text2);border-bottom:1px solid var(--border)">תשלום התקבל</th>
+        </tr>
+      </thead>
+      <tbody>`;
 
-  rows.forEach(function(r) {
-    var m = r.month;
-    var cl = r.client;
-    html += '<tr style="border-bottom:0.5px solid var(--border)">' +
-      '<td style="padding:12px 14px;font-size:13px;font-weight:500">' + cl +
-        ' <button onclick="editInvRow(this)" data-month="'+m+'" data-client="'+encodeURIComponent(cl)+'" style="background:none;border:none;cursor:pointer;font-size:11px;color:var(--text3)">✏️</button>' +
-      '</td>' +
-      '<td style="padding:12px 14px;text-align:center;font-size:13px;font-weight:600;color:#2d8a5e">'+fmt(r.amount||0)+' ₪</td>' +
-      '<td style="padding:12px 14px;text-align:center">' +
-        '<button onclick="toggleInvIssuedByEl(this)" data-month="'+m+'" data-client="'+encodeURIComponent(cl)+'" '+
-          'style="padding:5px 14px;border:none;border-radius:20px;cursor:pointer;font-size:12px;font-weight:600;'+
-          'background:'+(r.issued?'#e8f5ef':'#faeae8')+';color:'+(r.issued?'#2d8a5e':'#b85a50')+'">'+
-          (r.issued?'✅ יצאה':'❌ לא יצאה')+'</button>' +
-        (r.issuedDate?'<div style="font-size:10px;color:var(--text3);margin-top:2px">'+r.issuedDate+'</div>':'') +
-      '</td>' +
-      '<td style="padding:12px 14px;text-align:center">' +
-        '<button onclick="toggleInvPaidByEl(this)" data-month="'+m+'" data-client="'+encodeURIComponent(cl)+'" '+
-          (r.issued?'':' disabled ') +
-          'style="padding:5px 14px;border:none;border-radius:20px;font-size:12px;font-weight:600;cursor:'+(r.issued?'pointer':'not-allowed')+';'+
-          'background:'+(r.paid?'#e8f5ef':r.issued?'#fff3e0':'var(--bg3)')+';color:'+(r.paid?'#2d8a5e':r.issued?'#e8a030':'var(--text3)')+';'+
-          'opacity:'+(r.issued?1:0.5)+'">'+
-          (r.paid?'✅ שולם':'⏳ ממתין')+'</button>' +
-        (r.paidDate?'<div style="font-size:10px;color:var(--text3);margin-top:2px">'+r.paidDate+'</div>':'') +
-      '</td></tr>';
+  rows.forEach(r => {
+    const statusColor = r.paid ? '#2d8a5e' : r.issued ? '#e8a030' : '#b85a50';
+    html += `<tr style="border-bottom:0.5px solid var(--border)">
+      <td style="padding:12px 14px;font-size:13px;font-weight:500">${r.client}</td>
+      <td style="padding:12px 14px;text-align:center;font-size:13px;font-weight:600;color:#2d8a5e">${fmt(r.amount||0)} ₪</td>
+      <td style="padding:12px 14px;text-align:center">
+        <button onclick="toggleInvIssued('${r.month}','${r.client.replace(/'/g,"\'")}')"
+          style="padding:5px 14px;border:none;border-radius:20px;cursor:pointer;font-size:12px;font-weight:600;
+          background:${r.issued?'#e8f5ef':'#faeae8'};color:${r.issued?'#2d8a5e':'#b85a50'}">
+          ${r.issued?'✅ יצאה':'❌ לא יצאה'}
+        </button>
+        ${r.issuedDate?`<div style="font-size:10px;color:var(--text3);margin-top:2px">${r.issuedDate}</div>`:''}
+      </td>
+      <td style="padding:12px 14px;text-align:center">
+        <button onclick="toggleInvPaid('${r.month}','${r.client.replace(/'/g,"\'")}')"
+          ${!r.issued?'disabled':''} 
+          style="padding:5px 14px;border:none;border-radius:20px;cursor:${r.issued?'pointer':'not-allowed'};font-size:12px;font-weight:600;
+          background:${r.paid?'#e8f5ef':r.issued?'#fff3e0':'var(--bg3)'};color:${r.paid?'#2d8a5e':r.issued?'#e8a030':'var(--text3)'};
+          opacity:${r.issued?1:0.5}">
+          ${r.paid?'✅ שולם':'⏳ ממתין'}
+        </button>
+        ${r.paidDate?`<div style="font-size:10px;color:var(--text3);margin-top:2px">${r.paidDate}</div>`:''}
+      </td>
+    </tr>`;
   });
 
   html += '</tbody></table></div>';
@@ -4732,123 +4654,253 @@ function renderInvTrack() {
   updateInvTrackBadge();
 }
 
-function toggleInvIssuedByEl(btn) {
-  var month = btn.dataset.month;
-  var client = decodeURIComponent(btn.dataset.client);
-  toggleInvIssued(month, client);
-}
-function toggleInvPaidByEl(btn) {
-  var month = btn.dataset.month;
-  var client = decodeURIComponent(btn.dataset.client);
-  toggleInvPaid(month, client);
-}
-
-function getDynamicMonths(startMonth, extraFuture) {
-  startMonth = startMonth || '2026-01';
-  extraFuture = extraFuture !== undefined ? extraFuture : 1;
-  var months = [];
-  var parts = startMonth.split('-');
-  var startYr = parseInt(parts[0]), startMo = parseInt(parts[1]);
-  var now = new Date();
-  var endYr = now.getFullYear();
-  var endMo = now.getMonth() + 1 + extraFuture;
-  var heNames = ['','ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
-  var yr = startYr, mo = startMo;
-  while (yr < endYr || (yr === endYr && mo <= endMo)) {
-    var actualMo = ((mo-1)%12)+1;
-    var actualYr = yr + Math.floor((mo-1)/12);
-    var val = actualYr+'-'+String(actualMo).padStart(2,'0');
-    var label = heNames[actualMo]+' '+actualYr;
-    months.push({val:val, label:label});
-    mo++;
-  }
-  return months.reverse();
-}
-
-function buildMonthOptions(startMonth, selectedVal, extraFuture) {
-  var months = getDynamicMonths(startMonth, extraFuture);
-  return months.map(function(m){ return '<option value="'+m.val+'"'+(m.val===selectedVal?' selected':'')+'>'+m.label+'</option>'; }).join('');
-}
-
-function populateMonthSelects() {
-  var now = new Date();
-  var currentMonth = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
-  var selectors = [
-    {id:'bill-month', start:'2026-01', selected:currentMonth, extra:''},
-    {id:'mv-filter-month', start:'2026-01', selected:'', extra:'<option value="">כל החודשים</option>'},
-    {id:'brok-month', start:'2026-01', selected:currentMonth, extra:''},
-    {id:'hg-month', start:'2026-01', selected:currentMonth, extra:''},
-    {id:'entry-filter-month', start:'2026-01', selected:'', extra:'<option value="">כל החודשים</option>'},
-    {id:'exp-filter-month', start:'2026-01', selected:'', extra:'<option value="">כל החודשים</option>'},
-    {id:'invtrack-month', start:'2026-01', selected:currentMonth, extra:''},
-    {id:'props-filter-month', start:'2026-01', selected:'', extra:'<option value="">כל החודשים</option>'},
-  ];
-  selectors.forEach(function(s) {
-    var el = document.getElementById(s.id);
-    if (!el) return;
-    var cur = el.value || s.selected;
-    el.innerHTML = (s.extra||'') + buildMonthOptions(s.start, cur);
-  });
-  var allMonths = getDynamicMonths('2025-11', 1).map(function(m){return m.val;}).reverse();
-  PROP_MONTHS.length = 0;
-  PROP_MONTHS.push.apply(PROP_MONTHS, allMonths);
-}
-
-
 // ============ INIT ============
-let _loaded = false;
+document.getElementById('mv-date').value = new Date().toISOString().split('T')[0];
+document.getElementById('ef-date').value = new Date().toISOString().split('T')[0];
 
-function initApp() {
-  // Set today's date
-  const today = new Date().toISOString().split('T')[0];
-  ['mv-date','ef-date','lead-date','dd-due','mg-due'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el && !el.value) el.value = today;
-  });
+async function initApp() {
+  showSaveIndicator('⏳ טוען נתונים...');
 
-  updateTaskBadge();
+  // Wait for Firebase to be ready (ES module loads async)
+  let attempts = 0;
+  while (!window.loadFromCloud && attempts < 20) {
+    await new Promise(r => setTimeout(r, 200));
+    attempts++;
+  }
 
-  // Real-time sync — fires immediately with current data, then on changes
-  const trySync = () => {
-    if (!window.startCloudSync) { setTimeout(trySync, 200); return; }
-    window.startCloudSync((data) => {
-      if (data && !data._cleared && !window._isSaving) {
-        applyData(data);
-        if (!_loaded) {
-          _loaded = true;
-          populateMonthSelects();
-          populateClientSelects();
-          renderDashboard();
-          updateTaskBadge();
-          updateLeadsBadge();
-          showSaveIndicator('☁️ נטען מהענן');
-        } else {
-          refreshUI();
+  let loaded = false;
+
+  // Always prefer cloud data
+  if (window.loadFromCloud) {
+    try {
+      const cloudData = await window.loadFromCloud();
+      if (cloudData && !cloudData._cleared && cloudData.TENANTS) {
+        applyData(cloudData);
+        loaded = true;
+        showSaveIndicator('☁️ נטען מהענן');
+        console.log('Loaded from Firebase:', cloudData._savedAt);
+      }
+    } catch(e) {
+      console.warn('Firebase load failed:', e);
+    }
+  }
+
+  // Only use localStorage if Firebase completely failed
+  if (!loaded) {
+    try {
+      const backup = localStorage.getItem('rose_global_backup');
+      if (backup) {
+        const data = JSON.parse(backup);
+        if (data.TENANTS) {
+          applyData(data);
+          loaded = true;
+          showSaveIndicator('💾 נטען מגיבוי מקומי');
+          console.warn('Using local backup - Firebase unavailable');
         }
       }
-    });
-  };
-  trySync();
-
-  // Fallback: if Firebase doesn't respond in 4 seconds, use localStorage
-  setTimeout(() => {
-    if (_loaded) return;
-    try {
-      const local = localStorage.getItem('rose_global_backup');
-      if (local) {
-        applyData(JSON.parse(local));
-        showSaveIndicator('💾 גיבוי מקומי');
-      }
     } catch(e) {}
-    populateMonthSelects();
-    populateClientSelects();
-    renderDashboard();
-    updateTaskBadge();
-    _loaded = true;
-  }, 4000);
+  }
+
+  updateTaskBadge();
+  renderDashboard();
+
+  // Real-time sync - updates ALL users when anyone saves
+  if (window.startCloudSync) {
+    window.startCloudSync((cloudData) => {
+      if (cloudData && !cloudData._cleared && cloudData.TENANTS && !window._isSaving) {
+        console.log('Real-time sync received:', cloudData._savedAt);
+        applyData(cloudData);
+        refreshUI();
+        showSaveIndicator('🔄 עודכן מהענן');
+      }
+    });
+    console.log('Real-time sync started');
+  }
 }
 
-document.addEventListener('DOMContentLoaded', initApp);
+initApp();
+
+// ============ MAPS ============
+const LAV_FLOORS = { 1:[1,2,3,4,5], 2:[1,2,3,4,5,6,7,8,9,10,11,12], 3:[1,2,3,4,5,6,7,8,9,10,11,12,13] };
+
+
+
+
+
+function updateRoomPreview(){
+  const people=parseInt(document.getElementById('rm-people').value)||0;
+  const price=parseInt(document.getElementById('rm-price').value)||0;
+  const cost=parseInt(document.getElementById('rm-cost').value)||0;
+  const inc=people*price, p=inc-cost;
+  const col=p>500?'#2d8a5e':p>=-500?'#a07830':'#b85a50';
+  document.getElementById('rm-preview').innerHTML=`הכנסה: <strong>${Math.round(inc).toLocaleString('he-IL')} ₪</strong> | עלות: <strong>${Math.round(cost).toLocaleString('he-IL')} ₪</strong> | <span style="color:${col};font-weight:600">רווח: ${p>=0?'+':''}${Math.round(p).toLocaleString('he-IL')} ₪</span>`;
+}
+['rm-people','rm-price','rm-cost'].forEach(id=>document.getElementById(id).addEventListener('input',updateRoomPreview));
+
+
+
+function openAddRoomModal() {
+  // Pre-select current prop
+  const sel = document.getElementById('ar-prop');
+  const propNames = ['לבנדה 32','עזאי 38','נתן הנביא 42','הירקון 41 ב"ב'];
+  for (let i = 0; i < sel.options.length; i++) {
+    if (sel.options[i].text === currentTenantProp) { sel.selectedIndex = i; break; }
+  }
+  document.getElementById('ar-error').style.display = 'none';
+  document.getElementById('ar-room').value = '';
+  document.getElementById('ar-people').value = 0;
+  document.getElementById('ar-price').value = 1250;
+  document.getElementById('ar-cost').value = 5100;
+  document.getElementById('ar-company').value = '';
+  document.getElementById('ar-note').value = '';
+  populateClientSelects();
+  document.getElementById('add-room-modal').style.display = 'flex';
+}
+
+function arUpdateFloors() {
+  // Could update floor options based on prop — keep simple for now
+}
+
+function saveAddRoom() {
+  const propSel = document.getElementById('ar-prop');
+  const prop = propSel.options[propSel.selectedIndex].text;
+  const floor = parseInt(document.getElementById('ar-floor').value);
+  const roomNum = parseInt(document.getElementById('ar-room').value);
+  const company = document.getElementById('ar-company').value;
+  const people = parseInt(document.getElementById('ar-people').value) || 0;
+  const price = parseInt(document.getElementById('ar-price').value) || 0;
+  const cost = parseInt(document.getElementById('ar-cost').value) || 0;
+  const note = document.getElementById('ar-note').value;
+
+  const errEl = document.getElementById('ar-error');
+  if (!roomNum) { errEl.textContent = 'נא להזין מספר חדר'; errEl.style.display = 'block'; return; }
+
+  // Check if room already exists
+  if (!MAP_DATA[prop]) MAP_DATA[prop] = { floors: {} };
+  const floorKey = floor; // use as-is (integer from parseInt)
+  if (!MAP_DATA[prop].floors[floorKey]) MAP_DATA[prop].floors[floorKey] = [];
+  const exists = MAP_DATA[prop].floors[floorKey].find(r => r.r === roomNum);
+  if (exists) { errEl.textContent = 'חדר '+roomNum+' כבר קיים בקומה '+floor; errEl.style.display = 'block'; return; }
+
+  MAP_DATA[prop].floors[floor].push({ r: roomNum, company, people, price, cost, note });
+  MAP_DATA[prop].floors[floor].sort((a,b) => a.r - b.r);
+  // Sync to TENANTS if occupied
+  if(company && people > 0 && !FIXED_COSTS[prop]) {
+    const existingT = TENANTS.find(t=>t.prop===prop&&t.floor===floor&&t.room===roomNum&&!t.to);
+    if(!existingT) TENANTS.push({id:nextId++,prop,floor,room:roomNum,company,people,from:new Date().toISOString().split('T')[0],to:null});
+  }
+  autosave();
+  document.getElementById('add-room-modal').style.display = 'none';
+  currentTenantProp = prop;
+  // Sync tab
+  const tabs = document.querySelectorAll('#tenant-tabs .tab');
+  const propNames = ['לבנדה 32','עזאי 38','נתן הנביא 42','הירקון 41 ב"ב'];
+  tabs.forEach((t,i) => t.classList.toggle('active', propNames[i] === prop));
+  renderTenantMap();
+}
+
+document.getElementById('add-room-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('add-room-modal'))
+    document.getElementById('add-room-modal').style.display = 'none';
+});
+
+
+function deleteMapRoom(propRaw, floor, roomNum) {
+  const prop = propRaw.replace(/__/g, '"');
+  if (!confirm('למחוק את חדר ' + roomNum + ' מקומה ' + floor + '?')) return;
+  const floors = MAP_DATA[prop] && MAP_DATA[prop].floors;
+  if (!floors) return;
+  const floorKey = floors[floor] !== undefined ? floor :
+                   floors[String(floor)] !== undefined ? String(floor) :
+                   floors[Number(floor)] !== undefined ? Number(floor) : null;
+  if (floorKey === null) return;
+  floors[floorKey] = floors[floorKey].filter(r => r.r !== roomNum);
+  if (floors[floor].length === 0) delete floors[floor];
+  autosave();
+  renderTenantMap();
+}
+
+
+
+function closeRoomModal() {
+  document.getElementById('room-modal').style.display = 'none';
+  mapEditRoomRef = null;
+  mapEditPropName = null;
+}
+
+document.getElementById('room-modal').addEventListener('click',e=>{if(e.target===document.getElementById('room-modal'))closeRoomModal();});
+document.addEventListener('click', e=>{
+  const modal = document.getElementById('mgmt-edit-modal');
+  if(modal && e.target===modal) modal.style.display='none';
+});
+
+const MONTHS_LIST = ['2025-11','2025-12','2026-01','2026-02','2026-03','2026-04','2026-05'];
+const PROPS_LIST = ['לבנדה 32','עזאי 38','נתן הנביא 42','הירקון 41 ב"ב','חיים בר לב 104'];
+
+function renderHistEntryTable() {
+  const tbody = document.getElementById('hist-entry-tbody');
+  if (!tbody) return;
+
+  const filterProp = (document.getElementById('entry-filter-prop')||{}).value||'';
+  const filterMonth = (document.getElementById('entry-filter-month')||{}).value||'';
+
+  let rows = [];
+  PROPS_LIST.forEach(prop => {
+    if (filterProp && prop !== filterProp) return;
+    MONTHS_LIST.forEach(month => {
+      if (filterMonth && month !== filterMonth) return;
+      const h = HISTORY.find(x=>x.month===month&&x.prop===prop);
+      rows.push({prop, month,
+        income: h ? h.income : '',
+        rent: h ? h.rent : '',
+        electric: h ? (h.electric||'') : '',
+        water: h ? (h.water||'') : '',
+        arnona: h ? (h.arnona||'') : '',
+        other: h ? (h.other||'') : '',
+        exists: !!h
+      });
+    });
+  });
+
+  tbody.innerHTML = rows.map((r,i) => `
+    <tr style="background:${r.exists?'var(--green-bg)':''}">
+      <td style="font-size:12px;font-weight:500;padding:6px 8px">${r.prop}</td>
+      <td style="font-size:12px;padding:6px 8px">${getMonthLabel(r.month)}</td>
+      <td><input type="number" value="${r.income}" placeholder="0" class="he-inline" data-i="${i}" data-f="income" style="width:80px"></td>
+      <td><input type="number" value="${r.rent}" placeholder="0" class="he-inline" data-i="${i}" data-f="rent" style="width:80px"></td>
+      <td><input type="number" value="${r.electric}" placeholder="0" class="he-inline" data-i="${i}" data-f="electric" style="width:70px"></td>
+      <td><input type="number" value="${r.water}" placeholder="0" class="he-inline" data-i="${i}" data-f="water" style="width:70px"></td>
+      <td><input type="number" value="${r.arnona}" placeholder="0" class="he-inline" data-i="${i}" data-f="arnona" style="width:70px"></td>
+      <td><input type="number" value="${r.other}" placeholder="0" class="he-inline" data-i="${i}" data-f="other" style="width:70px"></td>
+      <td>${r.exists?`<button onclick="clearHistRow(${i})" class="btn btn-sm btn-danger" style="padding:3px 8px">✕</button>`:'—'}</td>
+    </tr>`).join('');
+
+  tbody._rows = rows;
+}
+
+function addHistEntryRow() {
+  const tbody = document.getElementById('hist-entry-tbody');
+  if (!tbody) return;
+  const i = 'new_' + Date.now();
+  const propOpts = PROPS_LIST.map(p=>`<option>${p}</option>`).join('');
+  const monthOpts = MONTHS_LIST.map(m=>`<option value="${m}">${getMonthLabel(m)}</option>`).join('');
+  const tr = document.createElement('tr');
+  tr.style.background = 'var(--blue-bg, #e8f0fb)';
+  tr.innerHTML = `
+    <td><select class="he-inline" id="new-prop-${i}" style="width:130px">${propOpts}</select></td>
+    <td><select class="he-inline" id="new-month-${i}" style="width:110px">${monthOpts}</select></td>
+    <td><input type="number" id="new-income-${i}" placeholder="0" class="he-inline" style="width:80px"></td>
+    <td><input type="number" id="new-rent-${i}" placeholder="0" class="he-inline" style="width:80px"></td>
+    <td><input type="number" id="new-electric-${i}" placeholder="0" class="he-inline" style="width:70px"></td>
+    <td><input type="number" id="new-water-${i}" placeholder="0" class="he-inline" style="width:70px"></td>
+    <td><input type="number" id="new-arnona-${i}" placeholder="0" class="he-inline" style="width:70px"></td>
+    <td><input type="number" id="new-other-${i}" placeholder="0" class="he-inline" style="width:70px"></td>
+    <td><button onclick="saveNewHistRow('${i}',this.closest('tr'))" class="btn btn-sm btn-primary" style="padding:3px 8px">✓</button></td>`;
+  tbody.appendChild(tr);
+  tr.scrollIntoView({behavior:'smooth', block:'center'});
+}
+
+
 
 </script>
 </body>
