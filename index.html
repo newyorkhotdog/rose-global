@@ -1241,8 +1241,15 @@ function getRoomCost(prop, floor, room) {
   return r ? r.c : 0;
 }
 
+// עלויות שכירות מוסכמות עם בעל הבית (עודכן אפריל 2026)
+const PROP_RENT_OVERRIDE = {
+  'לבנדה 32': 126000,  // הסכם חדש מאפריל 2026
+};
+
 function getPropCost(prop) {
   if (FIXED_COSTS[prop]) return FIXED_COSTS[prop].cost;
+  // Check rent override (agreed price with landlord)
+  if (PROP_RENT_OVERRIDE[prop]) return PROP_RENT_OVERRIDE[prop];
   // Read from MAP_DATA (live data) instead of static ROOM_COSTS
   if (MAP_DATA[prop]) {
     return Object.values(MAP_DATA[prop].floors||{})
