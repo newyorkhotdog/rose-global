@@ -1838,7 +1838,19 @@ function editMapRoom(propRaw, floor, roomNum) {
   document.getElementById('rm-cost').value = room.cost;
   document.getElementById('rm-note').value = room.note || '';
   updateRoomPreview();
-  populateClientSelects();
+  // Populate rm-company separately without side effects
+  const rmSel = document.getElementById('rm-company');
+  if(rmSel) {
+    const seen = new Set();
+    const opts = CLIENTS.filter(c=>{
+      if(c.status!=='active') return false;
+      if(seen.has(c.name)) return false;
+      seen.add(c.name); return true;
+    }).sort((a,b)=>a.name.localeCompare(b.name));
+    rmSel.innerHTML = '<option value="">ריק</option><option value="שירות">🔧 חדר שירות</option>' +
+      opts.map(c=>`<option value="${c.name}">${c.name}</option>`).join('');
+    rmSel.value = room.company || '';
+  }
   document.getElementById('room-modal').style.display = 'flex';
 }
 
