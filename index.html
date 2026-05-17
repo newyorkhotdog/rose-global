@@ -1683,6 +1683,13 @@ const MAP_DATA = {
         {r:14,company:'',people:0,price:1250,cost:0,note:'דורש שיפוץ'},
       ]
     }
+  },
+  'חיים בר לב 104': {
+    floors: {
+      1: [
+        {r:1,company:'ח.ח.א',people:0,price:0,cost:7000,note:'שכירות חודשית 15,000 ₪'},
+      ]
+    }
   }
 };
 
@@ -4947,6 +4954,85 @@ function closeRoomModal() {
   document.getElementById('room-modal').style.display = 'none';
   mapEditRoomRef = null;
   mapEditPropName = null;
+}
+
+
+function openAddRoomModal() {
+  const sel = document.getElementById('ar-prop');
+  for (let i = 0; i < sel.options.length; i++) {
+    if (sel.options[i].text === currentTenantProp) { sel.selectedIndex = i; break; }
+  }
+  document.getElementById('ar-error').style.display = 'none';
+  document.getElementById('ar-room').value = '';
+  document.getElementById('ar-people').value = 0;
+  document.getElementById('ar-price').value = 1250;
+  document.getElementById('ar-cost').value = 5100;
+  document.getElementById('ar-note').value = '';
+  // Populate company select
+  const arSel = document.getElementById('ar-company');
+  if(arSel) {
+    const seen = new Set();
+    const opts = CLIENTS.filter(c=>{
+      if(c.status!=='active') return false;
+      if(seen.has(c.name)) return false;
+      seen.add(c.name); return true;
+    }).sort((a,b)=>a.name.localeCompare(b.name));
+    arSel.innerHTML = '<option value="">ריק</option><option value="שירות">🔧 חדר שירות</option>' +
+      opts.map(c=>`<option value="${c.name}">${c.name}</option>`).join('');
+  }
+  document.getElementById('add-room-modal').style.display = 'flex';
+}
+
+function arUpdateFloors() {}
+
+function saveAddRoom() {
+  const propSel = document.getElementById('ar-prop');
+  const prop = propSel.options[propSel.selectedIndex].text;
+  const floor = parseInt(document.getElementById('ar-floor').value);
+  const roomNum = parseInt(document.getElementById('ar-room').value);
+  const company = document.getElementById('ar-company').value;
+  const people = parseInt(document.getElementById('ar-people').value)||0;
+  const price = parseInt(document.getElementById('ar-price').value)||0;
+  const cost = parseInt(document.getElementById('ar-cost').value)||0;
+  const note = document.getElementById('ar-note').value;
+
+  const errEl = document.getElementById('ar-error');
+  if (!roomNum) { errEl.textContent = 'נא להזין מספר חדר'; errEl.style.display = 'block'; return; }
+
+  if (!MAP_DATA[prop]) MAP_DATA[prop] = { floors: {} };
+  if (!MAP_DATA[prop].floors[floor]) MAP_DATA[prop].floors[floor] = [];
+  
+  const exists = MAP_DATA[prop].floors[floor].find(r => r.r === roomNum);
+  if (exists) { errEl.textContent = 'חדר '+roomNum+' כבר קיים בקומה '+floor; errEl.style.display = 'block'; return; }
+
+  MAP_DATA[prop].floors[floor].push({ r: roomNum, company, people, price, cost, note });
+  MAP_DATA[prop].floors[floor].sort((a,b) => a.r - b.r);
+  
+  if(company && people > 0 && !FIXED_COSTS[prop]) {
+    const existingT = TENANTS.find(t=>t.prop===prop&&t.floor===floor&&t.room===roomNum&&!t.to);
+    if(!existingT) TENANTS.push({id:nextId++,prop,floor,room:roomNum,company,people,from:new Date().toISOString().split('T')[0],to:null});
+  }
+  autosave();
+  document.getElementById('add-room-modal').style.display = 'none';
+  currentTenantProp = prop;
+  const tabs = document.querySelectorAll('#tenant-tabs .tab');
+  const propNames = ['לבנדה 32','עזאי 38','נתן הנביא 42','הירקון 41 ב"ב','חיים בר לב 104'];
+  tabs.forEach((t,i) => t.classList.toggle('active', propNames[i] === prop));
+  renderTenantMap();
+}
+
+function deleteMapRoom(propRaw, floor, roomNum) {
+  const prop = propRaw.replace(/__/g, '"');
+  if (!confirm('למחוק את חדר ' + roomNum + ' מקומה ' + floor + '?')) return;
+  const floors = MAP_DATA[prop] && MAP_DATA[prop].floors;
+  if (!floors) return;
+  const floorKey = floors[floor] !== undefined ? floor :
+                   floors[String(floor)] !== undefined ? String(floor) :
+                   floors[Number(floor)] !== undefined ? Number(floor) : null;
+  if (floorKey === null) return;
+  floors[floorKey] = floors[floorKey].filter(r => r.r !== roomNum);
+  autosave();
+  renderTenantMap();
 }
 
 async function initApp() {
