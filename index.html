@@ -527,8 +527,9 @@ textarea { resize: vertical; min-height: 70px; }
           <option value="">כולם</option>
           <option>יועד</option><option>דודו</option><option>צביקה</option><option>רועי</option><option>אוהד</option>
         </select>
-        <input type="date" id="visit-filter-from" onchange="renderVisits()" style="font-size:12px;padding:5px 8px;border:1px solid var(--border2);border-radius:6px">
-        <input type="date" id="visit-filter-to" onchange="renderVisits()" style="font-size:12px;padding:5px 8px;border:1px solid var(--border2);border-radius:6px">
+        <input type="date" id="visit-filter-from" onchange="renderVisits()" style="font-size:12px;padding:5px 8px;border:1px solid var(--border2);border-radius:6px;width:130px">
+        <span style="font-size:12px;color:var(--text3)">—</span>
+        <input type="date" id="visit-filter-to" onchange="renderVisits()" style="font-size:12px;padding:5px 8px;border:1px solid var(--border2);border-radius:6px;width:130px">
       </div>
       <button onclick="openVisitModal()" class="btn btn-primary btn-sm">+ ביקור חדש</button>
     </div>
@@ -5799,53 +5800,75 @@ function renderWeeklyReportButtons() {
 }
 
 
+function getRoomsForProp(prop) {
+  // Get all occupied rooms from MAP_DATA
+  if(!MAP_DATA[prop]) return [];
+  var rooms = [];
+  Object.entries(MAP_DATA[prop].floors||{}).forEach(function(entry) {
+    var floor = entry[0], floorRooms = entry[1];
+    floorRooms.forEach(function(r) {
+      if(r.company && r.company !== 'שירות' && r.people > 0) {
+        rooms.push({floor: floor, room: r.r, company: r.company});
+      }
+    });
+  });
+  return rooms;
+}
+
 function renderVisitsWeeklyDash() {
   const el = document.getElementById('visits-weekly-dash');
   if(!el) return;
   
-  // Get current week boundaries
   const now = new Date();
-  const dayOfWeek = now.getDay(); // 0=Sun
+  const dayOfWeek = now.getDay();
   const weekStart = new Date(now);
   weekStart.setDate(now.getDate() - dayOfWeek);
   const weekEnd = new Date(weekStart);
   weekEnd.setDate(weekStart.getDate() + 6);
-  
   const weekStartStr = weekStart.toISOString().split('T')[0];
   const weekEndStr = weekEnd.toISOString().split('T')[0];
   
   const props = ['לבנדה 32','עזאי 38','נתן הנביא 42','הירקון 41 ב"ב','חיים בר לב 104'];
-  const whoList = ['יועד','דודו'];
-  
-  // Count visits this week per prop per who
   const thisWeekVisits = VISITS.filter(function(v){return v.date>=weekStartStr&&v.date<=weekEndStr;});
   
   const rows = props.map(function(prop) {
-    const propVisits = thisWeekVisits.filter(function(v){return v.prop===prop;});
-    const yoadVisits = propVisits.filter(function(v){return v.who==='יועד';}).length;
-    const duduVisits = propVisits.filter(function(v){return v.who==='דודו';}).length;
-    const total = propVisits.length;
-    // Target: at least 1 visit per week per prop
-    const pct = Math.min(100, total * 100);
-    const color = total>=1?'#2d8a5e':total>0?'#e8a030':'#b85a50';
-    return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:0.5px solid var(--border)">'+
-      '<div style="width:110px;font-size:12px;font-weight:500;flex-shrink:0">'+prop.replace(' 32','').replace(' 38','').replace(' 42','').replace(' 104','')+'</div>'+
-      '<div style="flex:1;background:#eee;border-radius:10px;height:8px;overflow:hidden">'+
+    const propRooms = getRoomsForProp(prop);
+    const totalRooms = propRooms.length || 1;
+    
+    // Count unique rooms visited this week (by floor+room key)
+    const propVisits = thisWeekVisits.filter(function(v){return v.prop===prop&&v.room;});
+    const visitedRooms = new Set(propVisits.map(function(v){return v.floor+'_'+v.room;}));
+    const visitedCount = visitedRooms.size;
+    
+    const yoadRooms = new Set(propVisits.filter(function(v){return v.who==='יועד';}).map(function(v){return v.floor+'_'+v.room;})).size;
+    const duduRooms = new Set(propVisits.filter(function(v){return v.who==='דודו';}).map(function(v){return v.floor+'_'+v.room;})).size;
+    
+    const pct = Math.min(100, Math.round((visitedCount/totalRooms)*100));
+    const color = pct>=100?'#2d8a5e':pct>=50?'#e8a030':'#b85a50';
+    const badge = pct>=100?'✅':pct>=50?'🟡':'❌';
+    
+    return '<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:0.5px solid var(--border)">'+
+      '<div style="width:90px;font-size:12px;font-weight:500;flex-shrink:0">'+
+        prop.replace(' 32','').replace(' 38','').replace(' 42','').replace(' 104','')+'</div>'+
+      '<div style="flex:1;background:#eee;border-radius:10px;height:10px;overflow:hidden">'+
         '<div style="height:100%;border-radius:10px;background:'+color+';width:'+pct+'%;transition:width 0.3s"></div>'+
       '</div>'+
-      '<div style="font-size:11px;color:var(--text2);width:80px;flex-shrink:0">'+
-        (yoadVisits?'יועד ×'+yoadVisits:'')+(duduVisits?' דודו ×'+duduVisits:'')+(total===0?'אין ביקור':'')+'</div>'+
-      '<div style="font-size:12px;font-weight:600;color:'+color+';width:30px;flex-shrink:0">'+total+'</div>'+
+      '<div style="font-size:12px;font-weight:600;color:'+color+';width:50px;text-align:center;flex-shrink:0">'+
+        visitedCount+'/'+totalRooms+'</div>'+
+      '<div style="font-size:11px;color:var(--text2);width:100px;flex-shrink:0">'+
+        (yoadRooms?'יועד '+yoadRooms+' ':[]).join('')+(duduRooms?'דודו '+duduRooms:'')+(visitedCount===0?'לא בוקר':'')+'</div>'+
+      '<div style="font-size:14px;flex-shrink:0">'+badge+'</div>'+
     '</div>';
   }).join('');
   
   el.innerHTML = '<div class="card" style="padding:14px">'+
     '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">'+
-      '<div style="font-size:13px;font-weight:600">📊 כיסוי ביקורים השבוע</div>'+
+      '<div style="font-size:13px;font-weight:600">📊 כיסוי ביקורים השבוע — לפי חדרים</div>'+
       '<div style="font-size:11px;color:var(--text3)">'+weekStartStr+' — '+weekEndStr+'</div>'+
     '</div>'+
     rows+
-    '<div style="margin-top:8px;font-size:11px;color:var(--text3)">יעד: ביקור אחד לפחות לכל נכס בשבוע</div>'+
+    '<div style="margin-top:8px;font-size:11px;color:var(--text3)">'+
+      '✅ כל החדרים בוקרו &nbsp;🟡 חלקי &nbsp;❌ לא בוקר</div>'+
   '</div>';
 }
 
