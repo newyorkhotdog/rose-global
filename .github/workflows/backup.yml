@@ -1,0 +1,54 @@
+name: Firebase Backup
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'  # כל 6 שעות
+  workflow_dispatch:  # הפעלה ידנית
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Backup Firebase to JSON
+        run: |
+          curl -s "https://firestore.googleapis.com/v1/projects/${{ secrets.FIREBASE_PROJECT_ID }}/databases/(default)/documents/rose-global/main?key=${{ secrets.FIREBASE_API_KEY }}" \
+          | python3 -c "
+          import json, sys, re
+          from datetime import datetime
+          data = json.load(sys.stdin)
+          fields = data.get('fields', {})
+          
+          def parse_value(v):
+              if 'stringValue' in v: return v['stringValue']
+              if 'integerValue' in v: return int(v['integerValue'])
+              if 'doubleValue' in v: return float(v['doubleValue'])
+              if 'booleanValue' in v: return v['booleanValue']
+              if 'nullValue' in v: return None
+              if 'arrayValue' in v: return [parse_value(i) for i in v['arrayValue'].get('values', [])]
+              if 'mapValue' in v: return {k: parse_value(vv) for k,vv in v['mapValue'].get('fields', {}).items()}
+              return str(v)
+          
+          result = {k: parse_value(v) for k,v in fields.items()}
+          result['_backup_time'] = datetime.utcnow().isoformat()
+          
+          with open('backups/latest.json', 'w', encoding='utf-8') as f:
+              json.dump(result, f, ensure_ascii=False, indent=2)
+          
+          timestamp = datetime.utcnow().strftime('%Y-%m-%d_%H-%M')
+          with open(f'backups/backup_{timestamp}.json', 'w', encoding='utf-8') as f:
+              json.dump(result, f, ensure_ascii=False, indent=2)
+          
+          print(f'Backup saved: backup_{timestamp}.json')
+          "
+
+      - name: Commit backup
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add backups/
+          git diff --staged --quiet || git commit -m "🗄️ גיבוי אוטומטי $(date -u '+%Y-%m-%d %H:%M')"
+          git push
