@@ -486,148 +486,161 @@ textarea { resize: vertical; min-height: 70px; }
 
 <!-- TASKS -->
 <div id="page-tasks" class="page">
-  <div class="page-title">תקלות ותפעול</div>
-  <div class="page-sub">תקלות טכניות ומשימות ניהוליות</div>
-  <!-- Main tabs -->
+  <div class="page-title">תפעול ומשימות</div>
+  <div class="page-sub">ביקורים, משימות ודוחות לפי נכס וחדר</div>
   <div class="tab-row" style="margin-bottom:16px" id="task-main-tabs">
-    <button class="tab active" onclick="setTaskMainTab('technical',this)">🔧 תקלות טכניות</button>
-    <button class="tab" onclick="setTaskMainTab('mgmt',this)">📋 משימות ניהוליות</button>
-    <button class="tab" onclick="setTaskMainTab('dudu',this)">🏗️ משימות דודו</button>
+    <button class="tab active" onclick="setTaskMainTab('visits',this)">📍 ביקורים</button>
+    <button class="tab" onclick="setTaskMainTab('tasks_board',this)">✅ משימות <span id="tasks-open-count" style="background:rgba(255,255,255,0.3);border-radius:10px;padding:1px 6px;font-size:11px"></span></button>
+    <button class="tab" onclick="setTaskMainTab('report',this)">📋 דוח ללקוח</button>
   </div>
 
-  <div id="task-technical-view">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
-    <div class="tab-row" style="margin:0" id="task-filters">
-      <button class="tab active" onclick="setTaskFilter('all',this)">הכל</button>
-      <button class="tab" onclick="setTaskFilter('urgent',this)">דחוף</button>
-      <button class="tab" onclick="setTaskFilter('open',this)">פתוח</button>
-      <button class="tab" onclick="setTaskFilter('done',this)">טופל</button>
-    </div>
-    <select id="task-prop-filter" onchange="renderTasks()" style="width:auto;font-size:13px">
-      <option value="">כל הנכסים</option>
-      <option>לבנדה 32</option>
-      <option>עזאי 38</option>
-      <option>נתן הנביא 42</option>
-      <option>הירקון 41 ב&quot;ב</option>
-      <option>חיים בר לב 104</option>
-    </select>
-    <button class="btn btn-primary btn-sm" onclick="toggleTaskForm()">+ משימה חדשה</button>
-  </div>
-  <div id="task-add-form" style="display:none" class="card" style="margin-bottom:16px">
-    <div class="card-title">משימה חדשה</div>
-    <div class="form-grid three">
-      <div class="form-group"><label>נכס</label><select id="tf-prop"><option>לבנדה 32</option><option>עזאי 38</option><option>נתן הנביא 42</option><option>הירקון 41 ב"ב</option><option>חיים בר לב 104</option></select></div>
-      <div class="form-group"><label>עדיפות</label><select id="tf-priority"><option value="urgent">דחוף</option><option value="normal" selected>רגיל</option><option value="low">נמוך</option></select></div>
-      <div class="form-group"><label>פתח</label><select id="tf-opener"><option>יועד</option><option>צביקה</option><option>רועי</option><option>אוהד</option></select></div>
-    </div>
-    <div class="form-group" style="margin-bottom:12px"><label>תיאור</label><textarea id="tf-desc" placeholder="תאר את התקלה או המשימה..."></textarea></div>
-    <div class="btn-row"><button class="btn btn-primary" onclick="addTask()">שמור</button><button class="btn" onclick="toggleTaskForm()">ביטול</button></div>
-  </div>
-  <div id="tasks-board"></div>
-  </div><!-- end task-technical-view -->
-
-  <!-- MANAGEMENT TASKS -->
-  <div id="task-mgmt-view" style="display:none">
+  <!-- VISITS VIEW -->
+  <div id="task-visits-view">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
-      <div class="tab-row" style="margin:0" id="mgmt-filters">
-        <button class="tab active" onclick="setMgmtFilter('all',this)">הכל</button>
-        <button class="tab" onclick="setMgmtFilter('urgent',this)">דחוף</button>
-        <button class="tab" onclick="setMgmtFilter('open',this)">פתוח</button>
-        <button class="tab" onclick="setMgmtFilter('done',this)">טופל</button>
-      </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <select id="mgmt-prop-filter" onchange="renderMgmtTasks()" style="width:auto;font-size:13px">
+        <select id="visit-filter-prop" onchange="renderVisits()" style="width:auto;font-size:13px">
           <option value="">כל הנכסים</option>
           <option>לבנדה 32</option><option>עזאי 38</option>
-          <option>נתן הנביא 42</option><option>הירקון 41 ב&quot;ב</option>
+          <option>נתן הנביא 42</option><option>הירקון 41 ב"ב</option>
+          <option>חיים בר לב 104</option>
+        </select>
+        <select id="visit-filter-who" onchange="renderVisits()" style="width:auto;font-size:13px">
+          <option value="">כולם</option>
+          <option>יועד</option><option>דודו</option><option>צביקה</option><option>רועי</option><option>אוהד</option>
+        </select>
+      </div>
+      <button onclick="openVisitModal()" class="btn btn-primary btn-sm">+ ביקור חדש</button>
+    </div>
+    <div id="visits-board"></div>
+  </div>
+
+  <!-- TASKS BOARD VIEW -->
+  <div id="task-tasks_board-view" style="display:none">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <select id="tb-filter-prop" onchange="renderTasksBoard()" style="width:auto;font-size:13px">
+          <option value="">כל הנכסים</option>
+          <option>לבנדה 32</option><option>עזאי 38</option>
+          <option>נתן הנביא 42</option><option>הירקון 41 ב"ב</option>
           <option>חיים בר לב 104</option><option>כללי</option>
         </select>
-        <select id="mgmt-owner-filter" onchange="renderMgmtTasks()" style="width:auto;font-size:13px">
-          <option value="">כל האחריות</option>
-          <option>אוהד</option><option>צביקה</option><option>רועי</option><option>יועד</option>
+        <select id="tb-filter-who" onchange="renderTasksBoard()" style="width:auto;font-size:13px">
+          <option value="">כולם</option>
+          <option>יועד</option><option>דודו</option><option>צביקה</option><option>רועי</option><option>אוהד</option>
         </select>
-        <button class="btn btn-primary btn-sm" onclick="toggleMgmtForm()">+ משימה</button>
+        <select id="tb-filter-status" onchange="renderTasksBoard()" style="width:auto;font-size:13px">
+          <option value="open">פתוח</option>
+          <option value="all">הכל</option>
+          <option value="done">סגור</option>
+        </select>
       </div>
+      <button onclick="openTaskModal()" class="btn btn-primary btn-sm">+ משימה חדשה</button>
     </div>
+    <div id="tasks-board-list"></div>
+  </div>
 
-    <!-- Add mgmt task form -->
-    <div class="card" style="margin-bottom:12px;display:none" id="mgmt-add-form">
-      <div class="card-title">משימה ניהולית חדשה</div>
-      <div class="form-grid three" style="margin-bottom:10px">
+  <!-- REPORT VIEW -->
+  <div id="task-report-view" style="display:none">
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-title">יצירת דוח ללקוח</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
         <div class="form-group"><label>נכס</label>
-          <select id="mg-prop">
-            <option>כללי</option><option>לבנדה 32</option><option>עזאי 38</option>
-            <option>נתן הנביא 42</option><option>הירקון 41 ב"ב</option><option>חיים בר לב 104</option>
-          </select></div>
-        <div class="form-group"><label>אחריות</label>
-          <select id="mg-owner">
-            <option value="צביקה">צביקה</option><option value="רועי">רועי</option><option value="אוהד">אוהד</option><option value="יועד">יועד</option>
-          </select></div>
-        <div class="form-group"><label>עדיפות</label>
-          <select id="mg-priority">
-            <option value="urgent">דחוף</option>
-            <option value="normal" selected>רגיל</option>
-            <option value="low">נמוך</option>
-          </select></div>
-      </div>
-      <div class="form-grid" style="margin-bottom:10px">
-        <div class="form-group"><label>תיאור המשימה</label>
-          <input id="mg-desc" placeholder="תיאור המשימה..."></div>
-        <div class="form-group"><label>תאריך יעד</label>
-          <input type="date" id="mg-due"></div>
-      </div>
-      <div class="btn-row">
-        <button class="btn btn-primary" onclick="addMgmtTask()">הוסף</button>
-        <button class="btn" onclick="toggleMgmtForm()">ביטול</button>
-      </div>
-    </div>
-
-    <div id="mgmt-board"></div>
-  </div><!-- end task-mgmt-view -->
-
-  <!-- DUDU TASKS -->
-  <div id="task-dudu-view" style="display:none">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
-      <div class="tab-row" style="margin:0" id="dudu-filters">
-        <button class="tab active" onclick="setDuduFilter('all',this)">הכל</button>
-        <button class="tab" onclick="setDuduFilter('urgent',this)">דחוף</button>
-        <button class="tab" onclick="setDuduFilter('open',this)">פתוח</button>
-        <button class="tab" onclick="setDuduFilter('done',this)">טופל</button>
-      </div>
-      <button class="btn btn-primary btn-sm" onclick="toggleDuduForm()">+ משימה</button>
-    </div>
-
-    <div class="card" id="dudu-add-form" style="display:none;margin-bottom:12px">
-      <div class="card-title">משימת דודו חדשה</div>
-      <div class="form-grid" style="margin-bottom:10px">
-        <div class="form-group"><label>תיאור *</label>
-          <input id="dd-desc" placeholder="תיאור המשימה..."></div>
-        <div class="form-group"><label>תאריך יעד</label>
-          <input type="date" id="dd-due"></div>
-      </div>
-      <div class="form-grid three" style="margin-bottom:10px">
-        <div class="form-group"><label>נכס</label>
-          <select id="dd-prop">
-            <option value="כללי">כללי</option>
+          <select id="report-prop" onchange="previewReport()">
+            <option value="">בחר נכס...</option>
             <option>לבנדה 32</option><option>עזאי 38</option>
             <option>נתן הנביא 42</option><option>הירקון 41 ב"ב</option>
             <option>חיים בר לב 104</option>
           </select></div>
-        <div class="form-group"><label>עדיפות</label>
-          <select id="dd-priority">
-            <option value="urgent">דחוף 🔴</option>
-            <option value="normal" selected>רגיל 🟡</option>
-            <option value="low">נמוך 🟢</option>
-          </select></div>
-        <div class="form-group"><label>הערות</label>
-          <input id="dd-note" placeholder="הערה..."></div>
+        <div class="form-group"><label>קומה/חדר (אופציונלי)</label>
+          <input id="report-room" placeholder="למשל: קומה 2 חדר 5"></div>
+        <div class="form-group"><label>מתאריך</label>
+          <input type="date" id="report-from"></div>
+        <div class="form-group"><label>עד תאריך</label>
+          <input type="date" id="report-to"></div>
       </div>
       <div class="btn-row">
-        <button onclick="addDuduTask()" class="btn btn-primary">הוסף</button>
-        <button onclick="toggleDuduForm()" class="btn">ביטול</button>
+        <button onclick="previewReport()" class="btn btn-primary">הכן דוח</button>
       </div>
     </div>
-    <div id="dudu-board"></div>
+    <div id="report-preview"></div>
+  </div>
+</div>
+
+<!-- VISIT MODAL -->
+<div id="visit-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);align-items:flex-start;justify-content:center;z-index:400;padding:1rem;overflow-y:auto">
+  <div style="background:#fff;border-radius:12px;padding:20px;width:100%;max-width:420px;border:1px solid #e0ddd8;margin:auto">
+    <div style="font-size:15px;font-weight:600;margin-bottom:16px">📍 רישום ביקור</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+      <div class="form-group"><label>נכס *</label>
+        <select id="vm-prop" onchange="vmUpdateRooms()">
+          <option>לבנדה 32</option><option>עזאי 38</option>
+          <option>נתן הנביא 42</option><option>הירקון 41 ב"ב</option>
+          <option>חיים בר לב 104</option>
+        </select></div>
+      <div class="form-group"><label>מי ביקר *</label>
+        <select id="vm-who">
+          <option>יועד</option><option>דודו</option><option>צביקה</option>
+          <option>רועי</option><option>אוהד</option>
+        </select></div>
+      <div class="form-group"><label>קומה</label>
+        <select id="vm-floor">
+          <option value="">כל הנכס</option>
+          <option value="1">קומה 1</option><option value="2">קומה 2</option>
+          <option value="3">קומה 3</option><option value="-1">מרתף</option>
+        </select></div>
+      <div class="form-group"><label>חדר</label>
+        <input type="number" id="vm-room" placeholder="מספר חדר (אופציונלי)"></div>
+      <div class="form-group"><label>תאריך *</label>
+        <input type="date" id="vm-date"></div>
+      <div class="form-group"><label>שעה</label>
+        <input type="time" id="vm-time"></div>
+    </div>
+    <div class="form-group" style="margin-bottom:10px"><label>מה נמצא / מה נעשה</label>
+      <textarea id="vm-found" placeholder="תאר מה מצאת ומה עשית..." style="min-height:80px"></textarea></div>
+    <div class="form-group" style="margin-bottom:10px"><label>משימות שנפתחו מהביקור</label>
+      <textarea id="vm-tasks-opened" placeholder="משימות שנשארו פתוחות..." style="min-height:60px"></textarea></div>
+    <div style="display:flex;gap:8px">
+      <button onclick="saveVisit()" style="flex:1;padding:9px;background:#2d2a26;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-family:inherit">שמור ביקור</button>
+      <button onclick="document.getElementById('visit-modal').style.display='none'" style="padding:9px 16px;background:transparent;border:1px solid #ddd;border-radius:6px;cursor:pointer;font-size:13px;font-family:inherit">ביטול</button>
+    </div>
+  </div>
+</div>
+
+<!-- TASK MODAL -->
+<div id="ops-task-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);align-items:flex-start;justify-content:center;z-index:400;padding:1rem;overflow-y:auto">
+  <div style="background:#fff;border-radius:12px;padding:20px;width:100%;max-width:420px;border:1px solid #e0ddd8;margin:auto">
+    <div style="font-size:15px;font-weight:600;margin-bottom:16px" id="ops-task-modal-title">משימה חדשה</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+      <div class="form-group"><label>נכס *</label>
+        <select id="otm-prop">
+          <option>כללי</option><option>לבנדה 32</option><option>עזאי 38</option>
+          <option>נתן הנביא 42</option><option>הירקון 41 ב"ב</option>
+          <option>חיים בר לב 104</option>
+        </select></div>
+      <div class="form-group"><label>אחראי *</label>
+        <select id="otm-who">
+          <option>יועד</option><option>דודו</option><option>צביקה</option>
+          <option>רועי</option><option>אוהד</option>
+        </select></div>
+      <div class="form-group"><label>קומה</label>
+        <input type="number" id="otm-floor" placeholder="קומה (אופציונלי)"></div>
+      <div class="form-group"><label>חדר</label>
+        <input type="number" id="otm-room" placeholder="חדר (אופציונלי)"></div>
+      <div class="form-group"><label>עדיפות</label>
+        <select id="otm-priority">
+          <option value="urgent">🔴 דחוף</option>
+          <option value="normal" selected>🟡 רגיל</option>
+          <option value="low">🟢 נמוך</option>
+        </select></div>
+      <div class="form-group"><label>תאריך יעד</label>
+        <input type="date" id="otm-due"></div>
+    </div>
+    <div class="form-group" style="margin-bottom:10px"><label>תיאור המשימה *</label>
+      <textarea id="otm-desc" placeholder="תאר את המשימה..." style="min-height:80px"></textarea></div>
+    <div style="display:flex;gap:8px">
+      <button onclick="saveOpsTask()" style="flex:1;padding:9px;background:#2d2a26;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-family:inherit">שמור</button>
+      <button onclick="document.getElementById('ops-task-modal').style.display='none'" style="padding:9px 16px;background:transparent;border:1px solid #ddd;border-radius:6px;cursor:pointer;font-size:13px;font-family:inherit">ביטול</button>
+    </div>
   </div>
 </div>
 
@@ -1315,7 +1328,7 @@ function nav(page, el) {
   if (page==='tenants') { renderTenants(); populateClientSelects(); }
   if (page==='movements') { renderMovements(); populateClientSelects(); }
   if (page==='billing') { populateBillClientFilter(); renderBilling(); }
-  if (page==='tasks') renderTasks();
+  if (page==='tasks') { renderVisits(); renderTasksBoard(); }
   if (page==='expenses') renderExpenses();
   if (page==='clients') renderClients();
   if (page==='history') renderHistory();
@@ -2370,8 +2383,13 @@ let mgmtFilter = 'all';
 let mgmtEditId = null;
 
 function updateTaskBadge(){
-  const n=TASKS.filter(t=>!t.done).length + MGMT_TASKS.filter(t=>!t.done).length + DUDU_TASKS.filter(t=>!t.done).length;
+  const n = TASKS.filter(t=>!t.done).length + 
+            MGMT_TASKS.filter(t=>!t.done).length + 
+            DUDU_TASKS.filter(t=>!t.done).length +
+            OPS_TASKS.filter(t=>t.status!=='done').length;
   document.getElementById('tasks-badge').textContent=n;
+  const el = document.getElementById('tasks-open-count');
+  if(el) el.textContent = OPS_TASKS.filter(t=>t.status!=='done').length||'';
 }
 
 function renderTasks(){
@@ -2860,6 +2878,8 @@ window._isSaving = false;
 
 function getDataSnapshot() {
   return {
+    VISITS: JSON.parse(JSON.stringify(VISITS)),
+    OPS_TASKS: JSON.parse(JSON.stringify(OPS_TASKS)),
     HISTORY: JSON.parse(JSON.stringify(HISTORY)),
     GENERAL_EXPENSES: JSON.parse(JSON.stringify(GENERAL_EXPENSES)),
     INVOICE_TRACK: JSON.parse(JSON.stringify(INVOICE_TRACK)),
@@ -2914,6 +2934,12 @@ function applyData(data) {
     if (data.TENANTS) { TENANTS.length=0; TENANTS.push(...data.TENANTS); }
     if (data.MOVEMENTS) { MOVEMENTS.length=0; MOVEMENTS.push(...data.MOVEMENTS); }
     if (data.TASKS) { TASKS.length=0; TASKS.push(...data.TASKS); }
+    if (data.VISITS) { VISITS.length=0; VISITS.push(...data.VISITS); }
+    if (data.OPS_TASKS) {
+      OPS_TASKS.length=0; OPS_TASKS.push(...data.OPS_TASKS);
+      const maxId = Math.max(0,...data.OPS_TASKS.map(t=>Number(t.id)||0));
+      opsTaskNextId = maxId+1;
+    }
     if (data.EXPENSES) { EXPENSES.length=0; EXPENSES.push(...data.EXPENSES); }
     if (data.MAP_DATA) Object.assign(MAP_DATA, data.MAP_DATA);
     if (data.FIXED_COSTS) Object.assign(FIXED_COSTS, data.FIXED_COSTS);
@@ -5041,6 +5067,347 @@ function deleteMapRoom(propRaw, floor, roomNum) {
   floors[floorKey] = floors[floorKey].filter(r => r.r !== roomNum);
   autosave();
   renderTenantMap();
+}
+
+
+// ============ VISITS & OPS TASKS ============
+const VISITS = [];
+const OPS_TASKS = [];
+let opsTaskNextId = 1;
+let visitNextId = 1;
+let currentOpsTaskEditId = null;
+
+function setTaskMainTab(tab, el) {
+  document.querySelectorAll('#task-main-tabs .tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  ['visits','tasks_board','report'].forEach(v => {
+    const el2 = document.getElementById('task-'+v+'-view');
+    if(el2) el2.style.display = v===tab ? 'block' : 'none';
+  });
+  if(tab==='visits') renderVisits();
+  if(tab==='tasks_board') renderTasksBoard();
+  if(tab==='report') { document.getElementById('report-from').value=''; document.getElementById('report-to').value=''; }
+}
+
+function openVisitModal() {
+  const today = new Date().toISOString().split('T')[0];
+  const now = new Date().toTimeString().slice(0,5);
+  document.getElementById('vm-date').value = today;
+  document.getElementById('vm-time').value = now;
+  document.getElementById('vm-found').value = '';
+  document.getElementById('vm-tasks-opened').value = '';
+  document.getElementById('vm-room').value = '';
+  document.getElementById('vm-floor').value = '';
+  document.getElementById('visit-modal').style.display = 'flex';
+}
+
+function vmUpdateRooms() {}
+
+function saveVisit() {
+  const prop = document.getElementById('vm-prop').value;
+  const who = document.getElementById('vm-who').value;
+  const floor = document.getElementById('vm-floor').value;
+  const room = document.getElementById('vm-room').value;
+  const date = document.getElementById('vm-date').value;
+  const time = document.getElementById('vm-time').value;
+  const found = document.getElementById('vm-found').value.trim();
+  const tasksOpened = document.getElementById('vm-tasks-opened').value.trim();
+  if(!prop||!date||!who) { alert('נא למלא נכס, תאריך ומי ביקר'); return; }
+
+  const visit = {
+    id: visitNextId++,
+    prop, who, floor, room: room||'', date, time,
+    found, tasksOpened,
+    createdAt: new Date().toISOString()
+  };
+  VISITS.unshift(visit);
+
+  // Auto-create tasks from visit if needed
+  if(tasksOpened) {
+    tasksOpened.split('\n').filter(t=>t.trim()).forEach(desc => {
+      OPS_TASKS.unshift({
+        id: opsTaskNextId++,
+        prop, who: 'יועד', floor, room: room||'',
+        desc: desc.trim(), priority: 'normal',
+        status: 'open', due: '', createdAt: new Date().toISOString(),
+        fromVisit: visit.id
+      });
+    });
+  }
+
+  document.getElementById('visit-modal').style.display = 'none';
+  autosave();
+  renderVisits();
+  updateTaskBadge();
+}
+
+function renderVisits() {
+  const fp = (document.getElementById('visit-filter-prop')||{}).value||'';
+  const fw = (document.getElementById('visit-filter-who')||{}).value||'';
+  let list = VISITS.filter(v=>(!fp||v.prop===fp)&&(!fw||v.who===fw));
+  list.sort((a,b)=>b.date.localeCompare(a.date)||(b.time||'').localeCompare(a.time||''));
+
+  const whoColors = {יועד:'#1a6fa8',דודו:'#8b4513',צביקה:'#7367c0',רועי:'#2d8a5e',אוהד:'#c07330'};
+  const whoBg = {יועד:'#e3f2fd',דודו:'#fdf3e7',צביקה:'#ede9f8',רועי:'#e8f5ef',אוהד:'#fff3e0'};
+
+  if(!list.length) {
+    document.getElementById('visits-board').innerHTML = '<div style="text-align:center;padding:2rem;color:var(--text3)">אין ביקורים רשומים — לחץ + ביקור חדש</div>';
+    return;
+  }
+
+  // Group by date
+  const byDate = {};
+  list.forEach(v => { if(!byDate[v.date]) byDate[v.date]=[]; byDate[v.date].push(v); });
+
+  let html = '';
+  Object.entries(byDate).forEach(([date, visits]) => {
+    const d = new Date(date);
+    const dayStr = d.toLocaleDateString('he-IL',{weekday:'long',day:'numeric',month:'long'});
+    html += `<div style="margin-bottom:20px">
+      <div style="font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border)">${dayStr}</div>`;
+    visits.forEach(v => {
+      const loc = [v.prop, v.floor?'קומה '+v.floor:'', v.room?'חדר '+v.room:''].filter(Boolean).join(' · ');
+      const relTasks = OPS_TASKS.filter(t=>t.fromVisit===v.id);
+      html += `<div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:8px;border-right:3px solid ${whoColors[v.who]||'#888'}">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap">
+          <div style="flex:1">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap">
+              <span style="background:${whoBg[v.who]||'#eee'};color:${whoColors[v.who]||'#333'};padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600">${v.who}</span>
+              <span style="font-size:13px;font-weight:600">${loc}</span>
+              ${v.time?`<span style="font-size:12px;color:var(--text3)">${v.time}</span>`:''}
+            </div>
+            ${v.found?`<div style="font-size:13px;color:var(--text);margin-bottom:6px;line-height:1.6">${v.found.replace(/\n/g,'<br>')}</div>`:''}
+            ${relTasks.length?`<div style="margin-top:8px;padding-top:8px;border-top:0.5px solid var(--border)">
+              <div style="font-size:11px;color:var(--text3);margin-bottom:4px">משימות שנפתחו:</div>
+              ${relTasks.map(t=>`<div style="font-size:12px;display:flex;align-items:center;gap:6px;padding:3px 0">
+                <span style="width:8px;height:8px;border-radius:50%;background:${t.status==='done'?'#2d8a5e':'#e8a030'};flex-shrink:0"></span>
+                <span style="${t.status==='done'?'text-decoration:line-through;color:var(--text3)':''}">${t.desc}</span>
+              </div>`).join('')}
+            </div>`:''}
+          </div>
+          <div style="display:flex;gap:4px;flex-shrink:0">
+            <button onclick="deleteVisit(${v.id})" class="btn btn-sm btn-danger">מחק</button>
+          </div>
+        </div>
+      </div>`;
+    });
+    html += '</div>';
+  });
+
+  document.getElementById('visits-board').innerHTML = html;
+}
+
+function deleteVisit(id) {
+  if(!confirm('למחוק ביקור זה?')) return;
+  VISITS.splice(VISITS.findIndex(v=>v.id===id),1);
+  autosave(); renderVisits();
+}
+
+// ---- OPS TASKS ----
+function openTaskModal(editId) {
+  currentOpsTaskEditId = editId||null;
+  const t = editId ? OPS_TASKS.find(x=>x.id===editId) : null;
+  document.getElementById('ops-task-modal-title').textContent = t ? 'עריכת משימה' : 'משימה חדשה';
+  document.getElementById('otm-prop').value = t ? t.prop : 'כללי';
+  document.getElementById('otm-who').value = t ? t.who : 'יועד';
+  document.getElementById('otm-floor').value = t ? t.floor||'' : '';
+  document.getElementById('otm-room').value = t ? t.room||'' : '';
+  document.getElementById('otm-priority').value = t ? t.priority : 'normal';
+  document.getElementById('otm-due').value = t ? t.due||'' : '';
+  document.getElementById('otm-desc').value = t ? t.desc : '';
+  document.getElementById('ops-task-modal').style.display = 'flex';
+}
+
+function saveOpsTask() {
+  const prop = document.getElementById('otm-prop').value;
+  const who = document.getElementById('otm-who').value;
+  const floor = document.getElementById('otm-floor').value;
+  const room = document.getElementById('otm-room').value;
+  const priority = document.getElementById('otm-priority').value;
+  const due = document.getElementById('otm-due').value;
+  const desc = document.getElementById('otm-desc').value.trim();
+  if(!desc) { alert('נא להזין תיאור'); return; }
+
+  if(currentOpsTaskEditId) {
+    const t = OPS_TASKS.find(x=>x.id===currentOpsTaskEditId);
+    if(t) Object.assign(t, {prop,who,floor,room,priority,due,desc});
+  } else {
+    OPS_TASKS.unshift({id:opsTaskNextId++,prop,who,floor,room,priority,due,desc,status:'open',createdAt:new Date().toISOString()});
+  }
+  document.getElementById('ops-task-modal').style.display = 'none';
+  autosave(); renderTasksBoard(); updateTaskBadge();
+}
+
+function toggleOpsTask(id) {
+  const t = OPS_TASKS.find(x=>x.id===id);
+  if(t) { t.status = t.status==='done'?'open':'done'; autosave(); renderTasksBoard(); updateTaskBadge(); }
+}
+
+function deleteOpsTask(id) {
+  OPS_TASKS.splice(OPS_TASKS.findIndex(x=>x.id===id),1);
+  autosave(); renderTasksBoard(); updateTaskBadge();
+}
+
+function renderTasksBoard() {
+  const fp = (document.getElementById('tb-filter-prop')||{}).value||'';
+  const fw = (document.getElementById('tb-filter-who')||{}).value||'';
+  const fs = (document.getElementById('tb-filter-status')||{}).value||'open';
+
+  // Also include old TASKS + MGMT_TASKS
+  let allTasks = [
+    ...OPS_TASKS.map(t=>({...t, _src:'ops'})),
+    ...TASKS.filter(t=>!t._migrated).map(t=>({
+      id:'t_'+t.id, prop:t.prop, who:t.opener||'יועד', floor:'', room:'',
+      priority:t.priority, due:'', desc:t.desc,
+      status:t.done?'done':'open', createdAt:'', _src:'old'
+    })),
+    ...MGMT_TASKS.map(t=>({
+      id:'m_'+t.id, prop:t.prop, who:t.owner, floor:'', room:'',
+      priority:t.priority, due:t.due||'', desc:t.desc,
+      status:t.done?'done':'open', createdAt:'', _src:'mgmt'
+    }))
+  ];
+
+  let list = allTasks.filter(t => {
+    if(fp && t.prop!==fp) return false;
+    if(fw && t.who!==fw) return false;
+    if(fs==='open') return t.status!=='done';
+    if(fs==='done') return t.status==='done';
+    return true;
+  });
+
+  list.sort((a,b) => {
+    if(a.status!==b.status) return a.status==='done'?1:-1;
+    const po={urgent:0,normal:1,low:2};
+    return (po[a.priority]||1)-(po[b.priority]||1);
+  });
+
+  const whoColors = {יועד:'#1a6fa8',דודו:'#8b4513',צביקה:'#7367c0',רועי:'#2d8a5e',אוהד:'#c07330'};
+  const whoBg = {יועד:'#e3f2fd',דודו:'#fdf3e7',צביקה:'#ede9f8',רועי:'#e8f5ef',אוהד:'#fff3e0'};
+  const prioBg = {urgent:'#faeae8',normal:'#fff3e0',low:'#e8f5ef'};
+  const prioColor = {urgent:'#b85a50',normal:'#e8a030',low:'#2d8a5e'};
+  const prioLabel = {urgent:'🔴 דחוף',normal:'🟡 רגיל',low:'🟢 נמוך'};
+  const today = new Date().toISOString().split('T')[0];
+
+  const openCount = allTasks.filter(t=>t.status!=='done').length;
+  const el = document.getElementById('tasks-open-count');
+  if(el) el.textContent = openCount||'';
+
+  if(!list.length) {
+    document.getElementById('tasks-board-list').innerHTML = '<div style="text-align:center;padding:2rem;color:var(--text3)">אין משימות</div>';
+    return;
+  }
+
+  document.getElementById('tasks-board-list').innerHTML = list.map(t => {
+    const loc = [t.prop!=='כללי'?t.prop:'', t.floor?'ק'+t.floor:'', t.room?'ח'+t.room:''].filter(Boolean).join(' · ');
+    const isOverdue = t.due && t.due < today && t.status!=='done';
+    const isDone = t.status==='done';
+    return `<div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:8px;${isDone?'opacity:0.5':''}${isOverdue?';border-right:3px solid #b85a50':''}">
+      <div style="display:flex;align-items:flex-start;gap:10px">
+        <div onclick="toggleOpsTask(${JSON.stringify(t.id)})" style="width:20px;height:20px;border-radius:5px;border:1.5px solid ${isDone?'#2d8a5e':prioColor[t.priority]||'#aaa'};background:${isDone?'#2d8a5e':'transparent'};cursor:pointer;flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;color:white;font-size:12px">${isDone?'✓':''}</div>
+        <div style="flex:1">
+          <div style="font-size:13px;color:var(--text);margin-bottom:5px;${isDone?'text-decoration:line-through':''}">${t.desc}</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+            ${loc?`<span style="font-size:11px;color:var(--text2);background:var(--bg3);padding:2px 7px;border-radius:10px">${loc}</span>`:''}
+            <span style="background:${whoBg[t.who]||'#eee'};color:${whoColors[t.who]||'#333'};padding:2px 7px;border-radius:10px;font-size:11px;font-weight:600">${t.who}</span>
+            <span style="background:${prioBg[t.priority]||'#eee'};color:${prioColor[t.priority]||'#333'};padding:2px 7px;border-radius:10px;font-size:11px">${prioLabel[t.priority]||''}</span>
+            ${t.due?`<span style="font-size:11px;color:${isOverdue?'#b85a50':'var(--text3)'}">${isOverdue?'⚠️ ':''}${t.due}</span>`:''}
+          </div>
+        </div>
+        ${t._src==='ops'?`<div style="display:flex;gap:4px;flex-shrink:0">
+          <button onclick="openTaskModal(${t.id})" class="btn btn-sm">✏️</button>
+          <button onclick="deleteOpsTask(${t.id})" class="btn btn-sm btn-danger">✕</button>
+        </div>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ---- REPORT ----
+function previewReport() {
+  const prop = document.getElementById('report-prop').value;
+  const room = document.getElementById('report-room').value.trim();
+  const from = document.getElementById('report-from').value;
+  const to = document.getElementById('report-to').value;
+  if(!prop) { document.getElementById('report-preview').innerHTML='<div class="alert alert-amber">בחר נכס</div>'; return; }
+
+  const visits = VISITS.filter(v => {
+    if(v.prop!==prop) return false;
+    if(room && !`קומה ${v.floor} חדר ${v.room}`.includes(room) && !v.found.includes(room)) return false;
+    if(from && v.date<from) return false;
+    if(to && v.date>to) return false;
+    return true;
+  }).sort((a,b)=>a.date.localeCompare(b.date));
+
+  const tasks = OPS_TASKS.filter(t => {
+    if(t.prop!==prop) return false;
+    if(room && `קומה ${t.floor} חדר ${t.room}`.includes(room)===false && room!=='') return false;
+    return true;
+  });
+
+  const openTasks = tasks.filter(t=>t.status!=='done');
+  const doneTasks = tasks.filter(t=>t.status==='done');
+
+  // Build report text
+  const today = new Date().toLocaleDateString('he-IL');
+  let reportText = `דוח תפעול — ${prop}\n`;
+  if(room) reportText += `${room}\n`;
+  reportText += `תאריך הפקה: ${today}\n\n`;
+
+  if(visits.length) {
+    reportText += `ביקורים (${visits.length}):\n`;
+    visits.forEach(v => {
+      reportText += `• ${v.date} ${v.time||''} — ${v.who}`;
+      if(v.floor||v.room) reportText += ` (קומה ${v.floor||'-'} חדר ${v.room||'-'})`;
+      if(v.found) reportText += `\n  ${v.found}`;
+      reportText += '\n';
+    });
+    reportText += '\n';
+  }
+
+  if(openTasks.length) {
+    reportText += `משימות פתוחות (${openTasks.length}):\n`;
+    openTasks.forEach(t => {
+      reportText += `• ${t.desc}`;
+      if(t.due) reportText += ` (יעד: ${t.due})`;
+      reportText += '\n';
+    });
+    reportText += '\n';
+  }
+
+  if(doneTasks.length) {
+    reportText += `טופל (${doneTasks.length}):\n`;
+    doneTasks.forEach(t => { reportText += `✓ ${t.desc}\n`; });
+  }
+
+  document.getElementById('report-preview').innerHTML = `
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div style="font-size:14px;font-weight:600">תצוגה מקדימה</div>
+        <div style="display:flex;gap:8px">
+          <button onclick="copyReport()" class="btn btn-sm" style="background:#e8f5ef;color:#2d8a5e">📋 העתק</button>
+          <button onclick="whatsappReport('${prop}')" class="btn btn-sm" style="background:#25d366;color:#fff">📱 WhatsApp</button>
+        </div>
+      </div>
+      <div class="metrics" style="margin-bottom:14px">
+        <div class="metric"><div class="metric-label">ביקורים</div><div class="metric-value">${visits.length}</div></div>
+        <div class="metric"><div class="metric-label">משימות פתוחות</div><div class="metric-value ${openTasks.length>0?'red':''}">${openTasks.length}</div></div>
+        <div class="metric"><div class="metric-label">טופל</div><div class="metric-value green">${doneTasks.length}</div></div>
+      </div>
+      <textarea id="report-text" style="width:100%;min-height:200px;background:#f5f3ef;border:1px solid var(--border);border-radius:6px;padding:12px;font-size:13px;font-family:inherit;resize:vertical;direction:rtl">${reportText}</textarea>
+    </div>`;
+}
+
+function copyReport() {
+  const t = document.getElementById('report-text');
+  if(!t) return;
+  navigator.clipboard.writeText(t.value).then(()=>showSaveIndicator('📋 הועתק'));
+}
+
+function whatsappReport(prop) {
+  const t = document.getElementById('report-text');
+  if(!t) return;
+  window.open('https://wa.me/?text='+encodeURIComponent(t.value),'_blank');
 }
 
 async function initApp() {
