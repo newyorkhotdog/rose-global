@@ -568,11 +568,13 @@ textarea { resize: vertical; min-height: 70px; }
 
 <!-- VISIT MODAL -->
 <div id="visit-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);align-items:flex-start;justify-content:center;z-index:400;padding:1rem;overflow-y:auto">
-  <div style="background:#fff;border-radius:12px;padding:20px;width:100%;max-width:420px;border:1px solid #e0ddd8;margin:auto">
+  <div style="background:#fff;border-radius:12px;padding:20px;width:100%;max-width:480px;border:1px solid #e0ddd8;margin:auto">
     <div style="font-size:15px;font-weight:600;margin-bottom:16px">📍 רישום ביקור</div>
+    
+    <!-- שורה 1: נכס + מי -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
       <div class="form-group"><label>נכס *</label>
-        <select id="vm-prop" onchange="vmUpdateRooms()">
+        <select id="vm-prop">
           <option>לבנדה 32</option><option>עזאי 38</option>
           <option>נתן הנביא 42</option><option>הירקון 41 ב"ב</option>
           <option>חיים בר לב 104</option>
@@ -589,19 +591,44 @@ textarea { resize: vertical; min-height: 70px; }
           <option value="3">קומה 3</option><option value="-1">מרתף</option>
         </select></div>
       <div class="form-group"><label>חדר</label>
-        <input type="number" id="vm-room" placeholder="מספר חדר (אופציונלי)"></div>
+        <input type="number" id="vm-room" placeholder="(אופציונלי)"></div>
       <div class="form-group"><label>תאריך *</label>
         <input type="date" id="vm-date"></div>
       <div class="form-group"><label>שעה</label>
         <input type="time" id="vm-time"></div>
     </div>
-    <div class="form-group" style="margin-bottom:10px"><label>מה נמצא / מה נעשה</label>
-      <textarea id="vm-found" placeholder="תאר מה מצאת ומה עשית..." style="min-height:80px"></textarea></div>
-    <div class="form-group" style="margin-bottom:10px"><label>משימות שנפתחו מהביקור</label>
-      <textarea id="vm-tasks-opened" placeholder="משימות שנשארו פתוחות..." style="min-height:60px"></textarea></div>
+
+    <!-- מה נמצא / נעשה — צ'קליסט -->
+    <div style="margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <label style="font-size:11px;color:#a09890;text-transform:uppercase;letter-spacing:0.5px">מה נמצא / מה נעשה</label>
+        <button onclick="addFoundItem()" style="background:#e8f5ef;color:#2d8a5e;border:none;border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer;font-family:inherit">+ הוסף</button>
+      </div>
+      <div id="vm-found-list" style="display:flex;flex-direction:column;gap:6px"></div>
+    </div>
+
+    <!-- משימות שנפתחו — צ'קליסט -->
+    <div style="margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <label style="font-size:11px;color:#a09890;text-transform:uppercase;letter-spacing:0.5px">משימות שנפתחו</label>
+        <button onclick="addOpenedTask()" style="background:#faeae8;color:#b85a50;border:none;border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer;font-family:inherit">+ הוסף</button>
+      </div>
+      <div id="vm-tasks-list" style="display:flex;flex-direction:column;gap:6px"></div>
+    </div>
+
+    <!-- תמונות -->
+    <div style="margin-bottom:14px">
+      <label style="font-size:11px;color:#a09890;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:8px">תמונות</label>
+      <label style="cursor:pointer;display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:#f5f3ef;border:1px dashed #ccc;border-radius:8px;font-size:13px;color:#6b6560">
+        📷 צלם / העלה תמונה
+        <input type="file" id="vm-photos" accept="image/*" multiple capture="environment" style="display:none" onchange="handleVisitPhotos(this)">
+      </label>
+      <div id="vm-photos-preview" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"></div>
+    </div>
+
     <div style="display:flex;gap:8px">
-      <button onclick="saveVisit()" style="flex:1;padding:9px;background:#2d2a26;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-family:inherit">שמור ביקור</button>
-      <button onclick="document.getElementById('visit-modal').style.display='none'" style="padding:9px 16px;background:transparent;border:1px solid #ddd;border-radius:6px;cursor:pointer;font-size:13px;font-family:inherit">ביטול</button>
+      <button onclick="saveVisit()" style="flex:1;padding:10px;background:#2d2a26;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;font-family:inherit;font-weight:500">💾 שמור ביקור</button>
+      <button onclick="document.getElementById('visit-modal').style.display='none'" style="padding:10px 16px;background:transparent;border:1px solid #ddd;border-radius:6px;cursor:pointer;font-size:13px;font-family:inherit">ביטול</button>
     </div>
   </div>
 </div>
@@ -5089,19 +5116,75 @@ function setTaskMainTab(tab, el) {
   if(tab==='report') { document.getElementById('report-from').value=''; document.getElementById('report-to').value=''; }
 }
 
+let vmPhotosBase64 = [];
+
 function openVisitModal() {
   const today = new Date().toISOString().split('T')[0];
   const now = new Date().toTimeString().slice(0,5);
   document.getElementById('vm-date').value = today;
   document.getElementById('vm-time').value = now;
-  document.getElementById('vm-found').value = '';
-  document.getElementById('vm-tasks-opened').value = '';
   document.getElementById('vm-room').value = '';
   document.getElementById('vm-floor').value = '';
+  document.getElementById('vm-found-list').innerHTML = '';
+  document.getElementById('vm-tasks-list').innerHTML = '';
+  document.getElementById('vm-photos-preview').innerHTML = '';
+  vmPhotosBase64 = [];
+  // Add first item automatically
+  addFoundItem();
   document.getElementById('visit-modal').style.display = 'flex';
+  setTimeout(()=>document.querySelector('#vm-found-list input')?.focus(), 100);
 }
 
 function vmUpdateRooms() {}
+
+function addFoundItem() {
+  const list = document.getElementById('vm-found-list');
+  const idx = list.children.length;
+  const div = document.createElement('div');
+  div.style.cssText = 'display:flex;align-items:center;gap:8px';
+  div.innerHTML = `
+    <div style="width:20px;height:20px;border-radius:5px;border:1.5px solid #4a9e7a;background:#4a9e7a;display:flex;align-items:center;justify-content:center;color:white;font-size:11px;flex-shrink:0">✓</div>
+    <input placeholder="תאר מה נמצא / מה נעשה..." style="flex:1;background:#f5f3ef;border:1px solid #ddd;border-radius:6px;padding:7px 10px;font-size:13px;font-family:inherit" data-found="${idx}">
+    <button onclick="this.parentElement.remove()" style="background:none;border:none;color:#b85a50;cursor:pointer;font-size:16px;padding:0 4px;flex-shrink:0">✕</button>`;
+  list.appendChild(div);
+  div.querySelector('input').focus();
+}
+
+function addOpenedTask() {
+  const list = document.getElementById('vm-tasks-list');
+  const idx = list.children.length;
+  const div = document.createElement('div');
+  div.style.cssText = 'display:flex;align-items:center;gap:8px';
+  div.innerHTML = `
+    <div style="width:20px;height:20px;border-radius:5px;border:1.5px solid #b85a50;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+      <select style="border:none;background:transparent;font-size:10px;padding:0;cursor:pointer;width:18px" data-pri="${idx}">
+        <option value="urgent">🔴</option>
+        <option value="normal" selected>🟡</option>
+        <option value="low">🟢</option>
+      </select>
+    </div>
+    <input placeholder="תאר משימה שנפתחה..." style="flex:1;background:#fff8f8;border:1px solid #f0c0bb;border-radius:6px;padding:7px 10px;font-size:13px;font-family:inherit" data-task="${idx}">
+    <input type="date" style="width:120px;background:#f5f3ef;border:1px solid #ddd;border-radius:6px;padding:7px 8px;font-size:12px;font-family:inherit" data-due="${idx}">
+    <button onclick="this.parentElement.remove()" style="background:none;border:none;color:#b85a50;cursor:pointer;font-size:16px;padding:0 4px;flex-shrink:0">✕</button>`;
+  list.appendChild(div);
+  div.querySelector('input[data-task]').focus();
+}
+
+function handleVisitPhotos(input) {
+  const preview = document.getElementById('vm-photos-preview');
+  Array.from(input.files).forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const base64 = e.target.result;
+      vmPhotosBase64.push(base64);
+      const img = document.createElement('img');
+      img.src = base64;
+      img.style.cssText = 'width:80px;height:80px;object-fit:cover;border-radius:6px;border:1px solid #ddd';
+      preview.appendChild(img);
+    };
+    reader.readAsDataURL(file);
+  });
+}
 
 function saveVisit() {
   const prop = document.getElementById('vm-prop').value;
@@ -5110,35 +5193,54 @@ function saveVisit() {
   const room = document.getElementById('vm-room').value;
   const date = document.getElementById('vm-date').value;
   const time = document.getElementById('vm-time').value;
-  const found = document.getElementById('vm-found').value.trim();
-  const tasksOpened = document.getElementById('vm-tasks-opened').value.trim();
   if(!prop||!date||!who) { alert('נא למלא נכס, תאריך ומי ביקר'); return; }
+
+  // Collect found items
+  const foundItems = [];
+  document.querySelectorAll('#vm-found-list input[data-found]').forEach(inp => {
+    if(inp.value.trim()) foundItems.push(inp.value.trim());
+  });
+
+  // Collect opened tasks
+  const openedTasks = [];
+  document.querySelectorAll('#vm-tasks-list input[data-task]').forEach(inp => {
+    if(!inp.value.trim()) return;
+    const idx = inp.dataset.task;
+    const priSel = document.querySelector(`select[data-pri="${idx}"]`);
+    const dueSel = document.querySelector(`input[data-due="${idx}"]`);
+    openedTasks.push({
+      desc: inp.value.trim(),
+      priority: priSel ? priSel.value : 'normal',
+      due: dueSel ? dueSel.value : ''
+    });
+  });
 
   const visit = {
     id: visitNextId++,
     prop, who, floor, room: room||'', date, time,
-    found, tasksOpened,
+    foundItems, openedTasks,
+    photos: vmPhotosBase64.slice(0,4), // max 4 photos
     createdAt: new Date().toISOString()
   };
   VISITS.unshift(visit);
 
-  // Auto-create tasks from visit if needed
-  if(tasksOpened) {
-    tasksOpened.split('\n').filter(t=>t.trim()).forEach(desc => {
-      OPS_TASKS.unshift({
-        id: opsTaskNextId++,
-        prop, who: 'יועד', floor, room: room||'',
-        desc: desc.trim(), priority: 'normal',
-        status: 'open', due: '', createdAt: new Date().toISOString(),
-        fromVisit: visit.id
-      });
+  // Auto-create ops tasks
+  openedTasks.forEach(t => {
+    OPS_TASKS.unshift({
+      id: opsTaskNextId++,
+      prop, who, floor, room: room||'',
+      desc: t.desc, priority: t.priority,
+      status: 'open', due: t.due, createdAt: new Date().toISOString(),
+      fromVisit: visit.id
     });
-  }
+  });
 
   document.getElementById('visit-modal').style.display = 'none';
+  vmPhotosBase64 = [];
   autosave();
   renderVisits();
   updateTaskBadge();
+  showSaveIndicator('✅ ביקור נשמר');
 }
 
 function renderVisits() {
@@ -5408,6 +5510,14 @@ function whatsappReport(prop) {
   const t = document.getElementById('report-text');
   if(!t) return;
   window.open('https://wa.me/?text='+encodeURIComponent(t.value),'_blank');
+}
+
+function showPhotoFull(src) {
+  const m = document.createElement('div');
+  m.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.9);display:flex;align-items:center;justify-content:center;z-index:999;cursor:pointer';
+  m.innerHTML = `<img src="${src}" style="max-width:95vw;max-height:95vh;border-radius:8px">`;
+  m.onclick = ()=>m.remove();
+  document.body.appendChild(m);
 }
 
 async function initApp() {
