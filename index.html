@@ -5175,12 +5175,26 @@ function handleVisitPhotos(input) {
   Array.from(input.files).forEach(file => {
     const reader = new FileReader();
     reader.onload = e => {
-      const base64 = e.target.result;
-      vmPhotosBase64.push(base64);
-      const img = document.createElement('img');
-      img.src = base64;
-      img.style.cssText = 'width:80px;height:80px;object-fit:cover;border-radius:6px;border:1px solid #ddd';
-      preview.appendChild(img);
+      // Compress image to max 400px and 60% quality
+      const img2 = new Image();
+      img2.onload = () => {
+        const canvas = document.createElement('canvas');
+        const maxSize = 400;
+        let w = img2.width, h = img2.height;
+        if(w > maxSize || h > maxSize) {
+          if(w > h) { h = Math.round(h * maxSize/w); w = maxSize; }
+          else { w = Math.round(w * maxSize/h); h = maxSize; }
+        }
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img2, 0, 0, w, h);
+        const compressed = canvas.toDataURL('image/jpeg', 0.6);
+        vmPhotosBase64.push(compressed);
+        const imgEl = document.createElement('img');
+        imgEl.src = compressed;
+        imgEl.style.cssText = 'width:80px;height:80px;object-fit:cover;border-radius:6px;border:1px solid #ddd';
+        preview.appendChild(imgEl);
+      };
+      img2.src = e.target.result;
     };
     reader.readAsDataURL(file);
   });
@@ -5219,7 +5233,7 @@ function saveVisit() {
     id: visitNextId++,
     prop, who, floor, room: room||'', date, time,
     foundItems, openedTasks,
-    photos: vmPhotosBase64.slice(0,4), // max 4 photos
+    photos: vmPhotosBase64.slice(0,3), // max 3 compressed photos
     createdAt: new Date().toISOString()
   };
   VISITS.unshift(visit);
