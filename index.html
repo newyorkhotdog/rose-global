@@ -541,8 +541,14 @@ textarea { resize: vertical; min-height: 70px; }
 
   <!-- REPORT VIEW -->
   <div id="task-report-view" style="display:none">
+    <!-- שליחה לפי גורם -->
     <div class="card" style="margin-bottom:16px">
-      <div class="card-title">יצירת דוח ללקוח</div>
+      <div class="card-title">📱 שלח משימות לפי גורם מטפל</div>
+      <div id="report-send-buttons"></div>
+    </div>
+    <!-- דוח מפורט -->
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-title">📋 דוח מפורט לנכס</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
         <div class="form-group"><label>נכס</label>
           <select id="report-prop" onchange="previewReport()">
@@ -635,24 +641,39 @@ textarea { resize: vertical; min-height: 70px; }
 
 <!-- TASK MODAL -->
 <div id="ops-task-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);align-items:flex-start;justify-content:center;z-index:400;padding:1rem;overflow-y:auto">
-  <div style="background:#fff;border-radius:12px;padding:20px;width:100%;max-width:420px;border:1px solid #e0ddd8;margin:auto">
+  <div style="background:#fff;border-radius:12px;padding:20px;width:100%;max-width:460px;border:1px solid #e0ddd8;margin:auto">
     <div style="font-size:15px;font-weight:600;margin-bottom:16px" id="ops-task-modal-title">משימה חדשה</div>
+    
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+      <div class="form-group" style="grid-column:1/-1"><label>תיאור המשימה *</label>
+        <textarea id="otm-desc" placeholder="תאר את המשימה..." style="min-height:70px"></textarea></div>
+      
+      <div class="form-group"><label>גורם מטפל *</label>
+        <select id="otm-handler" onchange="otmHandlerChanged()" style="font-size:14px">
+          <option value="taagid">🏢 תאגיד</option>
+          <option value="yoad">👷 יועד</option>
+          <option value="dudu">🔧 דודו</option>
+        </select></div>
+
+      <!-- תאגיד selector — מוצג רק כשתאגיד נבחר -->
+      <div class="form-group" id="otm-taagid-group"><label>תאגיד</label>
+        <select id="otm-taagid">
+          <option value="">בחר תאגיד...</option>
+        </select></div>
+
       <div class="form-group"><label>נכס *</label>
         <select id="otm-prop">
           <option>כללי</option><option>לבנדה 32</option><option>עזאי 38</option>
           <option>נתן הנביא 42</option><option>הירקון 41 ב"ב</option>
           <option>חיים בר לב 104</option>
         </select></div>
-      <div class="form-group"><label>אחראי *</label>
-        <select id="otm-who">
-          <option>יועד</option><option>דודו</option><option>צביקה</option>
-          <option>רועי</option><option>אוהד</option>
-        </select></div>
-      <div class="form-group"><label>קומה</label>
-        <input type="number" id="otm-floor" placeholder="קומה (אופציונלי)"></div>
-      <div class="form-group"><label>חדר</label>
-        <input type="number" id="otm-room" placeholder="חדר (אופציונלי)"></div>
+
+      <div class="form-group"><label>קומה / חדר</label>
+        <div style="display:flex;gap:6px">
+          <input type="number" id="otm-floor" placeholder="קומה" style="width:80px">
+          <input type="number" id="otm-room" placeholder="חדר" style="flex:1">
+        </div></div>
+
       <div class="form-group"><label>עדיפות</label>
         <select id="otm-priority">
           <option value="urgent">🔴 דחוף</option>
@@ -662,11 +683,10 @@ textarea { resize: vertical; min-height: 70px; }
       <div class="form-group"><label>תאריך יעד</label>
         <input type="date" id="otm-due"></div>
     </div>
-    <div class="form-group" style="margin-bottom:10px"><label>תיאור המשימה *</label>
-      <textarea id="otm-desc" placeholder="תאר את המשימה..." style="min-height:80px"></textarea></div>
+
     <div style="display:flex;gap:8px">
-      <button onclick="saveOpsTask()" style="flex:1;padding:9px;background:#2d2a26;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-family:inherit">שמור</button>
-      <button onclick="document.getElementById('ops-task-modal').style.display='none'" style="padding:9px 16px;background:transparent;border:1px solid #ddd;border-radius:6px;cursor:pointer;font-size:13px;font-family:inherit">ביטול</button>
+      <button onclick="saveOpsTask()" style="flex:1;padding:10px;background:#2d2a26;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;font-family:inherit;font-weight:500">💾 שמור</button>
+      <button onclick="document.getElementById('ops-task-modal').style.display='none'" style="padding:10px 16px;background:transparent;border:1px solid #ddd;border-radius:6px;cursor:pointer;font-size:13px;font-family:inherit">ביטול</button>
     </div>
   </div>
 </div>
@@ -5113,7 +5133,12 @@ function setTaskMainTab(tab, el) {
   });
   if(tab==='visits') renderVisits();
   if(tab==='tasks_board') renderTasksBoard();
-  if(tab==='report') { document.getElementById('report-from').value=''; document.getElementById('report-to').value=''; }
+  if(tab==='report') {
+    document.getElementById('report-from').value='';
+    document.getElementById('report-to').value='';
+    var btn_el = document.getElementById('report-send-buttons');
+    if(btn_el) btn_el.innerHTML = renderWeeklyReportButtons();
+  }
 }
 
 let vmPhotosBase64 = [];
@@ -5320,35 +5345,65 @@ function deleteVisit(id) {
 }
 
 // ---- OPS TASKS ----
-function openTaskModal(editId) {
+function otmHandlerChanged() {
+  const handler = document.getElementById('otm-handler').value;
+  const taagidGroup = document.getElementById('otm-taagid-group');
+  taagidGroup.style.display = handler==='taagid' ? 'flex' : 'none';
+  if(handler==='taagid') {
+    // Populate active clients
+    const sel = document.getElementById('otm-taagid');
+    const seen = new Set();
+    const opts = CLIENTS.filter(c=>{
+      if(c.status!=='active') return false;
+      if(seen.has(c.name)) return false;
+      seen.add(c.name); return true;
+    }).sort((a,b)=>a.name.localeCompare(b.name));
+    sel.innerHTML = '<option value="">בחר תאגיד...</option>' +
+      opts.map(c=>`<option value="${c.name}">${c.name}</option>`).join('');
+  }
+}
+
+function openTaskModal(editId, prefill) {
   currentOpsTaskEditId = editId||null;
   const t = editId ? OPS_TASKS.find(x=>x.id===editId) : null;
   document.getElementById('ops-task-modal-title').textContent = t ? 'עריכת משימה' : 'משימה חדשה';
-  document.getElementById('otm-prop').value = t ? t.prop : 'כללי';
-  document.getElementById('otm-who').value = t ? t.who : 'יועד';
-  document.getElementById('otm-floor').value = t ? t.floor||'' : '';
-  document.getElementById('otm-room').value = t ? t.room||'' : '';
+  document.getElementById('otm-prop').value = t ? t.prop : (prefill&&prefill.prop)||'כללי';
+  document.getElementById('otm-handler').value = t ? (t.handler||'yoad') : 'yoad';
+  document.getElementById('otm-floor').value = t ? t.floor||'' : (prefill&&prefill.floor)||'';
+  document.getElementById('otm-room').value = t ? t.room||'' : (prefill&&prefill.room)||'';
   document.getElementById('otm-priority').value = t ? t.priority : 'normal';
   document.getElementById('otm-due').value = t ? t.due||'' : '';
   document.getElementById('otm-desc').value = t ? t.desc : '';
+  otmHandlerChanged();
+  if(t&&t.taagid) document.getElementById('otm-taagid').value = t.taagid;
   document.getElementById('ops-task-modal').style.display = 'flex';
+  setTimeout(()=>document.getElementById('otm-desc').focus(),100);
 }
 
 function saveOpsTask() {
   const prop = document.getElementById('otm-prop').value;
-  const who = document.getElementById('otm-who').value;
+  const handler = document.getElementById('otm-handler').value;
+  const taagid = handler==='taagid' ? document.getElementById('otm-taagid').value : '';
   const floor = document.getElementById('otm-floor').value;
   const room = document.getElementById('otm-room').value;
   const priority = document.getElementById('otm-priority').value;
   const due = document.getElementById('otm-due').value;
   const desc = document.getElementById('otm-desc').value.trim();
   if(!desc) { alert('נא להזין תיאור'); return; }
+  if(handler==='taagid'&&!taagid) { alert('נא לבחור תאגיד'); return; }
+
+  // who = display name for board
+  const who = handler==='taagid' ? taagid : (handler==='yoad'?'יועד':'דודו');
 
   if(currentOpsTaskEditId) {
     const t = OPS_TASKS.find(x=>x.id===currentOpsTaskEditId);
-    if(t) Object.assign(t, {prop,who,floor,room,priority,due,desc});
+    if(t) Object.assign(t, {prop,handler,taagid,who,floor,room,priority,due,desc});
   } else {
-    OPS_TASKS.unshift({id:opsTaskNextId++,prop,who,floor,room,priority,due,desc,status:'open',createdAt:new Date().toISOString()});
+    OPS_TASKS.unshift({
+      id:opsTaskNextId++, prop, handler, taagid, who,
+      floor, room, priority, due, desc,
+      status:'open', createdAt:new Date().toISOString()
+    });
   }
   document.getElementById('ops-task-modal').style.display = 'none';
   autosave(); renderTasksBoard(); updateTaskBadge();
@@ -5532,6 +5587,120 @@ function showPhotoFull(src) {
   m.innerHTML = `<img src="${src}" style="max-width:95vw;max-height:95vh;border-radius:8px">`;
   m.onclick = ()=>m.remove();
   document.body.appendChild(m);
+}
+
+
+// ============ WEEKLY REPORT & SEND ============
+function getHandlerTasks(handler, prop) {
+  return OPS_TASKS.filter(t => {
+    if(t.status==='done') return false;
+    if(prop && t.prop!==prop) return false;
+    if(handler==='taagid') return t.handler==='taagid';
+    if(handler==='yoad') return t.handler==='yoad'||t.who==='יועד';
+    if(handler==='dudu') return t.handler==='dudu'||t.who==='דודו';
+    return false;
+  });
+}
+
+function buildTaagidReport(taagidName, prop, dateStr) {
+  var tasks = OPS_TASKS.filter(function(t){return t.status!=='done'&&t.taagid===taagidName&&(!prop||t.prop===prop);});
+  var visits = VISITS.filter(function(v){return v.prop===prop;}).slice(0,3);
+  var client = CLIENTS.find(function(c){return c.name===taagidName;});
+  var contactName = client ? client.contact : '';
+  var nl = '\n';
+  var text = 'שלום רב' + (contactName?' '+contactName:'') + ',' + nl + nl;
+  text += 'אנו רוז גלובל שירותי קרקע.' + nl;
+  if(prop) text += 'היינו בנכס ' + prop;
+  if(visits.length) text += ' בתאריך ' + visits[0].date;
+  text += '.' + nl + nl + 'להלן התקלות הדורשות את טיפולכם:' + nl + nl;
+  tasks.forEach(function(t,i) {
+    var loc = [t.floor?'קומה '+t.floor:'', t.room?'חדר '+t.room:''].filter(Boolean).join(' ');
+    text += (i+1) + '. ' + t.desc;
+    if(loc) text += ' (' + loc + ')';
+    if(t.priority==='urgent') text += ' - דחוף';
+    text += nl;
+  });
+  text += nl + 'נודה לטיפולכם בהקדם.' + nl + 'רוז גלובל שירותי קרקע';
+  return text;
+}
+
+function buildHandlerReport(handler, prop, dateStr) {
+  var tasks = getHandlerTasks(handler, prop);
+  var handlerName = handler==='yoad'?'יועד':handler==='dudu'?'דודו':'תאגידים';
+  var nl = '\n';
+  var text = 'שלום ' + handlerName + ',' + nl + nl;
+  text += 'דוח משימות שבועי';
+  if(prop) text += ' - ' + prop;
+  text += nl + 'תאריך: ' + (dateStr||new Date().toLocaleDateString('he-IL')) + nl + nl;
+  var urgent = tasks.filter(function(t){return t.priority==='urgent';});
+  var normal = tasks.filter(function(t){return t.priority!=='urgent';});
+  if(urgent.length) {
+    text += 'דחוף (' + urgent.length + '):' + nl;
+    urgent.forEach(function(t,i) {
+      var loc = [t.prop!=='כללי'?t.prop:'', t.floor?'ק'+t.floor:'', t.room?'ח'+t.room:''].filter(Boolean).join(' ');
+      text += (i+1) + '. ' + t.desc + (loc?' ('+loc+')':'');
+      if(t.due) text += ' - יעד: ' + t.due;
+      text += nl;
+    });
+    text += nl;
+  }
+  if(normal.length) {
+    text += 'רגיל (' + normal.length + '):' + nl;
+    normal.forEach(function(t,i) {
+      var loc = [t.prop!=='כללי'?t.prop:'', t.floor?'ק'+t.floor:'', t.room?'ח'+t.room:''].filter(Boolean).join(' ');
+      text += (i+1) + '. ' + t.desc + (loc?' ('+loc+')':'');
+      if(t.due) text += ' - יעד: ' + t.due;
+      text += nl;
+    });
+  }
+  text += nl + 'בברכה,' + nl + 'רוז גלובל';
+  return text;
+}
+function sendToHandler(handler, taagidName, prop) {
+  let text, phone;
+  
+  if(handler==='taagid') {
+    const client = CLIENTS.find(c=>c.name===taagidName);
+    phone = client ? client.phone.replace(/[^0-9]/g,'').replace(/^0/,'972') : '';
+    text = buildTaagidReport(taagidName, prop, '');
+  } else {
+    const phones = {yoad:'972544885617', dudu:''};
+    phone = phones[handler]||'';
+    text = buildHandlerReport(handler, prop, '');
+  }
+  
+  const url = phone 
+    ? `https://wa.me/${phone}?text=${encodeURIComponent(text)}`
+    : `https://wa.me/?text=${encodeURIComponent(text)}`;
+  window.open(url, '_blank');
+}
+
+function renderWeeklyReportButtons() {
+  // Get all active taagidim with open tasks
+  const taagidim = [...new Set(OPS_TASKS.filter(t=>t.status!=='done'&&t.handler==='taagid'&&t.taagid).map(t=>t.taagid))];
+  const yoadCount = getHandlerTasks('yoad','').length;
+  const duduCount = getHandlerTasks('dudu','').length;
+  
+  return `<div style="display:flex;flex-direction:column;gap:10px">
+    ${yoadCount>0?`<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:#e3f2fd;border-radius:8px;border:1px solid #90caf9">
+      <div><div style="font-weight:600;color:#1a6fa8">👷 יועד</div><div style="font-size:12px;color:#555">${yoadCount} משימות פתוחות</div></div>
+      <button onclick="sendToHandler('yoad','','')" style="background:#1a6fa8;color:#fff;border:none;border-radius:6px;padding:8px 14px;cursor:pointer;font-size:13px;font-family:inherit">📱 שלח WhatsApp</button>
+    </div>`:''}
+    ${duduCount>0?`<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:#fdf3e7;border-radius:8px;border:1px solid #f0c080">
+      <div><div style="font-weight:600;color:#8b4513">🔧 דודו</div><div style="font-size:12px;color:#555">${duduCount} משימות פתוחות</div></div>
+      <button onclick="sendToHandler('dudu','','')" style="background:#8b4513;color:#fff;border:none;border-radius:6px;padding:8px 14px;cursor:pointer;font-size:13px;font-family:inherit">📱 שלח WhatsApp</button>
+    </div>`:''}
+    ${taagidim.map(name=>{
+      const client = CLIENTS.find(c=>c.name===name);
+      const count = OPS_TASKS.filter(t=>t.status!=='done'&&t.taagid===name).length;
+      const phone = client ? client.phone : 'לא רשום';
+      return `<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:#ede9f8;border-radius:8px;border:1px solid #c5b8e8">
+        <div><div style="font-weight:600;color:#7367c0">🏢 ${name}</div><div style="font-size:12px;color:#555">${count} משימות · ${phone}</div></div>
+        <button onclick="sendToHandler('taagid','${name.replace(/'/g,"\'")}','')" style="background:#7367c0;color:#fff;border:none;border-radius:6px;padding:8px 14px;cursor:pointer;font-size:13px;font-family:inherit">📱 שלח</button>
+      </div>`;
+    }).join('')}
+    ${!yoadCount&&!duduCount&&!taagidim.length?'<div style="text-align:center;padding:2rem;color:var(--text3)">אין משימות פתוחות לשליחה 🎉</div>':''}
+  </div>`;
 }
 
 async function initApp() {
