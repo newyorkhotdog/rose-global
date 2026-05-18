@@ -1244,6 +1244,8 @@ function getRoomCost(prop, floor, room) {
 // עלויות שכירות מוסכמות עם בעל הבית (עודכן אפריל 2026)
 const PROP_RENT_OVERRIDE = {
   'לבנדה 32': 126000,  // הסכם חדש מאפריל 2026
+  'הירקון 41 ב"ב': 31525,  // שכירות לבעל הבית
+  'חיים בר לב 104': 7000,  // שכירות לבעל הבית
 };
 
 function getPropCost(prop) {
@@ -1262,8 +1264,14 @@ function getPropCost(prop) {
   return list.reduce((s,r) => s+r.c, 0);
 }
 
+// הכנסות קבועות לנכסים שאינם לפי ראש
+const PROP_INCOME_FIXED = {
+  'חיים בר לב 104': 15000,
+};
+
 function getPropRevenue(prop) {
   if (FIXED_COSTS[prop]) return FIXED_COSTS[prop].income || 0;
+  if (PROP_INCOME_FIXED[prop]) return PROP_INCOME_FIXED[prop];
   // Use MAP_DATA prices per room (each room can have different price)
   if (MAP_DATA[prop]) {
     let total = 0;
