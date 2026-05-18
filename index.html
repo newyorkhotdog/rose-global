@@ -5800,21 +5800,29 @@ function renderWeeklyReportButtons() {
 }
 
 
-function toggleDashRow(id) {
-  var el = document.getElementById(id);
+function toggleDashRow(e) {
+  var id = typeof e === 'string' ? e : (e.currentTarget||e.target).closest('[data-rid]')?.dataset?.rid || '';
+  if(!id) {
+    // fallback: find next sibling with id starting dp
+    var row = typeof e === 'object' ? (e.currentTarget||e.target).closest('div') : null;
+    if(row) { var next = row.nextElementSibling; if(next&&next.id) id=next.id; }
+  }
+  var el = id ? document.getElementById(id) : null;
   if(el) el.style.display = el.style.display==='none'?'block':'none';
 }
 
 function getRoomsForProp(prop) {
-  // Get all occupied rooms from MAP_DATA
   if(!MAP_DATA[prop]) return [];
   var rooms = [];
   Object.entries(MAP_DATA[prop].floors||{}).forEach(function(entry) {
     var floor = entry[0], floorRooms = entry[1];
     floorRooms.forEach(function(r) {
-      if(r.company && r.company !== 'שירות' && r.people > 0) {
-        rooms.push({floor: floor, room: r.r, company: r.company});
-      }
+      rooms.push({
+        floor: floor, room: r.r,
+        company: r.company||'',
+        isEmpty: !r.company || r.people===0,
+        isService: r.company==='שירות'
+      });
     });
   });
   return rooms;
@@ -5861,25 +5869,38 @@ function renderVisitsWeeklyDash() {
     }).join(' · ')+(unvisited.length>8?' +עוד '+(unvisited.length-8):'');
 
     var rowId = 'dp'+Math.abs(prop.split('').reduce(function(a,c){return a+c.charCodeAt(0);},0));
+    var remaining = totalRooms - visitedCount;
+    var pctLabel = pct+'% ('+visitedCount+'/'+totalRooms+')';
     
     return '<div style="border-bottom:0.5px solid var(--border)">'+
-      '<div style="display:flex;align-items:center;gap:10px;padding:9px 0;cursor:pointer" onclick="toggleDashRow(this.nextElementSibling?.id)">'+
-        '<div style="width:90px;font-size:12px;font-weight:500;flex-shrink:0">'+
+      '<div style="display:flex;align-items:center;gap:10px;padding:10px 0;cursor:pointer" onclick="toggleDashRow(event)" data-rid="'+rowId+'">'+
+        '<div style="width:85px;font-size:12px;font-weight:600;flex-shrink:0">'+
           prop.replace(' 32','').replace(' 38','').replace(' 42','').replace(' 104','')+'</div>'+
-        '<div style="flex:1;background:#eee;border-radius:10px;height:10px;overflow:hidden">'+
-          '<div style="height:100%;border-radius:10px;background:'+color+';width:'+pct+'%;transition:width 0.3s"></div>'+
+        '<div style="flex:1">'+
+          '<div style="background:#eee;border-radius:10px;height:10px;overflow:hidden;margin-bottom:3px">'+
+            '<div style="height:100%;border-radius:10px;background:'+color+';width:'+pct+'%;transition:width 0.5s"></div>'+
+          '</div>'+
+          '<div style="display:flex;justify-content:space-between">'+
+            '<div style="font-size:11px;color:'+color+';font-weight:600">'+pctLabel+'</div>'+
+            '<div style="font-size:11px;color:var(--text3)">'+
+              (remaining>0?'נותר '+remaining+' חדרים':'הכל בוקר ✅')+
+            '</div>'+
+          '</div>'+
         '</div>'+
-        '<div style="font-size:12px;font-weight:600;color:'+color+';width:50px;text-align:center;flex-shrink:0">'+
-          visitedCount+'/'+totalRooms+'</div>'+
-        '<div style="font-size:11px;color:var(--text2);width:80px;flex-shrink:0">'+
-          (yoadRooms?'יועד ×'+yoadRooms+' ':'')+(duduRooms?'דודו ×'+duduRooms:'')+(visitedCount===0?'לא בוקר':'')+'</div>'+
-        '<div style="font-size:14px;flex-shrink:0">'+badge+'</div>'+
-        '<div style="font-size:11px;color:var(--text3);flex-shrink:0">'+(unvisited.length?'▼':' ')+'</div>'+
+        '<div style="font-size:11px;color:var(--text2);width:85px;flex-shrink:0;text-align:left">'+
+          (yoadRooms?'<span style="color:#1a6fa8">יועד ×'+yoadRooms+'</span> ':'')+(duduRooms?'<span style="color:#8b4513">דודו ×'+duduRooms+'</span>':'')+'</div>'+
+        '<div style="font-size:16px;flex-shrink:0">'+badge+'</div>'+
+        (unvisited.length?'<div style="font-size:10px;color:var(--text3)">▼</div>':'')+
       '</div>'+
       (unvisited.length?
-        '<div id="'+rowId+'" style="display:none;padding:6px 10px 10px;background:#fff8f8;border-radius:6px;margin-bottom:6px">'+
-          '<div style="font-size:11px;color:#b85a50;font-weight:600;margin-bottom:4px">חדרים שלא בוקרו ('+unvisited.length+'):</div>'+
-          '<div style="font-size:12px;color:var(--text2);line-height:1.8">'+unvisitedStr+'</div>'+
+        '<div id="'+rowId+'" style="display:none;padding:8px 12px 12px;background:#fff8f8;border:1px solid #fde0dd;border-radius:8px;margin-bottom:8px">'+
+          '<div style="font-size:11px;color:#b85a50;font-weight:600;margin-bottom:6px">'+remaining+' חדרים שנותר לבקר:</div>'+
+          '<div style="display:flex;flex-wrap:wrap;gap:6px">'+
+            unvisited.map(function(r){
+              var label = r.isService?'שירות':r.isEmpty?'ריק':(r.company||'').slice(0,8);
+              return '<span style="background:#fff;border:1px solid #f0c0bb;border-radius:6px;padding:3px 8px;font-size:12px;color:#b85a50">ק'+r.floor+'/ח'+r.room+'<br><span style="font-size:10px;color:#888">'+label+'</span></span>';
+            }).join('')+
+          '</div>'+
         '</div>':'')+
     '</div>';
   }).join('');
