@@ -5416,6 +5416,7 @@ function renderVisits() {
             </div>`:''}
           </div>
           <div style="display:flex;gap:4px;flex-shrink:0">
+            <button onclick="editVisit(${v.id})" class="btn btn-sm">✏️ ערוך</button>
             <button onclick="deleteVisit(${v.id})" class="btn btn-sm btn-danger">מחק</button>
           </div>
         </div>
@@ -5944,6 +5945,31 @@ function renderVisitsWeeklyDash() {
     '<div style="margin-top:8px;font-size:11px;color:var(--text3)">'+
       '✅ כל החדרים בוקרו &nbsp;🟡 חלקי &nbsp;❌ לא בוקר</div>'+
   '</div>';
+}
+
+
+function editVisit(id) {
+  const v = VISITS.find(function(x){return x.id===id;});
+  if(!v) return;
+  
+  const newFloor = prompt('קומה (נוכחי: "'+v.floor+'"): ', v.floor||'');
+  if(newFloor === null) return;
+  const newRoom = prompt('מספר חדר (נוכחי: "'+v.room+'"): ', v.room||'');
+  if(newRoom === null) return;
+  
+  v.floor = newFloor;
+  v.room = newRoom;
+  
+  // Also update related OPS_TASKS
+  OPS_TASKS.filter(function(t){return t.fromVisit===id;}).forEach(function(t){
+    t.floor = newFloor;
+    t.room = newRoom;
+  });
+  
+  autosave();
+  renderVisitsWeeklyDash();
+  renderVisits();
+  showSaveIndicator('✅ ביקור עודכן');
 }
 
 async function initApp() {
