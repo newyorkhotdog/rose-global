@@ -619,7 +619,7 @@ textarea { resize: vertical; min-height: 70px; }
           <option value="3">קומה 3</option><option value="-1">מרתף</option>
         </select></div>
       <div class="form-group"><label>חדר</label>
-        <input type="number" id="vm-room" placeholder="(אופציונלי)"></div>
+        <input type="number" id="vm-room" placeholder="מספר חדר *" min="1"></div>
       <div class="form-group"><label>תאריך *</label>
         <input type="date" id="vm-date"></div>
       <div class="form-group"><label>שעה</label>
@@ -5285,6 +5285,10 @@ function saveVisit() {
   const date = document.getElementById('vm-date').value;
   const time = document.getElementById('vm-time').value;
   if(!prop||!date||!who) { alert('נא למלא נכס, תאריך ומי ביקר'); return; }
+  // For per-head props, room is required
+  if(!FIXED_COSTS[prop] && !room) { 
+    if(!confirm('לא הזנת מספר חדר — להמשיך בלי חדר ספציפי?')) return; 
+  }
 
   // Collect found items
   const foundItems = [];
@@ -5348,12 +5352,15 @@ function saveVisit() {
     });
   });
 
+  // autosave AFTER tasks are created
   document.getElementById('visit-modal').style.display = 'none';
   vmPhotosBase64 = [];
   autosave();
+  renderVisitsWeeklyDash();
   renderVisits();
+  renderTasksBoard();
   updateTaskBadge();
-  showSaveIndicator('✅ ביקור נשמר');
+  showSaveIndicator('✅ ביקור נשמר — ' + openedTasks.length + ' משימות נפתחו');
 }
 
 function renderVisits() {
