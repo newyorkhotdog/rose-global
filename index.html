@@ -5848,17 +5848,38 @@ function renderVisitsWeeklyDash() {
     const propRooms = getRoomsForProp(prop);
     const totalRooms = propRooms.length || 1;
     
-    // Count unique rooms visited this week (by floor+room key)
-    const propVisits = thisWeekVisits.filter(function(v){return v.prop===prop&&v.room;});
-    const visitedRooms = new Set(propVisits.map(function(v){return v.floor+'_'+v.room;}));
-    const visitedCount = visitedRooms.size;
+    // For fixed price props — count visits (not rooms), for per-head — count rooms
+    const isFixed = !!FIXED_COSTS[prop];
+    const allPropVisits = thisWeekVisits.filter(function(v){return v.prop===prop;});
     
-    const yoadRooms = new Set(propVisits.filter(function(v){return v.who==='יועד';}).map(function(v){return v.floor+'_'+v.room;})).size;
-    const duduRooms = new Set(propVisits.filter(function(v){return v.who==='דודו';}).map(function(v){return v.floor+'_'+v.room;})).size;
+    var visitedCount, visitedRooms, yoadRooms, duduRooms;
+    if(isFixed) {
+      // Fixed: just count how many times visited this week
+      visitedCount = allPropVisits.length;
+      visitedRooms = new Set(allPropVisits.map(function(v){return v.date+'_'+v.who;}));
+      visitedCount = visitedRooms.size; // unique sessions
+      yoadRooms = allPropVisits.filter(function(v){return v.who==='יועד';}).length;
+      duduRooms = allPropVisits.filter(function(v){return v.who==='דודו';}).length;
+    } else {
+      // Per-head: count unique rooms visited
+      const propVisits = allPropVisits.filter(function(v){return v.room;});
+      visitedRooms = new Set(propVisits.map(function(v){return v.floor+'_'+v.room;}));
+      visitedCount = visitedRooms.size;
+      yoadRooms = new Set(propVisits.filter(function(v){return v.who==='יועד';}).map(function(v){return v.floor+'_'+v.room;})).size;
+      duduRooms = new Set(propVisits.filter(function(v){return v.who==='דודו';}).map(function(v){return v.floor+'_'+v.room;})).size;
+    }
     
-    const pct = Math.min(100, Math.round((visitedCount/totalRooms)*100));
-    const color = pct>=100?'#2d8a5e':pct>=50?'#e8a030':'#b85a50';
-    const badge = pct>=100?'✅':pct>=50?'🟡':'❌';
+    var pct, color, badge;
+    if(isFixed) {
+      // Fixed: visited at least once = 100%
+      pct = visitedCount >= 1 ? 100 : 0;
+      color = pct===100?'#2d8a5e':'#b85a50';
+      badge = pct===100?'✅':'❌';
+    } else {
+      pct = Math.min(100, Math.round((visitedCount/totalRooms)*100));
+      color = pct>=100?'#2d8a5e':pct>=50?'#e8a030':'#b85a50';
+      badge = pct>=100?'✅':pct>=50?'🟡':'❌';
+    }
     
     // Find unvisited rooms
     const unvisited = propRooms.filter(function(r){
@@ -5869,8 +5890,10 @@ function renderVisitsWeeklyDash() {
     }).join(' · ')+(unvisited.length>8?' +עוד '+(unvisited.length-8):'');
 
     var rowId = 'dp'+Math.abs(prop.split('').reduce(function(a,c){return a+c.charCodeAt(0);},0));
-    var remaining = totalRooms - visitedCount;
-    var pctLabel = pct+'% ('+visitedCount+'/'+totalRooms+')';
+    var remaining = isFixed ? 0 : (totalRooms - visitedCount);
+    var pctLabel = isFixed 
+      ? (visitedCount>0 ? '✓ בוקר '+visitedCount+' פעמים' : 'לא בוקר')
+      : pct+'% ('+visitedCount+'/'+totalRooms+')';
     
     return '<div style="border-bottom:0.5px solid var(--border)">'+
       '<div style="display:flex;align-items:center;gap:10px;padding:10px 0;cursor:pointer" onclick="toggleDashRow(event)" data-rid="'+rowId+'">'+
