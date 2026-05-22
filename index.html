@@ -286,6 +286,7 @@ textarea { resize: vertical; min-height: 70px; }
   <div class="nav-item" onclick="nav('history',this)"><span class="nav-icon">📈</span> רווח והפסד</div>
   <div class="nav-item" onclick="nav('brokerage',this)"><span class="nav-icon">🤝</span> תיווך</div>
   <div class="nav-item" onclick="nav('leads',this)"><span class="nav-icon">🎯</span> לידים <span class="nav-badge" id="leads-badge" style="background:#e8a030">0</span></div>
+  <div class="nav-item" onclick="nav('maxstock',this)"><span class="nav-icon">🏪</span> מקס סטוק</div>
   </div>
   <div style="margin-top:auto;padding:16px 20px;border-top:1px solid var(--border)">
     <div style="font-size:11px;color:var(--text3);margin-bottom:8px">נתונים מסונכרנים בענן ☁️</div>
@@ -309,6 +310,7 @@ textarea { resize: vertical; min-height: 70px; }
   <div class="nav-item" onclick="nav('history',this)">📈 רווח והפסד</div>
   <div class="nav-item" onclick="nav('brokerage',this)">🤝 תיווך</div>
   <div class="nav-item" onclick="nav('leads',this)">🎯 לידים</div>
+  <div class="nav-item" onclick="nav('maxstock',this)">🏪 מקס</div>
 </div>
 
 <!-- DASHBOARD -->
@@ -1217,6 +1219,109 @@ textarea { resize: vertical; min-height: 70px; }
   <!-- Table -->
   <div id="invtrack-board"></div>
 </div>
+<!-- MAX STOCK PAGE -->
+<div id="page-maxstock" class="page">
+  <div class="page-title">🏪 מקס סטוק — ניהול פרויקט</div>
+  <div class="page-sub">סניפים, עובדים, דירות ורווחיות</div>
+
+  <!-- הגדרות -->
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:flex-end">
+    <div class="form-group" style="margin:0">
+      <label style="font-size:11px;color:var(--text3)">תעריף לפועל ₪ (לפני מע"מ)</label>
+      <input type="number" id="ms-rate" value="1100" style="width:100px" onchange="renderMaxStock()">
+    </div>
+    <div class="form-group" style="margin:0">
+      <label style="font-size:11px;color:var(--text3)">הוצאות שוטפות לפועל/חודש ₪</label>
+      <input type="number" id="ms-utilities" value="400" style="width:100px" onchange="renderMaxStock()">
+    </div>
+    <div class="form-group" style="margin:0">
+      <label style="font-size:11px;color:var(--text3)">עמלת תיווך (חודשים)</label>
+      <input type="number" id="ms-broker" value="1" style="width:80px" onchange="renderMaxStock()">
+    </div>
+    <div class="form-group" style="margin:0">
+      <label style="font-size:11px;color:var(--text3)">מקד"מ מינימלי %</label>
+      <input type="number" id="ms-margin" value="20" style="width:80px" onchange="renderMaxStock()">
+    </div>
+    <button onclick="renderMaxStock()" class="btn btn-primary btn-sm">עדכן חישובים</button>
+  </div>
+
+  <!-- סיכום -->
+  <div class="metrics" id="ms-metrics" style="margin-bottom:16px"></div>
+
+  <!-- כלי חיפוש + מיון -->
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <input id="ms-search" placeholder="חיפוש סניף / עיר..." style="width:200px;padding:7px 10px;border:0.5px solid var(--border2);border-radius:6px;font-size:13px" oninput="renderMaxStock()">
+      <select id="ms-sort" onchange="renderMaxStock()" style="width:auto;font-size:13px">
+        <option value="workers_desc">לפי עובדים — הרב לפחות</option>
+        <option value="profit_desc">לפי רווח — הרב לפחות</option>
+        <option value="priority">לפי דחיפות</option>
+        <option value="name">לפי שם</option>
+      </select>
+      <select id="ms-filter-nation" onchange="renderMaxStock()" style="width:auto;font-size:13px">
+        <option value="">כל הלאומים</option>
+        <option value="thai">תאילנדים</option>
+        <option value="indian">הודים</option>
+        <option value="srilanka">סרי לנקה</option>
+      </select>
+    </div>
+    <button onclick="openMsBranchModal()" class="btn btn-primary btn-sm">+ הוסף סניף</button>
+  </div>
+
+  <div id="ms-board"></div>
+</div>
+
+<!-- MAX STOCK BRANCH MODAL -->
+<div id="ms-branch-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;z-index:400;padding:1rem;overflow-y:auto">
+  <div style="background:#fff;border-radius:12px;padding:20px;width:100%;max-width:460px;border:1px solid #e0ddd8;margin:auto">
+    <div style="font-size:15px;font-weight:600;margin-bottom:16px" id="ms-modal-title">סניף חדש</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+      <div class="form-group" style="grid-column:1/-1"><label>שם הסניף / עיר *</label>
+        <input id="ms-b-name" placeholder="למשל: מקס סטוק תל אביב"></div>
+      <div class="form-group"><label>עדיפות</label>
+        <select id="ms-b-priority">
+          <option value="urgent">🔴 דחוף</option>
+          <option value="normal" selected>🟡 רגיל</option>
+          <option value="low">🟢 נמוך</option>
+        </select></div>
+      <div class="form-group"><label>כתובת / אזור</label>
+        <input id="ms-b-address" placeholder="עיר / רחוב"></div>
+    </div>
+    
+    <div style="font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;margin:10px 0 8px">עובדים צפויים</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">
+      <div class="form-group"><label>🇹🇭 תאילנדים — גברים</label>
+        <input type="number" id="ms-b-thai-m" value="0" min="0" onchange="msBranchCalc()"></div>
+      <div class="form-group"><label>🇹🇭 תאילנדים — נשים</label>
+        <input type="number" id="ms-b-thai-f" value="0" min="0" onchange="msBranchCalc()"></div>
+      <div class="form-group"><label>🇹🇭 סה"כ</label>
+        <input type="number" id="ms-b-thai-t" value="0" min="0" onchange="msBranchCalc()" style="background:#fff3e0"></div>
+      <div class="form-group"><label>🇮🇳 הודים — גברים</label>
+        <input type="number" id="ms-b-indian-m" value="0" min="0" onchange="msBranchCalc()"></div>
+      <div class="form-group"><label>🇮🇳 הודים — נשים</label>
+        <input type="number" id="ms-b-indian-f" value="0" min="0" onchange="msBranchCalc()"></div>
+      <div class="form-group"><label>🇮🇳 סה"כ</label>
+        <input type="number" id="ms-b-indian-t" value="0" min="0" onchange="msBranchCalc()" style="background:#fff3e0"></div>
+      <div class="form-group"><label>🇱🇰 סרי לנקה — גברים</label>
+        <input type="number" id="ms-b-sri-m" value="0" min="0" onchange="msBranchCalc()"></div>
+      <div class="form-group"><label>🇱🇰 סרי לנקה — נשים</label>
+        <input type="number" id="ms-b-sri-f" value="0" min="0" onchange="msBranchCalc()"></div>
+      <div class="form-group"><label>🇱🇰 סה"כ</label>
+        <input type="number" id="ms-b-sri-t" value="0" min="0" onchange="msBranchCalc()" style="background:#fff3e0"></div>
+    </div>
+
+    <!-- תצוגה מקדימה של חישוב -->
+    <div id="ms-b-calc" style="background:#f5f3ef;border-radius:8px;padding:12px;margin-bottom:14px;font-size:13px"></div>
+
+    <div class="form-group" style="margin-bottom:14px"><label>הערות</label>
+      <input id="ms-b-notes" placeholder="הערות נוספות"></div>
+
+    <div style="display:flex;gap:8px">
+      <button onclick="saveMsBranch()" style="flex:1;padding:10px;background:#2d2a26;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;font-family:inherit;font-weight:500">💾 שמור</button>
+      <button onclick="document.getElementById('ms-branch-modal').style.display='none'" style="padding:10px 16px;background:transparent;border:1px solid #ddd;border-radius:6px;cursor:pointer;font-size:13px;font-family:inherit">ביטול</button>
+    </div>
+  </div>
+</div>
 </main>
 </div>
 
@@ -1402,6 +1507,7 @@ function nav(page, el) {
   if (page==='history') renderHistory();
   if (page==='brokerage') renderBrokerage();
   if (page==='leads') { renderLeads(); updateLeadsBadge(); }
+  if (page==='maxstock') renderMaxStock();
   if (page==='invoicetrack') { renderInvTrack(); }
   if (page==='map-lavanda') renderLavanda();
   if (page==='map-hirkon') renderHirkon();
@@ -5971,6 +6077,965 @@ function editVisit(id) {
   renderVisits();
   showSaveIndicator('✅ ביקור עודכן');
 }
+
+
+// ============ MAX STOCK ============
+const MS_RATE = 1100; // ₪ per worker before VAT
+let MS_BRANCHES = [
+  {
+    "name": "ביג מקס",
+    "hp": "515456002",
+    "thai_m": 7,
+    "thai_f": 8,
+    "thai_t": 15,
+    "indian_m": 0,
+    "indian_f": 0,
+    "indian_t": 0,
+    "sri_m": 0,
+    "sri_f": 0,
+    "sri_t": 0
+  },
+  {
+    "name": "מקס ירושלים",
+    "hp": "516714482",
+    "thai_m": 2,
+    "thai_f": 2,
+    "thai_t": 4,
+    "indian_m": 0,
+    "indian_f": 0,
+    "indian_t": 0,
+    "sri_m": 0,
+    "sri_f": 0,
+    "sri_t": 0
+  },
+  {
+    "name": "כפר סבא",
+    "hp": "515153542",
+    "thai_m": 0,
+    "thai_f": 0,
+    "thai_t": 0,
+    "indian_m": 5,
+    "indian_f": 5,
+    "indian_t": 10,
+    "sri_m": 0,
+    "sri_f": 0,
+    "sri_t": 0
+  },
+  {
+    "name": "אור עקיבא",
+    "hp": "517129763",
+    "thai_m": 5,
+    "thai_f": 5,
+    "thai_t": 10,
+    "indian_m": 0,
+    "indian_f": 0,
+    "indian_t": 0,
+    "sri_m": 0,
+    "sri_f": 0,
+    "sri_t": 0
+  },
+  {
+    "name": "מיקה מקס",
+    "hp": "514880558",
+    "thai_m": 0,
+    "thai_f": 0,
+    "thai_t": 0,
+    "indian_m": 4,
+    "indian_f": 6,
+    "indian_t": 10,
+    "sri_m": 0,
+    "sri_f": 0,
+    "sri_t": 0
+  },
+  {
+    "name": "מקס אילת",
+    "hp": "515593333",
+    "thai_m": 0,
+    "thai_f": 0,
+    "thai_t": 0,
+    "indian_m": 0,
+    "indian_f": 0,
+    "indian_t": 0,
+    "sri_m": 0,
+    "sri_f": 0,
+    "sri_t": 0
+  },
+  {
+    "name": "מקס אמות באר שבע",
+    "hp": "515715688",
+    "thai_m": 10,
+    "thai_f": 9,
+    "thai_t": 19,
+    "indian_m": 0,
+    "indian_f": 0,
+    "indian_t": 0,
+    "sri_m": 0,
+    "sri_f": 0,
+    "sri_t": 0
+  },
+  {
+    "name": "מקס אשדוד",
+    "hp": "515268993",
+    "thai_m": 4,
+    "thai_f": 4,
+    "thai_t": 8,
+    "indian_m": 0,
+    "indian_f": 0,
+    "indian_t": 0,
+    "sri_m": 0,
+    "sri_f": 0,
+    "sri_t": 0
+  },
+  {
+    "name": "מקס אשקלון",
+    "hp": "515914711",
+    "thai_m": 4,
+    "thai_f": 8,
+    "thai_t": 12,
+    "indian_m": 0,
+    "indian_f": 0,
+    "indian_t": 0,
+    "sri_m": 0,
+    "sri_f": 0,
+    "sri_t": 0
+  },
+  {
+    "name": "מקס בארות יצחק",
+    "hp": "516648565",
+    "thai_m": 0,
+    "thai_f": 0,
+    "thai_t": 0,
+    "indian_m": 4,
+    "indian_f": 8,
+    "indian_t": 12,
+    "sri_m": 0,
+    "sri_f": 0,
+    "sri_t": 0
+  },
+  {
+    "name": "מקס בית שמש",
+    "hp": "515036333",
+    "thai_m": 5,
+    "thai_f": 4,
+    "thai_t": 9,
+    "indian_m": 0,
+    "indian_f": 0,
+    "indian_t": 0,
+    "sri_m": 0,
+    "sri_f": 0,
+    "sri_t": 0
+  },
+  {
+    "name": "מקס בת ים",
+    "hp": "516808417",
+    "thai_m": 3,
+    "thai_f": 6,
+    "thai_t": 9,
+    "indian_m": 0,
+    "indian_f": 0,
+    "indian_t": 0,
+    "sri_m": 0,
+    "sri_f": 0,
+    "sri_t": 0
+  },
+  {
+    "name": "מקס גדרה",
+    "hp": "516863545",
+    "thai_m": 5,
+    "thai_f": 7,
+    "thai_t": 12,
+    "indian_m": 0,
+    "indian_f": 0,
+    "indian_t": 0,
+    "sri_m": 0,
+    "sri_f": 0,
+    "sri_t": 0
+  },
+  {
+    "name": "מקס דימונה",
+    "hp": "515153500",
+    "thai_m": 5,
+    "thai_f": 4,
+    "thai_t": 9,
+    "indian_m": 0,
+    "indian_f": 0,
+    "indian_t": 0,
+    "sri_m": 0,
+    "sri_f": 0,
+    "sri_t": 0
+  },
+  {
+    "name": "מקס הנהלה",
+    "hp": "513618967",
+    "thai_m": 52,
+    "thai_f": 0,
+    "thai_t": 52,
+    "indian_m": 0,
+    "indian_f": 0,
+    "indian_t": 0,
+    "sri_m": 0,
+    "sri_f": 0,
+    "sri_t": 0
+  },
+  {
+    "name": "מקס חדרה",
+    "hp": "514234913",
+    "thai_m": 0,
+    "thai_f": 12,
+    "thai_t": 12,
+    "indian_m": 0,
+    "indian_f": 0,
+    "indian_t": 0,
+    "sri_m": 0,
+    "sri_f": 0,
+    "sri_t": 0
+  },
+  {
+    "name": "מקס חולון",
+    "hp": "515914729",
+    "thai_m": 0,
+    "thai_f": 0,
+    "thai_t": 0,
+    "indian_m": 4,
+    "indian_f": 8,
+    "indian_t": 12,
+    "sri_m": 0,
+    "sri_f": 0,
+    "sri_t": 0
+  },
+  {
+    "name": "מקס טבריה",
+    "hp": "515359768",
+    "thai_m": 2,
+    "thai_f": 2,
+    "thai_t": 4,
+    "indian_m": 0,
+    "indian_f": 0,
+    "indian_t": 0,
+    "sri_m": 0,
+    "sri_f": 0,
+    "sri_t": 0
+  },
+  {
+    "name": "מקס יבנה",
+    "hp": "516837218",
+    "thai_m": 2,
+    "thai_f": 2,
+    "thai_t": 4,
+    "indian_m": 0,
+    "indian_f": 0,
+    "indian_t": 0,
+    "sri_m": 0,
+    "sri_f": 0,
+    "sri_t": 0
+  },
+  {
+    "name": "מקס כרמיאל",
+    "hp": "516205622",
+    "thai_m": 2,
+    "thai_f": 2,
+    "thai_t": 4,
+    "indian_m": 0,
+    "indian_f": 0,
+    "indian_t": 0,
+    "sri_m": 0,
+    "sri_f": 0,
+    "sri_t": 0
+  },
+  {
+    "name": "מקס מודיעין",
+    "hp": "515666923",
+    "thai_m": 0,
+    "thai_f": 0,
+    "thai_t": 0,
+    "indian_m": 4,
+    "indian_f": 6,
+    "indian_t": 10,
+    "sri_m": 0,
+    "sri_f": 0,
+    "sri_t": 0
+  },
+  {
+    "name": "מקס מישור אדומים",
+    "hp": "516690955",
+    "thai_m": 4,
+    "thai_f": 6,
+    "thai_t": 10,
+    "indian_m": 0,
+    "indian_f": 0,
+    "indian_t": 0,
+    "sri_m": 0,
+    "sri_f": 0,
+    "sri_t": 0
+  },
+  {
+    "name": "מקס נהריה",
+    "hp": "516482643",
+    "thai_m": 6,
+    "thai_f": 6,
+    "thai_t": 12,
+    "indian_m": 0,
+    "indian_f": 0,
+    "indian_t": 0,
+    "sri_m": 0,
+    "sri_f": 0,
+    "sri_t": 0
+  },
+  {
+    "name": "מקס נוף הגליל",
+    "hp": "516430725",
+    "thai_m": 12,
+    "thai_f": 0,
+    "thai_t": 12,
+    "indian_m": 0,
+    "indian_f": 0,
+    "indian_t": 0,
+    "sri_m": 0,
+    "sri_f": 0,
+    "sri_t": 0
+  },
+  {
+    "name": "מקס נתניה",
+    "hp": "515776565",
+    "thai_m": 5,
+    "thai_f": 5,
+    "thai_t": 10,
+    "indian_m": 0,
+    "indian_f": 0,
+    "indian_t": 0,
+    "sri_m": 0,
+    "sri_f": 0,
+    "sri_t": 0
+  },
+  {
+    "name": "מקס נתניה 2",
+    "hp": "515591261",
+    "thai_m": 5,
+    "thai_f": 5,
+    "thai_t": 10,
+    "indian_m": 0,
+    "indian_f": 0,
+    "indian_t": 0,
+    "sri_m": 0,
+    "sri_f": 0,
+    "sri_t": 0
+  },
+  {
+    "name": "מקס עפולה",
+    "hp": "514769603",
+    "thai_m": 3,
+    "thai_f": 3,
+    "thai_t": 6,
+    "indian_m": 0,
+    "indian_f": 0,
+    "indian_t": 0,
+    "sri_m": 0,
+    "sri_f": 0,
+    "sri_t": 0
+  },
+  {
+    "name": "מקס פולג",
+    "hp": "515811545",
+    "thai_m": 5,
+    "thai_f": 8,
+    "thai_t": 13,
+    "indian_m": 0,
+    "indian_f": 0,
+    "indian_t": 0,
+    "sri_m": 0,
+    "sri_f": 0,
+    "sri_t": 0
+  },
+  {
+    "name": "מקס פתח תקווה",
+    "hp": "515359719",
+    "thai_m": 6,
+    "thai_f": 10,
+    "thai_t": 16,
+    "indian_m": 0,
+    "indian_f": 0,
+    "indian_t": 0,
+    "sri_m": 0,
+    "sri_f": 0,
+    "sri_t": 0
+  },
+  {
+    "name": "מקס ק. אליעזר",
+    "hp": "514184308",
+    "thai_m": 2,
+    "thai_f": 2,
+    "thai_t": 4,
+    "indian_m": 0,
+    "indian_f": 0,
+    "indian_t": 0,
+    "sri_m": 0,
+    "sri_f": 0,
+    "sri_t": 0
+  },
+  {
+    "name": "מקס קריית גת",
+    "hp": "516785151",
+    "thai_m": 7,
+    "thai_f": 7,
+    "thai_t": 14,
+    "indian_m": 0,
+    "indian_f": 0,
+    "indian_t": 0,
+    "sri_m": 0,
+    "sri_f": 0,
+    "sri_t": 0
+  },
+  {
+    "name": "מקס קריית ים",
+    "hp": "516863149",
+    "thai_m": 4,
+    "thai_f": 4,
+    "thai_t": 8,
+    "indian_m": 0,
+    "indian_f": 0,
+    "indian_t": 0,
+    "sri_m": 0,
+    "sri_f": 0,
+    "sri_t": 0
+  },
+  {
+    "name": "מקס ראש האשון",
+    "hp": "514448786",
+    "thai_m": 0,
+    "thai_f": 0,
+    "thai_t": 0,
+    "indian_m": 9,
+    "indian_f": 5,
+    "indian_t": 14,
+    "sri_m": 0,
+    "sri_f": 0,
+    "sri_t": 0
+  },
+  {
+    "name": "מקס רחובות",
+    "hp": "515800092",
+    "thai_m": 0,
+    "thai_f": 0,
+    "thai_t": 0,
+    "indian_m": 7,
+    "indian_f": 8,
+    "indian_t": 15,
+    "sri_m": 0,
+    "sri_f": 0,
+    "sri_t": 0
+  },
+  {
+    "name": "מקס רמלה",
+    "hp": "516275765",
+    "thai_m": 4,
+    "thai_f": 8,
+    "thai_t": 12,
+    "indian_m": 0,
+    "indian_f": 0,
+    "indian_t": 0,
+    "sri_m": 0,
+    "sri_f": 0,
+    "sri_t": 0
+  },
+  {
+    "name": "מקס רעננה",
+    "hp": "516148475",
+    "thai_m": 6,
+    "thai_f": 0,
+    "thai_t": 6,
+    "indian_m": 0,
+    "indian_f": 0,
+    "indian_t": 0,
+    "sri_m": 0,
+    "sri_f": 0,
+    "sri_t": 0
+  },
+  {
+    "name": "מקס שדרות",
+    "hp": "516360351",
+    "thai_m": 4,
+    "thai_f": 4,
+    "thai_t": 8,
+    "indian_m": 0,
+    "indian_f": 0,
+    "indian_t": 0,
+    "sri_m": 0,
+    "sri_f": 0,
+    "sri_t": 0
+  },
+  {
+    "name": "מקס שער הכרמל",
+    "hp": "515382356",
+    "thai_m": 4,
+    "thai_f": 4,
+    "thai_t": 8,
+    "indian_m": 0,
+    "indian_f": 0,
+    "indian_t": 0,
+    "sri_m": 0,
+    "sri_f": 0,
+    "sri_t": 0
+  },
+  {
+    "name": "מקס תל חנן",
+    "hp": "516903648",
+    "thai_m": 2,
+    "thai_f": 4,
+    "thai_t": 6,
+    "indian_m": 0,
+    "indian_f": 0,
+    "indian_t": 0,
+    "sri_m": 0,
+    "sri_f": 0,
+    "sri_t": 0
+  },
+  {
+    "name": "מקס תלפיות",
+    "hp": "515036309",
+    "thai_m": 10,
+    "thai_f": 6,
+    "thai_t": 16,
+    "indian_m": 0,
+    "indian_f": 0,
+    "indian_t": 0,
+    "sri_m": 0,
+    "sri_f": 0,
+    "sri_t": 0
+  }
+];
+let msBranchEditId = null;
+let msBranchNextId = 1000;
+
+function getMsSettings() {
+  return {
+    rate: parseFloat(document.getElementById('ms-rate')?.value||1100),
+    utilities: parseFloat(document.getElementById('ms-utilities')?.value||400),
+    broker: parseFloat(document.getElementById('ms-broker')?.value||1),
+    minMargin: parseFloat(document.getElementById('ms-margin')?.value||20),
+  };
+}
+
+// Calculate required apartment groups for a branch
+// Rule: same nationality + same gender only
+function calcGroups(branch) {
+  var groups = [];
+  var nations = [
+    {key:'thai', label:'🇹🇭 תאילנדים', m: branch.thai_m||0, f: branch.thai_f||0},
+    {key:'indian', label:'🇮🇳 הודים', m: branch.indian_m||0, f: branch.indian_f||0},
+    {key:'sri', label:'🇱🇰 סרי לנקה', m: branch.sri_m||0, f: branch.sri_f||0},
+  ];
+  nations.forEach(function(n) {
+    if(n.m > 0) groups.push({nation: n.label, gender:'גברים', count: n.m, key: n.key+'_m'});
+    if(n.f > 0) groups.push({nation: n.label, gender:'נשים', count: n.f, key: n.key+'_f'});
+  });
+  return groups;
+}
+
+// Calculate max apartment price to stay profitable
+function calcMaxRent(workers, settings) {
+  var income = workers * settings.rate;
+  var utilities = workers * settings.utilities;
+  var maxTotal = income * (1 - settings.minMargin/100);
+  var maxRent = maxTotal - utilities; // rent budget after utilities
+  return {income, utilities, maxRent, maxTotal};
+}
+
+// Suggest apartment size
+function suggestApt(count) {
+  if(count <= 2) return '1-2 חדרים';
+  if(count <= 4) return '2-3 חדרים';
+  if(count <= 6) return '3-4 חדרים';
+  if(count <= 8) return '4-5 חדרים';
+  return '5+ חדרים / מספר דירות';
+}
+
+function getTotalWorkers(branch) {
+  return (branch.thai_t||0) + (branch.indian_t||0) + (branch.sri_t||0) ||
+    (branch.thai_m||0)+(branch.thai_f||0)+(branch.indian_m||0)+(branch.indian_f||0)+(branch.sri_m||0)+(branch.sri_f||0);
+}
+
+function renderMaxStock() {
+  const s = getMsSettings();
+  const search = (document.getElementById('ms-search')||{}).value||'';
+  const sort = (document.getElementById('ms-sort')||{}).value||'workers_desc';
+  const filterNation = (document.getElementById('ms-filter-nation')||{}).value||'';
+
+  let branches = MS_BRANCHES.filter(function(b) {
+    if(search && !b.name.includes(search)) return false;
+    if(filterNation==='thai' && !(b.thai_t||b.thai_m||b.thai_f)) return false;
+    if(filterNation==='indian' && !(b.indian_t||b.indian_m||b.indian_f)) return false;
+    if(filterNation==='srilanka' && !(b.sri_t||b.sri_m||b.sri_f)) return false;
+    return true;
+  });
+
+  branches.sort(function(a,b) {
+    if(sort==='workers_desc') return getTotalWorkers(b)-getTotalWorkers(a);
+    if(sort==='profit_desc') {
+      var pa = getTotalWorkers(a)*s.rate - getTotalWorkers(a)*s.utilities;
+      var pb = getTotalWorkers(b)*s.rate - getTotalWorkers(b)*s.utilities;
+      return pb-pa;
+    }
+    if(sort==='priority') {
+      var po = {urgent:0,normal:1,low:2};
+      return (po[a.priority||'normal']||1)-(po[b.priority||'normal']||1);
+    }
+    return a.name.localeCompare(b.name);
+  });
+
+  var totalWorkers = MS_BRANCHES.reduce(function(s,b){return s+getTotalWorkers(b);},0);
+  var totalIncome = totalWorkers * s.rate;
+  var totalBranches = MS_BRANCHES.length;
+  var activeBranches = MS_BRANCHES.filter(function(b){return getTotalWorkers(b)>0;}).length;
+
+  document.getElementById('ms-metrics').innerHTML =
+    '<div class="metric"><div class="metric-label">סניפים</div><div class="metric-value">'+totalBranches+'</div><div class="metric-sub">'+activeBranches+' עם עובדים</div></div>'+
+    '<div class="metric"><div class="metric-label">סה"כ עובדים</div><div class="metric-value">'+totalWorkers+'</div></div>'+
+    '<div class="metric"><div class="metric-label">הכנסה פוטנציאלית</div><div class="metric-value green">'+Math.round(totalIncome).toLocaleString('he-IL')+' ₪</div><div class="metric-sub">לפני הוצאות</div></div>'+
+    '<div class="metric"><div class="metric-label">תעריף לפועל</div><div class="metric-value">'+s.rate.toLocaleString('he-IL')+' ₪</div></div>';
+
+  var prioColors = {urgent:'#b85a50',normal:'#e8a030',low:'#2d8a5e'};
+  var prioBg = {urgent:'#faeae8',normal:'#fff3e0',low:'#e8f5ef'};
+  var prioLabel = {urgent:'🔴 דחוף',normal:'🟡 רגיל',low:'🟢 נמוך'};
+
+  // Build grid of small cards
+  var boardHtml = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px" id="ms-grid">';
+  
+  branches.forEach(function(b, idx) {
+    var total = getTotalWorkers(b);
+    var income = total * s.rate;
+    var utilities = total * s.utilities;
+    var grossProfit = income - utilities;
+    var prio = b.priority||'normal';
+    var pColor = prioColors[prio]||'#aaa';
+    var pBg = prioBg[prio]||'#eee';
+    
+    // Offers for this branch
+    var offers = MS_OFFERS.filter(function(o){return o.branchId===b.id;});
+    var bestOffer = offers.length ? offers.reduce(function(best,o){
+      var bProfit = income - utilities - o.rent;
+      var oProfit = income - utilities - o.rent;
+      return oProfit > bProfit ? o : best;
+    }) : null;
+    
+    var offerBadge = '';
+    if(bestOffer) {
+      var net = income - utilities - bestOffer.rent;
+      var netPct = total>0 ? Math.round(net/income*100) : 0;
+      offerBadge = '<div style="margin-top:6px;padding:5px 8px;background:'+(net>0?'#e8f5ef':'#faeae8')+';border-radius:6px;font-size:11px">'+
+        '<span style="font-weight:600;color:'+(net>0?'#2d8a5e':'#b85a50')+'">'+
+        (net>0?'✅':'⚠️')+' רווח '+net.toLocaleString('he-IL')+' ₪ ('+netPct+'%)</span>'+
+        ' · '+offers.length+' הצעות'+
+      '</div>';
+    } else if(total>0) {
+      offerBadge = '<div style="margin-top:6px;font-size:11px;color:var(--text3)">אין הצעות דירה עדיין</div>';
+    }
+    
+    // Nations summary
+    var nations = [];
+    if(b.thai_m||b.thai_f) nations.push('🇹🇭'+(b.thai_m?b.thai_m+'ג':'')+(b.thai_f?b.thai_f+'נ':''));
+    if(b.indian_m||b.indian_f) nations.push('🇮🇳'+(b.indian_m?b.indian_m+'ג':'')+(b.indian_f?b.indian_f+'נ':''));
+    if(b.sri_m||b.sri_f) nations.push('🇱🇰'+(b.sri_m?b.sri_m+'ג':'')+(b.sri_f?b.sri_f+'נ':''));
+
+    boardHtml += '<div draggable="true" data-id="'+b.id+'" data-idx="'+idx+'" '+
+      'ondragstart="msDragStart(event)" ondragover="msDragOver(event)" ondrop="msDrop(event)" '+
+      'style="background:#fff;border:1.5px solid var(--border);border-radius:10px;padding:12px;'+
+      'border-right:3px solid '+pColor+';cursor:grab;transition:box-shadow 0.15s;position:relative" '+
+      'onmouseover="this.style.boxShadow=\'0 4px 12px rgba(0,0,0,0.1)\'" onmouseout="this.style.boxShadow=\'\'">'+
+      
+      // Drag handle + actions
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">'+
+        '<div style="display:flex;align-items:center;gap:6px">'+
+          '<span style="color:var(--text3);font-size:16px;cursor:grab">⠿</span>'+
+          '<div>'+
+            '<div style="font-size:13px;font-weight:700;line-height:1.3">'+b.name.replace('מקס ','')+'</div>'+
+            (b.address?'<div style="font-size:10px;color:var(--text3)">'+b.address+'</div>':'')+
+          '</div>'+
+        '</div>'+
+        '<div style="display:flex;gap:4px">'+
+          '<button onclick="openMsOfferModal('+b.id+')" title="הוסף הצעת דירה" '+
+            'style="background:#e8f5ef;color:#2d8a5e;border:none;border-radius:5px;padding:3px 7px;cursor:pointer;font-size:12px">🏠+</button>'+
+          '<button onclick="openMsBranchModal('+b.id+')" class="btn btn-sm" style="padding:2px 6px;font-size:11px">✏️</button>'+
+          '<button onclick="deleteMsBranch('+b.id+')" class="btn btn-sm btn-danger" style="padding:2px 6px;font-size:11px">✕</button>'+
+        '</div>'+
+      '</div>'+
+      
+      // Workers + priority
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'+
+        '<div style="font-size:22px;font-weight:700;color:var(--text)">'+total+'<span style="font-size:12px;font-weight:400;color:var(--text3)"> עובדים</span></div>'+
+        '<span style="background:'+pBg+';color:'+pColor+';padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600">'+prioLabel[prio]+'</span>'+
+      '</div>'+
+      
+      // Nations
+      (nations.length?'<div style="font-size:11px;color:var(--text2);margin-bottom:6px">'+nations.join(' · ')+'</div>':'')+
+      
+      // Financials
+      (total>0?
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:11px;margin-bottom:4px">'+
+          '<div style="background:#e8f5ef;border-radius:5px;padding:4px 8px">'+
+            '<div style="color:var(--text3)">הכנסה</div>'+
+            '<div style="font-weight:600;color:#2d8a5e">'+Math.round(income).toLocaleString('he-IL')+' ₪</div>'+
+          '</div>'+
+          '<div style="background:#fff3e0;border-radius:5px;padding:4px 8px">'+
+            '<div style="color:var(--text3)">תקציב שכירות</div>'+
+            '<div style="font-weight:600;color:#e8a030">עד '+Math.round(income*(1-s.minMargin/100)-utilities).toLocaleString('he-IL')+' ₪</div>'+
+          '</div>'+
+        '</div>':'')+
+      
+      offerBadge+
+      
+    '</div>';
+  });
+  
+  boardHtml += '</div>';
+  document.getElementById('ms-board').innerHTML = boardHtml || '<div style="text-align:center;padding:3rem;color:var(--text3)">אין סניפים</div>';
+}
+
+// ---- DRAG & DROP ----
+let msDragIdx = null;
+function msDragStart(e) {
+  msDragIdx = parseInt(e.currentTarget.dataset.idx);
+  e.dataTransfer.effectAllowed = 'move';
+}
+function msDragOver(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }
+function msDrop(e) {
+  e.preventDefault();
+  var dropIdx = parseInt(e.currentTarget.dataset.idx);
+  if(msDragIdx===null||msDragIdx===dropIdx) return;
+  var sort = (document.getElementById('ms-sort')||{}).value||'workers_desc';
+  if(sort!=='priority') {
+    document.getElementById('ms-sort').value='priority';
+  }
+  // Swap priority order
+  var dragged = MS_BRANCHES[msDragIdx];
+  MS_BRANCHES.splice(msDragIdx,1);
+  MS_BRANCHES.splice(dropIdx,0,dragged);
+  // Assign priority ranks
+  MS_BRANCHES.forEach(function(b,i){ b.sortOrder=i; });
+  msDragIdx=null;
+  renderMaxStock();
+}
+
+// ---- OFFERS ----
+const MS_OFFERS = [];
+let msOfferNextId = 1;
+let msOfferBranchId = null;
+
+function openMsOfferModal(branchId) {
+  msOfferBranchId = branchId;
+  var b = MS_BRANCHES.find(function(x){return x.id===branchId;});
+  var offers = MS_OFFERS.filter(function(o){return o.branchId===branchId;});
+  var s = getMsSettings();
+  var total = b ? getTotalWorkers(b) : 0;
+  var income = total * s.rate;
+  var utilities = total * s.utilities;
+  var maxRent = Math.round(income*(1-s.minMargin/100)-utilities);
+
+  var existing = document.getElementById('ms-offer-modal');
+  if(existing) existing.remove();
+  
+  var modal = document.createElement('div');
+  modal.id = 'ms-offer-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:flex-start;justify-content:center;z-index:500;padding:1rem;overflow-y:auto';
+  
+  var offersHtml = offers.length ? offers.map(function(o) {
+    var net = income - utilities - o.rent;
+    var netPct = total>0?Math.round(net/income*100):0;
+    var isGood = o.rent <= maxRent;
+    return '<div style="background:'+(isGood?'#e8f5ef':'#fff8f8')+';border:1px solid '+(isGood?'#a8d9be':'#f0c0bb')+';border-radius:8px;padding:10px 12px;margin-bottom:8px">'+
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start">'+
+        '<div style="flex:1">'+
+          '<div style="font-size:13px;font-weight:600">'+o.address+'</div>'+
+          '<div style="font-size:11px;color:var(--text3);margin-top:2px">'+
+            (o.distance?'📍 '+o.distance+' ק"מ מהסניף · ':'')+(o.rooms?o.rooms+' חדרים · ':'')+
+            (o.notes||'')+
+          '</div>'+
+          '<div style="display:flex;gap:12px;margin-top:6px;font-size:12px">'+
+            '<span>שכירות: <strong style="color:#b85a50">'+o.rent.toLocaleString('he-IL')+' ₪</strong></span>'+
+            '<span>רווח: <strong style="color:'+(net>=0?'#2d8a5e':'#b85a50')+'">'+net.toLocaleString('he-IL')+' ₪ ('+netPct+'%)</strong></span>'+
+            (isGood?'<span style="color:#2d8a5e">✅ בתקציב</span>':'<span style="color:#b85a50">❌ יקר מדי</span>')+
+          '</div>'+
+        '</div>'+
+        '<button onclick="deleteMsOffer('+o.id+')" class="btn btn-sm btn-danger" style="flex-shrink:0">מחק</button>'+
+      '</div>'+
+    '</div>';
+  }).join('') : '<div style="color:var(--text3);font-size:13px;padding:8px 0">אין הצעות עדיין</div>';
+
+  modal.innerHTML = '<div style="background:#fff;border-radius:12px;padding:20px;width:100%;max-width:500px;border:1px solid #e0ddd8;margin:auto">'+
+    '<div style="font-size:15px;font-weight:600;margin-bottom:4px">🏠 הצעות דירה — '+(b?b.name:'')+'</div>'+
+    '<div style="font-size:12px;color:var(--text3);margin-bottom:14px">תקציב מקסימלי: <strong style="color:#b85a50">'+maxRent.toLocaleString('he-IL')+' ₪</strong> לחודש (לכלל העובדים)</div>'+
+    
+    offersHtml+
+    
+    '<div style="border-top:1px solid var(--border);padding-top:14px;margin-top:10px">'+
+      '<div style="font-size:13px;font-weight:600;margin-bottom:10px">+ הצעה חדשה</div>'+
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">'+
+        '<div class="form-group" style="grid-column:1/-1"><label>כתובת הנכס *</label>'+
+          '<input id="mso-address" placeholder="רחוב, מספר, עיר" style="width:100%;background:#f5f3ef;border:1px solid #ddd;border-radius:6px;padding:7px 10px;font-size:13px;font-family:inherit;box-sizing:border-box"></div>'+
+        '<div class="form-group"><label>שכירות חודשית ₪ *</label>'+
+          '<input type="number" id="mso-rent" placeholder="0" onchange="msoCalc('+total+','+income+','+utilities+')" '+
+          'style="width:100%;background:#f5f3ef;border:1px solid #ddd;border-radius:6px;padding:7px 10px;font-size:13px;font-family:inherit;box-sizing:border-box"></div>'+
+        '<div class="form-group"><label>מרחק מהסניף ק"מ</label>'+
+          '<input type="number" id="mso-distance" placeholder="0.0" step="0.1" '+
+          'style="width:100%;background:#f5f3ef;border:1px solid #ddd;border-radius:6px;padding:7px 10px;font-size:13px;font-family:inherit;box-sizing:border-box"></div>'+
+        '<div class="form-group"><label>מספר חדרים</label>'+
+          '<input type="number" id="mso-rooms" placeholder="3" '+
+          'style="width:100%;background:#f5f3ef;border:1px solid #ddd;border-radius:6px;padding:7px 10px;font-size:13px;font-family:inherit;box-sizing:border-box"></div>'+
+      '</div>'+
+      '<div id="mso-calc" style="background:#f5f3ef;border-radius:6px;padding:8px 12px;font-size:13px;margin-bottom:10px;min-height:36px"></div>'+
+      '<div class="form-group" style="margin-bottom:10px"><label>הערות</label>'+
+        '<input id="mso-notes" placeholder="קומה, חניה, מצב הדירה..." '+
+        'style="width:100%;background:#f5f3ef;border:1px solid #ddd;border-radius:6px;padding:7px 10px;font-size:13px;font-family:inherit;box-sizing:border-box"></div>'+
+      '<div style="display:flex;gap:8px">'+
+        '<button onclick="saveMsOffer('+branchId+','+income+','+utilities+')" '+
+          'style="flex:1;padding:9px;background:#2d2a26;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-family:inherit">💾 הוסף הצעה</button>'+
+        '<button onclick="closeMsOfferModal()" '+
+          'style="padding:9px 16px;background:transparent;border:1px solid #ddd;border-radius:6px;cursor:pointer;font-size:13px;font-family:inherit">סגור</button>'+
+      '</div>'+
+    '</div>'+
+  '</div>';
+  
+  document.body.appendChild(modal);
+  modal.addEventListener('click', function(e){ if(e.target===modal) modal.remove(); });
+}
+
+function closeMsOfferModal(){var m=document.getElementById("ms-offer-modal");if(m)m.remove();}
+function msoCalc(total, income, utilities) {
+  var rent = parseFloat(document.getElementById('mso-rent').value)||0;
+  if(!rent) { document.getElementById('mso-calc').innerHTML=''; return; }
+  var net = income - utilities - rent;
+  var pct = total>0?Math.round(net/income*100):0;
+  var color = net>=0?'#2d8a5e':'#b85a50';
+  document.getElementById('mso-calc').innerHTML =
+    'רווח: <strong style="color:'+color+'">'+net.toLocaleString('he-IL')+' ₪ ('+pct+'%)</strong>'+
+    (net<0?' ⚠️ הפסד — חפש דירה זולה יותר':pct<10?' ⚠️ מרווח נמוך':' ✅ רווחי');
+}
+
+function saveMsOffer(branchId, income, utilities) {
+  var address = document.getElementById('mso-address').value.trim();
+  var rent = parseFloat(document.getElementById('mso-rent').value)||0;
+  if(!address||!rent) { alert('נא למלא כתובת ושכירות'); return; }
+  MS_OFFERS.push({
+    id: msOfferNextId++,
+    branchId: branchId,
+    address: address,
+    rent: rent,
+    distance: parseFloat(document.getElementById('mso-distance').value)||0,
+    rooms: document.getElementById('mso-rooms').value||'',
+    notes: document.getElementById('mso-notes').value.trim(),
+    createdAt: new Date().toISOString().split('T')[0]
+  });
+  document.getElementById('ms-offer-modal').remove();
+  renderMaxStock();
+  // Reopen to show updated list
+  openMsOfferModal(branchId);
+}
+
+function deleteMsOffer(id) {
+  if(!confirm('למחוק הצעה זו?')) return;
+  MS_OFFERS.splice(MS_OFFERS.findIndex(function(x){return x.id===id;}),1);
+  document.getElementById('ms-offer-modal').remove();
+  renderMaxStock();
+  if(msOfferBranchId) openMsOfferModal(msOfferBranchId);
+}
+
+function msBranchCalc() {
+  var s = getMsSettings();
+  var thai_m = parseFloat(document.getElementById('ms-b-thai-m').value)||0;
+  var thai_f = parseFloat(document.getElementById('ms-b-thai-f').value)||0;
+  var indian_m = parseFloat(document.getElementById('ms-b-indian-m').value)||0;
+  var indian_f = parseFloat(document.getElementById('ms-b-indian-f').value)||0;
+  var sri_m = parseFloat(document.getElementById('ms-b-sri-m').value)||0;
+  var sri_f = parseFloat(document.getElementById('ms-b-sri-f').value)||0;
+  
+  // Update totals
+  document.getElementById('ms-b-thai-t').value = thai_m+thai_f;
+  document.getElementById('ms-b-indian-t').value = indian_m+indian_f;
+  document.getElementById('ms-b-sri-t').value = sri_m+sri_f;
+  
+  var total = thai_m+thai_f+indian_m+indian_f+sri_m+sri_f;
+  if(!total) { document.getElementById('ms-b-calc').innerHTML='<div style="color:var(--text3)">הזן מספר עובדים לחישוב</div>'; return; }
+  
+  var income = total*s.rate;
+  var utilities = total*s.utilities;
+  var maxRent = income*(1-s.minMargin/100)-utilities;
+  var netProfit = income - utilities - maxRent;
+  
+  var groups = [];
+  if(thai_m) groups.push('🇹🇭 '+thai_m+' גברים — דירה עד '+Math.round(calcMaxRent(thai_m,s).maxRent).toLocaleString('he-IL')+' ₪ ('+suggestApt(thai_m)+')');
+  if(thai_f) groups.push('🇹🇭 '+thai_f+' נשים — דירה עד '+Math.round(calcMaxRent(thai_f,s).maxRent).toLocaleString('he-IL')+' ₪ ('+suggestApt(thai_f)+')');
+  if(indian_m) groups.push('🇮🇳 '+indian_m+' גברים — דירה עד '+Math.round(calcMaxRent(indian_m,s).maxRent).toLocaleString('he-IL')+' ₪ ('+suggestApt(indian_m)+')');
+  if(indian_f) groups.push('🇮🇳 '+indian_f+' נשים — דירה עד '+Math.round(calcMaxRent(indian_f,s).maxRent).toLocaleString('he-IL')+' ₪ ('+suggestApt(indian_f)+')');
+  if(sri_m) groups.push('🇱🇰 '+sri_m+' גברים — דירה עד '+Math.round(calcMaxRent(sri_m,s).maxRent).toLocaleString('he-IL')+' ₪ ('+suggestApt(sri_m)+')');
+  if(sri_f) groups.push('🇱🇰 '+sri_f+' נשים — דירה עד '+Math.round(calcMaxRent(sri_f,s).maxRent).toLocaleString('he-IL')+' ₪ ('+suggestApt(sri_f)+')');
+  
+  document.getElementById('ms-b-calc').innerHTML =
+    '<div style="font-weight:600;margin-bottom:6px">סה"כ '+total+' עובדים — הכנסה '+Math.round(income).toLocaleString('he-IL')+' ₪</div>'+
+    '<div style="color:#b85a50;margin-bottom:6px">תקציב שכירות מקסימלי ('+s.minMargin+'% רווח): '+Math.round(maxRent).toLocaleString('he-IL')+' ₪</div>'+
+    '<div style="display:flex;flex-direction:column;gap:3px">'+
+      groups.map(function(g){return '<div style="font-size:12px;color:#555">• '+g+'</div>';}).join('')+
+    '</div>';
+}
+
+function openMsBranchModal(id) {
+  msBranchEditId = id||null;
+  var b = id ? MS_BRANCHES.find(function(x){return x.id===id;}) : null;
+  document.getElementById('ms-modal-title').textContent = b?'עריכת סניף':'סניף חדש';
+  document.getElementById('ms-b-name').value = b?b.name:'';
+  document.getElementById('ms-b-address').value = b?b.address||'':'';
+  document.getElementById('ms-b-priority').value = b?b.priority||'normal':'normal';
+  document.getElementById('ms-b-thai-m').value = b?b.thai_m||0:0;
+  document.getElementById('ms-b-thai-f').value = b?b.thai_f||0:0;
+  document.getElementById('ms-b-thai-t').value = b?b.thai_t||0:0;
+  document.getElementById('ms-b-indian-m').value = b?b.indian_m||0:0;
+  document.getElementById('ms-b-indian-f').value = b?b.indian_f||0:0;
+  document.getElementById('ms-b-indian-t').value = b?b.indian_t||0:0;
+  document.getElementById('ms-b-sri-m').value = b?b.sri_m||0:0;
+  document.getElementById('ms-b-sri-f').value = b?b.sri_f||0:0;
+  document.getElementById('ms-b-sri-t').value = b?b.sri_t||0:0;
+  document.getElementById('ms-b-notes').value = b?b.notes||'':'';
+  msBranchCalc();
+  document.getElementById('ms-branch-modal').style.display = 'flex';
+}
+
+function saveMsBranch() {
+  var name = document.getElementById('ms-b-name').value.trim();
+  if(!name) { alert('נא להזין שם סניף'); return; }
+  var data = {
+    name: name,
+    address: document.getElementById('ms-b-address').value.trim(),
+    priority: document.getElementById('ms-b-priority').value,
+    thai_m: parseFloat(document.getElementById('ms-b-thai-m').value)||0,
+    thai_f: parseFloat(document.getElementById('ms-b-thai-f').value)||0,
+    thai_t: parseFloat(document.getElementById('ms-b-thai-t').value)||0,
+    indian_m: parseFloat(document.getElementById('ms-b-indian-m').value)||0,
+    indian_f: parseFloat(document.getElementById('ms-b-indian-f').value)||0,
+    indian_t: parseFloat(document.getElementById('ms-b-indian-t').value)||0,
+    sri_m: parseFloat(document.getElementById('ms-b-sri-m').value)||0,
+    sri_f: parseFloat(document.getElementById('ms-b-sri-f').value)||0,
+    sri_t: parseFloat(document.getElementById('ms-b-sri-t').value)||0,
+    notes: document.getElementById('ms-b-notes').value.trim(),
+  };
+  if(msBranchEditId) {
+    var idx = MS_BRANCHES.findIndex(function(x){return x.id===msBranchEditId;});
+    if(idx>=0) MS_BRANCHES[idx] = Object.assign({}, MS_BRANCHES[idx], data);
+  } else {
+    data.id = msBranchNextId++;
+    MS_BRANCHES.push(data);
+  }
+  document.getElementById('ms-branch-modal').style.display = 'none';
+  renderMaxStock();
+}
+
+function deleteMsBranch(id) {
+  if(!confirm('למחוק סניף זה?')) return;
+  MS_BRANCHES.splice(MS_BRANCHES.findIndex(function(x){return x.id===id;}),1);
+  renderMaxStock();
+}
+
+document.addEventListener('click', function(e) {
+  var m = document.getElementById('ms-branch-modal');
+  if(m && e.target===m) m.style.display='none';
+});
 
 async function initApp() {
   showSaveIndicator('⏳ טוען נתונים...');
