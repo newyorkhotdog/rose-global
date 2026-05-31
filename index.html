@@ -456,7 +456,8 @@ textarea { resize: vertical; min-height: 70px; }
       <select id="mv-filter-type" onchange="renderMovements()" style="width:auto;font-size:12px"><option value="">הכל</option><option value="entry">כניסות</option><option value="exit">יציאות</option></select>
     <select id="mv-filter-month" onchange="renderMovements()" style="width:auto;font-size:12px">
       <option value="">כל החודשים</option>
-      <option value="2026-05">מאי 2026</option>
+      <option value="2026-06">יוני 2026</option>
+          <option value="2026-05">מאי 2026</option>
       <option value="2026-04">אפריל 2026</option>
       <option value="2026-03">מרץ 2026</option>
       <option value="2026-02">פברואר 2026</option>
@@ -475,6 +476,7 @@ textarea { resize: vertical; min-height: 70px; }
   <div class="page-sub">חישוב אוטומטי לפי ראש + פרו-ראטה לכניסות/יציאות באמצע חודש</div>
   <div style="display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap">
     <select id="bill-month" onchange="renderBilling()" style="width:auto">
+      <option value="2026-06">יוני 2026</option>
       <option value="2026-05" selected>מאי 2026</option>
       <option value="2026-04">אפריל 2026</option>
       <option value="2026-03">מרץ 2026</option>
@@ -723,7 +725,8 @@ textarea { resize: vertical; min-height: 70px; }
       <div class="metrics" id="exp-metrics" style="margin:0"></div>
       <select id="exp-filter-month" onchange="renderExpenses()" style="width:auto;font-size:13px">
         <option value="">כל החודשים</option>
-        <option value="2026-05">מאי 2026</option>
+        <option value="2026-06">יוני 2026</option>
+          <option value="2026-05">מאי 2026</option>
       <option value="2026-04">אפריל 2026</option>
         <option value="2026-03">מרץ 2026</option>
         <option value="2026-02">פברואר 2026</option>
@@ -952,6 +955,7 @@ textarea { resize: vertical; min-height: 70px; }
             <option value="2026-01">ינואר 2026</option>
             <option value="2026-02">פברואר 2026</option>
             <option value="2026-03" selected>מרץ 2026</option>
+          <option value="2026-06">יוני 2026</option>
           <option value="2026-05">מאי 2026</option>
       <option value="2026-04">אפריל 2026</option>
           </select>
@@ -993,6 +997,7 @@ textarea { resize: vertical; min-height: 70px; }
           <option value="2026-01">ינואר 2026</option>
           <option value="2026-02">פברואר 2026</option>
           <option value="2026-03">מרץ 2026</option>
+          <option value="2026-06">יוני 2026</option>
           <option value="2026-05">מאי 2026</option>
       <option value="2026-04">אפריל 2026</option>
         </select>
@@ -1068,6 +1073,7 @@ textarea { resize: vertical; min-height: 70px; }
     <div class="form-grid" style="margin-bottom:12px">
       <div class="form-group"><label>חודש</label>
         <select id="brok-month">
+          <option value="2026-06">יוני 2026</option>
           <option value="2026-05">מאי 2026</option>
       <option value="2026-04">אפריל 2026</option>
           <option value="2026-03">מרץ 2026</option>
@@ -1198,7 +1204,8 @@ textarea { resize: vertical; min-height: 70px; }
   <!-- Filters -->
   <div style="display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap">
     <select id="invtrack-month" onchange="renderInvTrack()" style="width:auto;font-size:13px">
-      <option value="2026-05">מאי 2026</option>
+      <option value="2026-06">יוני 2026</option>
+          <option value="2026-05">מאי 2026</option>
       <option value="2026-04">אפריל 2026</option>
       <option value="2026-03">מרץ 2026</option>
       <option value="2026-02">פברואר 2026</option>
@@ -6518,6 +6525,38 @@ document.addEventListener('click', function(e) {
   if(m && e.target===m) m.style.display='none';
 });
 
+
+function getMonthOptions(selectedMonth, startMonth) {
+  var start = startMonth || '2025-11';
+  var now = new Date();
+  var currentMonth = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
+  // Generate from current month back to start
+  var months = [];
+  var d = new Date(now.getFullYear(), now.getMonth(), 1);
+  var startDate = new Date(start.split('-')[0], parseInt(start.split('-')[1])-1, 1);
+  while(d >= startDate) {
+    var val = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+    months.push(val);
+    d.setMonth(d.getMonth()-1);
+  }
+  var sel = selectedMonth || currentMonth;
+  return months.map(function(m) {
+    return '<option value="'+m+'"'+(m===sel?' selected':'')+'>'+getMonthLabel(m)+'</option>';
+  }).join('');
+}
+
+function populateAllMonthSelects() {
+  var selIds = ['bill-month','invtrack-month','mv-filter-month','exp-filter-month',
+    'hg-month','brok-month','entry-filter-month','props-filter-month'];
+  var currentMonth = new Date().getFullYear() + '-' + String(new Date().getMonth()+1).padStart(2,'0');
+  selIds.forEach(function(id) {
+    var el = document.getElementById(id);
+    if(!el) return;
+    var cur = el.value || currentMonth;
+    el.innerHTML = getMonthOptions(cur);
+  });
+}
+
 async function initApp() {
   showSaveIndicator('⏳ טוען נתונים...');
 
@@ -6563,6 +6602,7 @@ async function initApp() {
   }
 
   updateTaskBadge();
+  populateAllMonthSelects();
   renderDashboard();
 
   // Real-time sync - updates ALL users when anyone saves
