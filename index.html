@@ -4739,6 +4739,16 @@ function renderInvTrack() {
 
   // Sync billing amounts for this month
   const billingClients = getBillingClientsForMonth(month);
+  const validClients = billingClients.map(function(c){return c.client;});
+  
+  // Remove stale auto-generated records (not manual) that no longer exist in billing
+  for(var i=INVOICE_TRACK.length-1;i>=0;i--) {
+    var r=INVOICE_TRACK[i];
+    if(r.month===month && !r.manualAmount && !validClients.includes(r.client)) {
+      INVOICE_TRACK.splice(i,1);
+    }
+  }
+  
   billingClients.forEach(function(item) {
     var rec = INVOICE_TRACK.find(function(r){return r.month===month&&r.client===item.client;});
     if (!rec) {
