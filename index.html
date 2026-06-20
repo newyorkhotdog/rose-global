@@ -2436,7 +2436,7 @@ function renderBilling(){
       if(c.includes('ח.ח.א')) return 'ח.ח.א';
       if(c.includes('קורפו')) return 'קורפו';
       if(c.includes('משביר')) return 'משביר יעקב';
-      if(c.includes('קורל')) return 'קורל';
+      if(c.includes('קורל')&&!c.includes('ויינשטוק')) return 'קורל';
       return c;
     };
     const grp = getGrp(mv.company);
@@ -4686,10 +4686,11 @@ function getBillingClientsForMonth(month) {
   Object.entries(groups).forEach(([g,amt])=>clients.push({client:g, amount:amt}));
 
   // ח.ח.א + חיים בר לב
-  if(!groups['ח.ח.א']) clients.push({client:'ח.ח.א', amount:15000});
+  var hblAmt = (PROP_INCOME_FIXED&&PROP_INCOME_FIXED['חיים בר לב 104'])||14500;
+  if(!groups['ח.ח.א']) clients.push({client:'ח.ח.א', amount:hblAmt});
   else {
     const idx = clients.findIndex(c=>c.client==='ח.ח.א');
-    if(idx>=0) clients[idx].amount += 15000;
+    if(idx>=0) clients[idx].amount += hblAmt;
   }
 
   // קורל תיווך
@@ -4729,7 +4730,7 @@ function getGroup(c) {
   if(c.includes('ח.ח.א')) return 'ח.ח.א';
   if(c.includes('קורפו')) return 'קורפו';
   if(c.includes('משביר')) return 'משביר יעקב';
-  if(c.includes('קורל')) return 'קורל — תיווך';
+  if(c.includes('קורל')&&!c.includes('ויינשטוק')) return 'קורל — תיווך';
   return c;
 }
 
