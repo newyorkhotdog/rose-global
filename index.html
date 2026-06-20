@@ -4593,7 +4593,7 @@ function renderRemindersDashboard() {
 
 
 // ============ INVOICE TRACKING ============
-const INVOICE_TRACK = []; // {month, client, amount, issued, paid, issuedDate, paidDate}
+let INVOICE_TRACK = []; // {month, client, amount, issued, paid, issuedDate, paidDate}
 
 function getInvTrackKey(month, client) { return month+'__'+client; }
 
