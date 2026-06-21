@@ -1669,9 +1669,9 @@ function renderDashboard() {
   const totalPeople = MAP_DATA ? Object.values(MAP_DATA).reduce((s,p)=>s+Object.values(p.floors||{}).flat().reduce((s2,r)=>s2+(r.company&&r.company!=='שירות'?r.people:0),0),0) : 0;
   const openTasks = TASKS.filter(t=>!t.done).length;
 
+  const totalIncome = pl.totalIncome + getBrokerageTotal(month);
   document.getElementById('dash-metrics').innerHTML = `
-    <div class="metric"><div class="metric-label">הכנסות שכירות</div><div class="metric-value green">${fmt(pl.totalIncome)} ₪</div><div class="metric-sub">${totalPeople} דיירים</div></div>
-    <div class="metric"><div class="metric-label">הכנסות תיווך</div><div class="metric-value green">${fmt(getBrokerageTotal(month))} ₪</div><div class="metric-sub">קורל</div></div>
+    <div class="metric"><div class="metric-label">סה"כ הכנסות</div><div class="metric-value green">${fmt(totalIncome)} ₪</div><div class="metric-sub">${totalPeople} דיירים + תיווך</div></div>
     <div class="metric"><div class="metric-label">הוצאות שכירות</div><div class="metric-value red">${fmt(pl.totalRent)} ₪</div><div class="metric-sub">5 נכסים</div></div>
     <div class="metric"><div class="metric-label">חשמל/מים/ארנונה</div><div class="metric-value red">${fmt(pl.totalUtil)} ₪</div><div class="metric-sub">${pl.hasEstimates?'<span style="color:var(--amber)">כולל הערכה</span>':'נתוני אמת'}</div></div>
     <div class="metric"><div class="metric-label">רווח גולמי</div><div class="metric-value ${pl.grossProfit>=0?'green':'red'}">${fmt(pl.grossProfit)} ₪</div></div>
@@ -6398,9 +6398,9 @@ function renderDashboard() {
   const totalPeople = MAP_DATA ? Object.values(MAP_DATA).reduce((s,p)=>s+Object.values(p.floors||{}).flat().reduce((s2,r)=>s2+(r.company&&r.company!=='שירות'?r.people:0),0),0) : 0;
   const openTasks = TASKS.filter(t=>!t.done).length;
 
+  const totalIncome = pl.totalIncome + getBrokerageTotal(month);
   document.getElementById('dash-metrics').innerHTML = `
-    <div class="metric"><div class="metric-label">הכנסות שכירות</div><div class="metric-value green">${fmt(pl.totalIncome)} ₪</div><div class="metric-sub">${totalPeople} דיירים</div></div>
-    <div class="metric"><div class="metric-label">הכנסות תיווך</div><div class="metric-value green">${fmt(getBrokerageTotal(month))} ₪</div><div class="metric-sub">קורל</div></div>
+    <div class="metric"><div class="metric-label">סה"כ הכנסות</div><div class="metric-value green">${fmt(totalIncome)} ₪</div><div class="metric-sub">${totalPeople} דיירים + תיווך</div></div>
     <div class="metric"><div class="metric-label">הוצאות שכירות</div><div class="metric-value red">${fmt(pl.totalRent)} ₪</div><div class="metric-sub">5 נכסים</div></div>
     <div class="metric"><div class="metric-label">חשמל/מים/ארנונה</div><div class="metric-value red">${fmt(pl.totalUtil)} ₪</div><div class="metric-sub">${pl.hasEstimates?'<span style="color:var(--amber)">כולל הערכה</span>':'נתוני אמת'}</div></div>
     <div class="metric"><div class="metric-label">רווח גולמי</div><div class="metric-value ${pl.grossProfit>=0?'green':'red'}">${fmt(pl.grossProfit)} ₪</div></div>
@@ -11068,9 +11068,9 @@ function renderDashboard() {
   const totalPeople = MAP_DATA ? Object.values(MAP_DATA).reduce((s,p)=>s+Object.values(p.floors||{}).flat().reduce((s2,r)=>s2+(r.company&&r.company!=='שירות'?r.people:0),0),0) : 0;
   const openTasks = TASKS.filter(t=>!t.done).length;
 
+  const totalIncome = pl.totalIncome + getBrokerageTotal(month);
   document.getElementById('dash-metrics').innerHTML = `
-    <div class="metric"><div class="metric-label">הכנסות שכירות</div><div class="metric-value green">${fmt(pl.totalIncome)} ₪</div><div class="metric-sub">${totalPeople} דיירים</div></div>
-    <div class="metric"><div class="metric-label">הכנסות תיווך</div><div class="metric-value green">${fmt(getBrokerageTotal(month))} ₪</div><div class="metric-sub">קורל</div></div>
+    <div class="metric"><div class="metric-label">סה"כ הכנסות</div><div class="metric-value green">${fmt(totalIncome)} ₪</div><div class="metric-sub">${totalPeople} דיירים + תיווך</div></div>
     <div class="metric"><div class="metric-label">הוצאות שכירות</div><div class="metric-value red">${fmt(pl.totalRent)} ₪</div><div class="metric-sub">5 נכסים</div></div>
     <div class="metric"><div class="metric-label">חשמל/מים/ארנונה</div><div class="metric-value red">${fmt(pl.totalUtil)} ₪</div><div class="metric-sub">${pl.hasEstimates?'<span style="color:var(--amber)">כולל הערכה</span>':'נתוני אמת'}</div></div>
     <div class="metric"><div class="metric-label">רווח גולמי</div><div class="metric-value ${pl.grossProfit>=0?'green':'red'}">${fmt(pl.grossProfit)} ₪</div></div>
@@ -15797,9 +15797,9 @@ function renderDashboard() {
   const totalPeople = MAP_DATA ? Object.values(MAP_DATA).reduce((s,p)=>s+Object.values(p.floors||{}).flat().reduce((s2,r)=>s2+(r.company&&r.company!=='שירות'?r.people:0),0),0) : 0;
   const openTasks = TASKS.filter(t=>!t.done).length;
 
+  const totalIncome = pl.totalIncome + getBrokerageTotal(month);
   document.getElementById('dash-metrics').innerHTML = `
-    <div class="metric"><div class="metric-label">הכנסות שכירות</div><div class="metric-value green">${fmt(pl.totalIncome)} ₪</div><div class="metric-sub">${totalPeople} דיירים</div></div>
-    <div class="metric"><div class="metric-label">הכנסות תיווך</div><div class="metric-value green">${fmt(getBrokerageTotal(month))} ₪</div><div class="metric-sub">קורל</div></div>
+    <div class="metric"><div class="metric-label">סה"כ הכנסות</div><div class="metric-value green">${fmt(totalIncome)} ₪</div><div class="metric-sub">${totalPeople} דיירים + תיווך</div></div>
     <div class="metric"><div class="metric-label">הוצאות שכירות</div><div class="metric-value red">${fmt(pl.totalRent)} ₪</div><div class="metric-sub">5 נכסים</div></div>
     <div class="metric"><div class="metric-label">חשמל/מים/ארנונה</div><div class="metric-value red">${fmt(pl.totalUtil)} ₪</div><div class="metric-sub">${pl.hasEstimates?'<span style="color:var(--amber)">כולל הערכה</span>':'נתוני אמת'}</div></div>
     <div class="metric"><div class="metric-label">רווח גולמי</div><div class="metric-value ${pl.grossProfit>=0?'green':'red'}">${fmt(pl.grossProfit)} ₪</div></div>
