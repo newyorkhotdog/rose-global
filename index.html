@@ -2381,8 +2381,22 @@ function renderBilling(){
 
         const d = endDay - startDay + 1;
         const isPartial = d < days;
-        const amount = Math.round(r.people * r.price * d / days);
         if (d <= 0) return; // already left before month started
+        
+        // Smart exit calculation:
+        // If only SOME people left (exitMv.people < r.people):
+        //   remaining people × full month + exiting people × partial days
+        // If ALL people left:
+        //   all people × partial days
+        let amount;
+        if (exitMv && exitMv.people && exitMv.people < r.people) {
+          const remaining = r.people - exitMv.people;
+          const fullAmount = remaining * r.price; // full month
+          const partialAmount = Math.round(exitMv.people * r.price * d / days);
+          amount = fullAmount + partialAmount;
+        } else {
+          amount = Math.round(r.people * r.price * d / days);
+        }
         if (!byCompany[r.company]) byCompany[r.company] = {company:r.company, lines:[], total:0, isFixed:false};
         const exitNote = exitDate ? ` (יציאה ${exitDate.getDate()}/${exitDate.getMonth()+1})` : '';
         byCompany[r.company].lines.push({
@@ -4687,7 +4701,15 @@ function getBillingClientsForMonth(month) {
         var endDay = exitMv ? new Date(exitMv.date).getDate() : days;
         var d = endDay - startDay + 1;
         if (d <= 0) return;
-        var amount = Math.round(r.people * r.price * d / days);
+        // Smart exit: if only some people left, remaining pay full month
+        var amount;
+        var exitPeople = exitMv ? exitMv.people : 0;
+        if (exitMv && exitPeople && exitPeople < r.people) {
+          var remaining = r.people - exitPeople;
+          amount = remaining * r.price + Math.round(exitPeople * r.price * d / days);
+        } else {
+          amount = Math.round(r.people * r.price * d / days);
+        }
         var key = r.company; // use exact company name, no merging
         if (!byCompany[key]) byCompany[key] = {client: r.company, amount: 0};
         byCompany[key].amount += amount;
@@ -7088,8 +7110,22 @@ function renderBilling(){
 
         const d = endDay - startDay + 1;
         const isPartial = d < days;
-        const amount = Math.round(r.people * r.price * d / days);
         if (d <= 0) return; // already left before month started
+        
+        // Smart exit calculation:
+        // If only SOME people left (exitMv.people < r.people):
+        //   remaining people × full month + exiting people × partial days
+        // If ALL people left:
+        //   all people × partial days
+        let amount;
+        if (exitMv && exitMv.people && exitMv.people < r.people) {
+          const remaining = r.people - exitMv.people;
+          const fullAmount = remaining * r.price; // full month
+          const partialAmount = Math.round(exitMv.people * r.price * d / days);
+          amount = fullAmount + partialAmount;
+        } else {
+          amount = Math.round(r.people * r.price * d / days);
+        }
         if (!byCompany[r.company]) byCompany[r.company] = {company:r.company, lines:[], total:0, isFixed:false};
         const exitNote = exitDate ? ` (יציאה ${exitDate.getDate()}/${exitDate.getMonth()+1})` : '';
         byCompany[r.company].lines.push({
@@ -11744,8 +11780,22 @@ function renderBilling(){
 
         const d = endDay - startDay + 1;
         const isPartial = d < days;
-        const amount = Math.round(r.people * r.price * d / days);
         if (d <= 0) return; // already left before month started
+        
+        // Smart exit calculation:
+        // If only SOME people left (exitMv.people < r.people):
+        //   remaining people × full month + exiting people × partial days
+        // If ALL people left:
+        //   all people × partial days
+        let amount;
+        if (exitMv && exitMv.people && exitMv.people < r.people) {
+          const remaining = r.people - exitMv.people;
+          const fullAmount = remaining * r.price; // full month
+          const partialAmount = Math.round(exitMv.people * r.price * d / days);
+          amount = fullAmount + partialAmount;
+        } else {
+          amount = Math.round(r.people * r.price * d / days);
+        }
         if (!byCompany[r.company]) byCompany[r.company] = {company:r.company, lines:[], total:0, isFixed:false};
         const exitNote = exitDate ? ` (יציאה ${exitDate.getDate()}/${exitDate.getMonth()+1})` : '';
         byCompany[r.company].lines.push({
@@ -14050,7 +14100,15 @@ function getBillingClientsForMonth(month) {
         var endDay = exitMv ? new Date(exitMv.date).getDate() : days;
         var d = endDay - startDay + 1;
         if (d <= 0) return;
-        var amount = Math.round(r.people * r.price * d / days);
+        // Smart exit: if only some people left, remaining pay full month
+        var amount;
+        var exitPeople = exitMv ? exitMv.people : 0;
+        if (exitMv && exitPeople && exitPeople < r.people) {
+          var remaining = r.people - exitPeople;
+          amount = remaining * r.price + Math.round(exitPeople * r.price * d / days);
+        } else {
+          amount = Math.round(r.people * r.price * d / days);
+        }
         var key = r.company; // use exact company name, no merging
         if (!byCompany[key]) byCompany[key] = {client: r.company, amount: 0};
         byCompany[key].amount += amount;
@@ -16451,8 +16509,22 @@ function renderBilling(){
 
         const d = endDay - startDay + 1;
         const isPartial = d < days;
-        const amount = Math.round(r.people * r.price * d / days);
         if (d <= 0) return; // already left before month started
+        
+        // Smart exit calculation:
+        // If only SOME people left (exitMv.people < r.people):
+        //   remaining people × full month + exiting people × partial days
+        // If ALL people left:
+        //   all people × partial days
+        let amount;
+        if (exitMv && exitMv.people && exitMv.people < r.people) {
+          const remaining = r.people - exitMv.people;
+          const fullAmount = remaining * r.price; // full month
+          const partialAmount = Math.round(exitMv.people * r.price * d / days);
+          amount = fullAmount + partialAmount;
+        } else {
+          amount = Math.round(r.people * r.price * d / days);
+        }
         if (!byCompany[r.company]) byCompany[r.company] = {company:r.company, lines:[], total:0, isFixed:false};
         const exitNote = exitDate ? ` (יציאה ${exitDate.getDate()}/${exitDate.getMonth()+1})` : '';
         byCompany[r.company].lines.push({
