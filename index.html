@@ -2436,7 +2436,7 @@ function renderBilling(){
       if(c.includes('ח.ח.א')) return 'ח.ח.א';
       if(c.includes('קורפו')) return 'קורפו';
       if(c.includes('משביר')) return 'משביר יעקב';
-      if(c.includes('קורל')&&!c.includes('ויינשטוק')) return 'קורל';
+      if(c.includes('קורל')) return 'קורל — שכירות';
       return c;
     };
     const grp = getGrp(mv.company);
@@ -4695,7 +4695,7 @@ function getBillingClientsForMonth(month) {
 
   // קורל תיווך
   const brok = getBrokerageTotal(month);
-  if(brok>0) clients.push({client:'קורל — תיווך', amount:brok});
+  if(brok>0) clients.push({client:'קורל — תיווך עובדים', amount:brok});
 
   // Exit movements pro-rata
   MOVEMENTS.filter(m=>m.type==='exit'&&m.date.startsWith(month)).forEach(mv=>{
@@ -4730,7 +4730,7 @@ function getGroup(c) {
   if(c.includes('ח.ח.א')) return 'ח.ח.א';
   if(c.includes('קורפו')) return 'קורפו';
   if(c.includes('משביר')) return 'משביר יעקב';
-  if(c.includes('קורל')&&!c.includes('ויינשטוק')) return 'קורל — תיווך';
+  if(c.includes('קורל')) return 'קורל — שכירות';
   return c;
 }
 
