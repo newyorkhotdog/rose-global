@@ -1335,7 +1335,17 @@ textarea { resize: vertical; min-height: 70px; }
 <script>
 // ============ DATA ============
 const PRICE = 1250;
-const FIXED_COSTS = { 'עזאי 38': { cost: 18000, income: 28500, utilities: null, type: 'fixed', note: '' }, 'נתן הנביא 42': { cost: 39000, income: 73400, utilities: null, type: 'fixed', note: '' } };
+const FIXED_COSTS = { 
+  'עזאי 38': { cost: 18000, income: 28500, utilities: null, type: 'fixed', note: '', until: '2026-08' }, 
+  'נתן הנביא 42': { cost: 39000, income: 73400, utilities: null, type: 'fixed', note: '', until: '2026-07' } 
+};
+
+function isPropFixed(prop, month) {
+  var fc = FIXED_COSTS[prop];
+  if (!fc) return false;
+  if (!fc.until) return true;
+  return month <= fc.until;
+}
 
 const TENANTS = [
   {id:1,prop:'לבנדה 32',floor:1,room:1,company:'יער',people:6,from:'2025-11-01',to:null},
@@ -1442,7 +1452,7 @@ const PROP_RENT_OVERRIDE = {
 };
 
 function getPropCost(prop) {
-  if (FIXED_COSTS[prop]) return FIXED_COSTS[prop].cost;
+  var _m = getCurrentMonth(); if (isPropFixed(prop, _m)) return FIXED_COSTS[prop].cost;
   // Check rent override (agreed price with landlord)
   if (PROP_RENT_OVERRIDE[prop]) return PROP_RENT_OVERRIDE[prop];
   // Read from MAP_DATA (live data) instead of static ROOM_COSTS
@@ -1463,7 +1473,7 @@ const PROP_INCOME_FIXED = {
 };
 
 function getPropRevenue(prop) {
-  if (FIXED_COSTS[prop]) return FIXED_COSTS[prop].income || 0;
+  var _m2 = getCurrentMonth(); if (isPropFixed(prop, _m2)) return FIXED_COSTS[prop].income || 0;
   if (PROP_INCOME_FIXED[prop]) return PROP_INCOME_FIXED[prop];
   // Use MAP_DATA prices per room (each room can have different price)
   if (MAP_DATA[prop]) {
@@ -1586,7 +1596,7 @@ function getCurrentMonth() {
 
 function getPropPL(prop, month) {
   // Returns {income, rent, electric, water, arnona, other, profit, hasHistData}
-  const isFixed = !!FIXED_COSTS[prop];
+  const isFixed = isPropFixed(prop, getCurrentMonth());
   const histRow = HISTORY.find(h=>h.month===month&&h.prop===prop);
   
   // Income
@@ -1754,7 +1764,7 @@ function renderDashboard() {
     return null;
   };
   Object.keys(MAP_DATA||{}).forEach(prop => {
-    if (FIXED_COSTS[prop]) {
+    if (isPropFixed(prop, month)) {
       const inc = FIXED_COSTS[prop].income || 0;
       if (inc) { byCompany[prop] = {label:prop+' (פיקס)', amount:inc, people:0}; }
       return;
@@ -4680,7 +4690,7 @@ function getBillingClientsForMonth(month) {
   var byCompany = {};
 
   Object.keys(MAP_DATA).forEach(function(prop) {
-    if (FIXED_COSTS[prop]) {
+    if (isPropFixed(prop, month)) {
       var inc = FIXED_COSTS[prop].income || 0;
       if (!inc) return;
       var key = prop + ' (פיקס)';
@@ -6064,7 +6074,17 @@ textarea { resize: vertical; min-height: 70px; }
 <script>
 // ============ DATA ============
 const PRICE = 1250;
-const FIXED_COSTS = { 'עזאי 38': { cost: 18000, income: 28500, utilities: null, type: 'fixed', note: '' }, 'נתן הנביא 42': { cost: 39000, income: 73400, utilities: null, type: 'fixed', note: '' } };
+const FIXED_COSTS = { 
+  'עזאי 38': { cost: 18000, income: 28500, utilities: null, type: 'fixed', note: '', until: '2026-08' }, 
+  'נתן הנביא 42': { cost: 39000, income: 73400, utilities: null, type: 'fixed', note: '', until: '2026-07' } 
+};
+
+function isPropFixed(prop, month) {
+  var fc = FIXED_COSTS[prop];
+  if (!fc) return false;
+  if (!fc.until) return true;
+  return month <= fc.until;
+}
 
 const TENANTS = [
   {id:1,prop:'לבנדה 32',floor:1,room:1,company:'יער',people:6,from:'2025-11-01',to:null},
@@ -6171,7 +6191,7 @@ const PROP_RENT_OVERRIDE = {
 };
 
 function getPropCost(prop) {
-  if (FIXED_COSTS[prop]) return FIXED_COSTS[prop].cost;
+  var _m = getCurrentMonth(); if (isPropFixed(prop, _m)) return FIXED_COSTS[prop].cost;
   // Check rent override (agreed price with landlord)
   if (PROP_RENT_OVERRIDE[prop]) return PROP_RENT_OVERRIDE[prop];
   // Read from MAP_DATA (live data) instead of static ROOM_COSTS
@@ -6192,7 +6212,7 @@ const PROP_INCOME_FIXED = {
 };
 
 function getPropRevenue(prop) {
-  if (FIXED_COSTS[prop]) return FIXED_COSTS[prop].income || 0;
+  var _m2 = getCurrentMonth(); if (isPropFixed(prop, _m2)) return FIXED_COSTS[prop].income || 0;
   if (PROP_INCOME_FIXED[prop]) return PROP_INCOME_FIXED[prop];
   // Use MAP_DATA prices per room (each room can have different price)
   if (MAP_DATA[prop]) {
@@ -6315,7 +6335,7 @@ function getCurrentMonth() {
 
 function getPropPL(prop, month) {
   // Returns {income, rent, electric, water, arnona, other, profit, hasHistData}
-  const isFixed = !!FIXED_COSTS[prop];
+  const isFixed = isPropFixed(prop, getCurrentMonth());
   const histRow = HISTORY.find(h=>h.month===month&&h.prop===prop);
   
   // Income
@@ -6483,7 +6503,7 @@ function renderDashboard() {
     return null;
   };
   Object.keys(MAP_DATA||{}).forEach(prop => {
-    if (FIXED_COSTS[prop]) {
+    if (isPropFixed(prop, month)) {
       const inc = FIXED_COSTS[prop].income || 0;
       if (inc) { byCompany[prop] = {label:prop+' (פיקס)', amount:inc, people:0}; }
       return;
@@ -10734,7 +10754,17 @@ textarea { resize: vertical; min-height: 70px; }
 <script>
 // ============ DATA ============
 const PRICE = 1250;
-const FIXED_COSTS = { 'עזאי 38': { cost: 18000, income: 28500, utilities: null, type: 'fixed', note: '' }, 'נתן הנביא 42': { cost: 39000, income: 73400, utilities: null, type: 'fixed', note: '' } };
+const FIXED_COSTS = { 
+  'עזאי 38': { cost: 18000, income: 28500, utilities: null, type: 'fixed', note: '', until: '2026-08' }, 
+  'נתן הנביא 42': { cost: 39000, income: 73400, utilities: null, type: 'fixed', note: '', until: '2026-07' } 
+};
+
+function isPropFixed(prop, month) {
+  var fc = FIXED_COSTS[prop];
+  if (!fc) return false;
+  if (!fc.until) return true;
+  return month <= fc.until;
+}
 
 const TENANTS = [
   {id:1,prop:'לבנדה 32',floor:1,room:1,company:'יער',people:6,from:'2025-11-01',to:null},
@@ -10841,7 +10871,7 @@ const PROP_RENT_OVERRIDE = {
 };
 
 function getPropCost(prop) {
-  if (FIXED_COSTS[prop]) return FIXED_COSTS[prop].cost;
+  var _m = getCurrentMonth(); if (isPropFixed(prop, _m)) return FIXED_COSTS[prop].cost;
   // Check rent override (agreed price with landlord)
   if (PROP_RENT_OVERRIDE[prop]) return PROP_RENT_OVERRIDE[prop];
   // Read from MAP_DATA (live data) instead of static ROOM_COSTS
@@ -10862,7 +10892,7 @@ const PROP_INCOME_FIXED = {
 };
 
 function getPropRevenue(prop) {
-  if (FIXED_COSTS[prop]) return FIXED_COSTS[prop].income || 0;
+  var _m2 = getCurrentMonth(); if (isPropFixed(prop, _m2)) return FIXED_COSTS[prop].income || 0;
   if (PROP_INCOME_FIXED[prop]) return PROP_INCOME_FIXED[prop];
   // Use MAP_DATA prices per room (each room can have different price)
   if (MAP_DATA[prop]) {
@@ -10985,7 +11015,7 @@ function getCurrentMonth() {
 
 function getPropPL(prop, month) {
   // Returns {income, rent, electric, water, arnona, other, profit, hasHistData}
-  const isFixed = !!FIXED_COSTS[prop];
+  const isFixed = isPropFixed(prop, getCurrentMonth());
   const histRow = HISTORY.find(h=>h.month===month&&h.prop===prop);
   
   // Income
@@ -11153,7 +11183,7 @@ function renderDashboard() {
     return null;
   };
   Object.keys(MAP_DATA||{}).forEach(prop => {
-    if (FIXED_COSTS[prop]) {
+    if (isPropFixed(prop, month)) {
       const inc = FIXED_COSTS[prop].income || 0;
       if (inc) { byCompany[prop] = {label:prop+' (פיקס)', amount:inc, people:0}; }
       return;
@@ -14079,7 +14109,7 @@ function getBillingClientsForMonth(month) {
   var byCompany = {};
 
   Object.keys(MAP_DATA).forEach(function(prop) {
-    if (FIXED_COSTS[prop]) {
+    if (isPropFixed(prop, month)) {
       var inc = FIXED_COSTS[prop].income || 0;
       if (!inc) return;
       var key = prop + ' (פיקס)';
@@ -15463,7 +15493,17 @@ textarea { resize: vertical; min-height: 70px; }
 <script>
 // ============ DATA ============
 const PRICE = 1250;
-const FIXED_COSTS = { 'עזאי 38': { cost: 18000, income: 28500, utilities: null, type: 'fixed', note: '' }, 'נתן הנביא 42': { cost: 39000, income: 73400, utilities: null, type: 'fixed', note: '' } };
+const FIXED_COSTS = { 
+  'עזאי 38': { cost: 18000, income: 28500, utilities: null, type: 'fixed', note: '', until: '2026-08' }, 
+  'נתן הנביא 42': { cost: 39000, income: 73400, utilities: null, type: 'fixed', note: '', until: '2026-07' } 
+};
+
+function isPropFixed(prop, month) {
+  var fc = FIXED_COSTS[prop];
+  if (!fc) return false;
+  if (!fc.until) return true;
+  return month <= fc.until;
+}
 
 const TENANTS = [
   {id:1,prop:'לבנדה 32',floor:1,room:1,company:'יער',people:6,from:'2025-11-01',to:null},
@@ -15570,7 +15610,7 @@ const PROP_RENT_OVERRIDE = {
 };
 
 function getPropCost(prop) {
-  if (FIXED_COSTS[prop]) return FIXED_COSTS[prop].cost;
+  var _m = getCurrentMonth(); if (isPropFixed(prop, _m)) return FIXED_COSTS[prop].cost;
   // Check rent override (agreed price with landlord)
   if (PROP_RENT_OVERRIDE[prop]) return PROP_RENT_OVERRIDE[prop];
   // Read from MAP_DATA (live data) instead of static ROOM_COSTS
@@ -15591,7 +15631,7 @@ const PROP_INCOME_FIXED = {
 };
 
 function getPropRevenue(prop) {
-  if (FIXED_COSTS[prop]) return FIXED_COSTS[prop].income || 0;
+  var _m2 = getCurrentMonth(); if (isPropFixed(prop, _m2)) return FIXED_COSTS[prop].income || 0;
   if (PROP_INCOME_FIXED[prop]) return PROP_INCOME_FIXED[prop];
   // Use MAP_DATA prices per room (each room can have different price)
   if (MAP_DATA[prop]) {
@@ -15714,7 +15754,7 @@ function getCurrentMonth() {
 
 function getPropPL(prop, month) {
   // Returns {income, rent, electric, water, arnona, other, profit, hasHistData}
-  const isFixed = !!FIXED_COSTS[prop];
+  const isFixed = isPropFixed(prop, getCurrentMonth());
   const histRow = HISTORY.find(h=>h.month===month&&h.prop===prop);
   
   // Income
@@ -15882,7 +15922,7 @@ function renderDashboard() {
     return null;
   };
   Object.keys(MAP_DATA||{}).forEach(prop => {
-    if (FIXED_COSTS[prop]) {
+    if (isPropFixed(prop, month)) {
       const inc = FIXED_COSTS[prop].income || 0;
       if (inc) { byCompany[prop] = {label:prop+' (פיקס)', amount:inc, people:0}; }
       return;
@@ -19226,15 +19266,28 @@ function saveDailyBackup(data) {
   try {
     const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
     const key = 'rose_backup_' + today;
-    // Only save once per day
-    if (!localStorage.getItem(key)) {
-      localStorage.setItem(key, JSON.stringify(data));
-      console.log('Daily backup saved:', key);
-    }
-    // Keep last 7 days only
+    
+    // Clean up old backups FIRST to free space
     const allKeys = Object.keys(localStorage).filter(k=>k.startsWith('rose_backup_'));
     allKeys.sort().reverse(); // newest first
-    allKeys.slice(7).forEach(k => localStorage.removeItem(k));
+    allKeys.slice(2).forEach(k => { try { localStorage.removeItem(k); } catch(e){} }); // keep only 2 most recent
+    
+    // Only save once per day
+    if (!localStorage.getItem(key)) {
+      try {
+        localStorage.setItem(key, JSON.stringify(data));
+        console.log('Daily backup saved:', key);
+      } catch(quotaErr) {
+        // Storage full - remove ALL old backups and try once more
+        console.warn('Storage full, clearing all old backups');
+        Object.keys(localStorage).filter(k=>k.startsWith('rose_backup_')).forEach(k=>{
+          try { localStorage.removeItem(k); } catch(e){}
+        });
+        try { localStorage.setItem(key, JSON.stringify(data)); } catch(e2) {
+          console.warn('Still failed after cleanup - skipping daily backup');
+        }
+      }
+    }
   } catch(e) { console.warn('Daily backup failed:', e); }
 }
 
@@ -20123,7 +20176,7 @@ function renderVisitsWeeklyDash() {
     const totalRooms = propRooms.length || 1;
     
     // For fixed price props — count visits (not rooms), for per-head — count rooms
-    const isFixed = !!FIXED_COSTS[prop];
+    const isFixed = isPropFixed(prop, getCurrentMonth());
     const allPropVisits = thisWeekVisits.filter(function(v){return v.prop===prop;});
     
     var visitedCount, visitedRooms, yoadRooms, duduRooms;
