@@ -1335,10 +1335,7 @@ textarea { resize: vertical; min-height: 70px; }
 <script>
 // ============ DATA ============
 const PRICE = 1250;
-const FIXED_COSTS = { 
-  'עזאי 38': { cost: 18000, income: 28500, utilities: null, type: 'fixed', note: '', until: '2026-08' }, 
-  'נתן הנביא 42': { cost: 39000, income: 73400, utilities: null, type: 'fixed', note: '', until: '2026-07' } 
-};
+const FIXED_COSTS = {};
 
 function isPropFixed(prop, month) {
   var fc = FIXED_COSTS[prop];
@@ -1449,6 +1446,8 @@ const PROP_RENT_OVERRIDE = {
   'לבנדה 32': 126000,  // הסכם חדש מאפריל 2026
   'הירקון 41 ב"ב': 31525,  // שכירות לבעל הבית
   'חיים בר לב 104': 7000,  // שכירות לבעל הבית
+  'עזאי 38': 18000,         // שכירות לבעל הבית
+  'נתן הנביא 42': 39000,    // שכירות לבעל הבית
 };
 
 function getPropCost(prop) {
@@ -1621,7 +1620,7 @@ function getPropPL(prop, month) {
   }
 
   // Rent (from ROOM_COSTS or FIXED_COSTS)
-  const fixedRentDefaults = {'עזאי 38':18000,'נתן הנביא 42':39000};
+  const fixedRentDefaults = {}; // rents now in PROP_RENT_OVERRIDE
   const rent = histRow && histRow.rent > 0 ? histRow.rent : (isFixed ? (FIXED_COSTS[prop]?.cost || fixedRentDefaults[prop] || getPropCost(prop)) : getPropCost(prop));
 
   // Utilities - from HISTORY if exists, else estimate from historical average
@@ -6074,10 +6073,7 @@ textarea { resize: vertical; min-height: 70px; }
 <script>
 // ============ DATA ============
 const PRICE = 1250;
-const FIXED_COSTS = { 
-  'עזאי 38': { cost: 18000, income: 28500, utilities: null, type: 'fixed', note: '', until: '2026-08' }, 
-  'נתן הנביא 42': { cost: 39000, income: 73400, utilities: null, type: 'fixed', note: '', until: '2026-07' } 
-};
+const FIXED_COSTS = {};
 
 function isPropFixed(prop, month) {
   var fc = FIXED_COSTS[prop];
@@ -6188,6 +6184,8 @@ const PROP_RENT_OVERRIDE = {
   'לבנדה 32': 126000,  // הסכם חדש מאפריל 2026
   'הירקון 41 ב"ב': 31525,  // שכירות לבעל הבית
   'חיים בר לב 104': 7000,  // שכירות לבעל הבית
+  'עזאי 38': 18000,         // שכירות לבעל הבית
+  'נתן הנביא 42': 39000,    // שכירות לבעל הבית
 };
 
 function getPropCost(prop) {
@@ -6360,7 +6358,7 @@ function getPropPL(prop, month) {
   }
 
   // Rent (from ROOM_COSTS or FIXED_COSTS)
-  const fixedRentDefaults = {'עזאי 38':18000,'נתן הנביא 42':39000};
+  const fixedRentDefaults = {}; // rents now in PROP_RENT_OVERRIDE
   const rent = histRow && histRow.rent > 0 ? histRow.rent : (isFixed ? (FIXED_COSTS[prop]?.cost || fixedRentDefaults[prop] || getPropCost(prop)) : getPropCost(prop));
 
   // Utilities - from HISTORY if exists, else estimate from historical average
@@ -10754,10 +10752,7 @@ textarea { resize: vertical; min-height: 70px; }
 <script>
 // ============ DATA ============
 const PRICE = 1250;
-const FIXED_COSTS = { 
-  'עזאי 38': { cost: 18000, income: 28500, utilities: null, type: 'fixed', note: '', until: '2026-08' }, 
-  'נתן הנביא 42': { cost: 39000, income: 73400, utilities: null, type: 'fixed', note: '', until: '2026-07' } 
-};
+const FIXED_COSTS = {};
 
 function isPropFixed(prop, month) {
   var fc = FIXED_COSTS[prop];
@@ -10868,6 +10863,8 @@ const PROP_RENT_OVERRIDE = {
   'לבנדה 32': 126000,  // הסכם חדש מאפריל 2026
   'הירקון 41 ב"ב': 31525,  // שכירות לבעל הבית
   'חיים בר לב 104': 7000,  // שכירות לבעל הבית
+  'עזאי 38': 18000,         // שכירות לבעל הבית
+  'נתן הנביא 42': 39000,    // שכירות לבעל הבית
 };
 
 function getPropCost(prop) {
@@ -11040,7 +11037,7 @@ function getPropPL(prop, month) {
   }
 
   // Rent (from ROOM_COSTS or FIXED_COSTS)
-  const fixedRentDefaults = {'עזאי 38':18000,'נתן הנביא 42':39000};
+  const fixedRentDefaults = {}; // rents now in PROP_RENT_OVERRIDE
   const rent = histRow && histRow.rent > 0 ? histRow.rent : (isFixed ? (FIXED_COSTS[prop]?.cost || fixedRentDefaults[prop] || getPropCost(prop)) : getPropCost(prop));
 
   // Utilities - from HISTORY if exists, else estimate from historical average
@@ -15493,10 +15490,7 @@ textarea { resize: vertical; min-height: 70px; }
 <script>
 // ============ DATA ============
 const PRICE = 1250;
-const FIXED_COSTS = { 
-  'עזאי 38': { cost: 18000, income: 28500, utilities: null, type: 'fixed', note: '', until: '2026-08' }, 
-  'נתן הנביא 42': { cost: 39000, income: 73400, utilities: null, type: 'fixed', note: '', until: '2026-07' } 
-};
+const FIXED_COSTS = {};
 
 function isPropFixed(prop, month) {
   var fc = FIXED_COSTS[prop];
@@ -15607,6 +15601,8 @@ const PROP_RENT_OVERRIDE = {
   'לבנדה 32': 126000,  // הסכם חדש מאפריל 2026
   'הירקון 41 ב"ב': 31525,  // שכירות לבעל הבית
   'חיים בר לב 104': 7000,  // שכירות לבעל הבית
+  'עזאי 38': 18000,         // שכירות לבעל הבית
+  'נתן הנביא 42': 39000,    // שכירות לבעל הבית
 };
 
 function getPropCost(prop) {
@@ -15779,7 +15775,7 @@ function getPropPL(prop, month) {
   }
 
   // Rent (from ROOM_COSTS or FIXED_COSTS)
-  const fixedRentDefaults = {'עזאי 38':18000,'נתן הנביא 42':39000};
+  const fixedRentDefaults = {}; // rents now in PROP_RENT_OVERRIDE
   const rent = histRow && histRow.rent > 0 ? histRow.rent : (isFixed ? (FIXED_COSTS[prop]?.cost || fixedRentDefaults[prop] || getPropCost(prop)) : getPropCost(prop));
 
   // Utilities - from HISTORY if exists, else estimate from historical average
