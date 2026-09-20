@@ -1480,9 +1480,7 @@ function getPropCost(prop) {
 }
 
 // הכנסות קבועות לנכסים שאינם לפי ראש
-const PROP_INCOME_FIXED = {
-  'חיים בר לב 104': 14500,
-};
+const PROP_INCOME_FIXED = {};
 
 function getPropRevenue(prop) {
   var _m2 = getCurrentMonth(); if (isPropFixed(prop, _m2)) return FIXED_COSTS[prop].income || 0;
@@ -2340,7 +2338,7 @@ function renderBilling(){
   // Get all rooms from MAP_DATA that are occupied
   Object.keys(MAP_DATA).forEach(prop => {
     if (filterProp && prop !== filterProp) return;
-    if (prop === 'חיים בר לב 104') return; // handled separately as fixed price
+    // חיים בר לב 104 now computed from MAP_DATA rooms like all per-head props // handled separately as fixed price
     if (filterProp === 'קורל_תיווך') return; // show only brokerage
     if (FIXED_COSTS[prop]) {
       // Fixed price props — show as single entry
@@ -2489,8 +2487,7 @@ function renderBilling(){
   const hblVisible = (!filterProp || filterProp === 'חיים בר לב 104') &&
                      (!filterClient || filterClient === 'ח.ח.א');
   if (hblVisible) {
-    const hblIncome = 15000;
-    if (!byCompany['ח.ח.א']) byCompany['ח.ח.א'] = {company:'ח.ח.א', lines:[], total:0, isFixed:false};
+    // חיים בר לב income now from MAP_DATA
     byCompany['ח.ח.א'].lines.push({label:'חיים בר לב 104 — שכירות חודשית', people:0, d:days, days, amount:hblIncome, isPartial:false});
     byCompany['ח.ח.א'].total += hblIncome;
   }
@@ -4710,7 +4707,7 @@ function getBillingClientsForMonth(month) {
       byCompany[key].amount += inc;
       return;
     }
-    if (prop === 'חיים בר לב 104') return;
+    // חיים בר לב 104 now computed from MAP_DATA rooms like all per-head props
     Object.entries(MAP_DATA[prop].floors||{}).forEach(function(entry) {
       var floor = entry[0], rooms = entry[1];
       rooms.forEach(function(r) {
@@ -4739,10 +4736,7 @@ function getBillingClientsForMonth(month) {
     });
   });
 
-  // ח.ח.א + חיים בר לב
-  var hblAmt = (PROP_INCOME_FIXED&&PROP_INCOME_FIXED['חיים בר לב 104'])||14500;
-  if (!byCompany['ח.ח.א']) byCompany['ח.ח.א'] = {client:'ח.ח.א', amount:0};
-  byCompany['ח.ח.א'].amount += hblAmt;
+  // ח.ח.א — income now comes from MAP_DATA like all other props
 
   // קורל תיווך
   var brok = getBrokerageTotal(month);
@@ -6220,9 +6214,7 @@ function getPropCost(prop) {
 }
 
 // הכנסות קבועות לנכסים שאינם לפי ראש
-const PROP_INCOME_FIXED = {
-  'חיים בר לב 104': 14500,
-};
+const PROP_INCOME_FIXED = {};
 
 function getPropRevenue(prop) {
   var _m2 = getCurrentMonth(); if (isPropFixed(prop, _m2)) return FIXED_COSTS[prop].income || 0;
@@ -7080,7 +7072,7 @@ function renderBilling(){
   // Get all rooms from MAP_DATA that are occupied
   Object.keys(MAP_DATA).forEach(prop => {
     if (filterProp && prop !== filterProp) return;
-    if (prop === 'חיים בר לב 104') return; // handled separately as fixed price
+    // חיים בר לב 104 now computed from MAP_DATA rooms like all per-head props // handled separately as fixed price
     if (filterProp === 'קורל_תיווך') return; // show only brokerage
     if (FIXED_COSTS[prop]) {
       // Fixed price props — show as single entry
@@ -10901,9 +10893,7 @@ function getPropCost(prop) {
 }
 
 // הכנסות קבועות לנכסים שאינם לפי ראש
-const PROP_INCOME_FIXED = {
-  'חיים בר לב 104': 14500,
-};
+const PROP_INCOME_FIXED = {};
 
 function getPropRevenue(prop) {
   var _m2 = getCurrentMonth(); if (isPropFixed(prop, _m2)) return FIXED_COSTS[prop].income || 0;
@@ -11761,7 +11751,7 @@ function renderBilling(){
   // Get all rooms from MAP_DATA that are occupied
   Object.keys(MAP_DATA).forEach(prop => {
     if (filterProp && prop !== filterProp) return;
-    if (prop === 'חיים בר לב 104') return; // handled separately as fixed price
+    // חיים בר לב 104 now computed from MAP_DATA rooms like all per-head props // handled separately as fixed price
     if (filterProp === 'קורל_תיווך') return; // show only brokerage
     if (FIXED_COSTS[prop]) {
       // Fixed price props — show as single entry
@@ -14131,7 +14121,7 @@ function getBillingClientsForMonth(month) {
       byCompany[key].amount += inc;
       return;
     }
-    if (prop === 'חיים בר לב 104') return;
+    // חיים בר לב 104 now computed from MAP_DATA rooms like all per-head props
     Object.entries(MAP_DATA[prop].floors||{}).forEach(function(entry) {
       var floor = entry[0], rooms = entry[1];
       rooms.forEach(function(r) {
@@ -14160,10 +14150,7 @@ function getBillingClientsForMonth(month) {
     });
   });
 
-  // ח.ח.א + חיים בר לב
-  var hblAmt = (PROP_INCOME_FIXED&&PROP_INCOME_FIXED['חיים בר לב 104'])||14500;
-  if (!byCompany['ח.ח.א']) byCompany['ח.ח.א'] = {client:'ח.ח.א', amount:0};
-  byCompany['ח.ח.א'].amount += hblAmt;
+  // ח.ח.א — income now comes from MAP_DATA like all other props
 
   // קורל תיווך
   var brok = getBrokerageTotal(month);
@@ -15641,9 +15628,7 @@ function getPropCost(prop) {
 }
 
 // הכנסות קבועות לנכסים שאינם לפי ראש
-const PROP_INCOME_FIXED = {
-  'חיים בר לב 104': 14500,
-};
+const PROP_INCOME_FIXED = {};
 
 function getPropRevenue(prop) {
   var _m2 = getCurrentMonth(); if (isPropFixed(prop, _m2)) return FIXED_COSTS[prop].income || 0;
@@ -16501,7 +16486,7 @@ function renderBilling(){
   // Get all rooms from MAP_DATA that are occupied
   Object.keys(MAP_DATA).forEach(prop => {
     if (filterProp && prop !== filterProp) return;
-    if (prop === 'חיים בר לב 104') return; // handled separately as fixed price
+    // חיים בר לב 104 now computed from MAP_DATA rooms like all per-head props // handled separately as fixed price
     if (filterProp === 'קורל_תיווך') return; // show only brokerage
     if (FIXED_COSTS[prop]) {
       // Fixed price props — show as single entry
