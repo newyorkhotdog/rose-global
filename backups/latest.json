@@ -1,219 +1,512 @@
 {
-  "MGMT_TASKS": [],
-  "HISTORY": [
-    {
-      "prop": "עזאי 38",
-      "other": 0,
-      "arnona": 0,
-      "electric": 1251,
-      "rent": 18000,
-      "water": 1500,
-      "tenants": 21,
-      "month": "2025-11",
-      "pph": 0,
-      "income": 28500
-    },
-    {
-      "water": 726,
-      "prop": "נתן הנביא 42",
-      "month": "2025-11",
-      "income": 73400,
-      "tenants": 65,
-      "electric": 5272,
-      "arnona": 2826,
-      "rent": 39000,
-      "other": 0,
-      "pph": 0
-    },
-    {
-      "arnona": 0,
-      "prop": "לבנדה 32",
-      "water": 0,
-      "electric": 0,
-      "tenants": 0,
-      "month": "2025-11",
-      "rent": 105000,
-      "income": 80200,
-      "other": 0,
-      "pph": 1250
-    },
-    {
-      "prop": "עזאי 38",
-      "arnona": 0,
-      "other": 0,
-      "rent": 18000,
-      "water": 1500,
-      "tenants": 21,
-      "month": "2025-12",
-      "pph": 0,
-      "electric": 1500,
-      "income": 28500
-    },
-    {
-      "pph": 0,
-      "other": 0,
-      "rent": 39000,
-      "arnona": 2826,
-      "tenants": 65,
-      "month": "2025-12",
-      "income": 73400,
-      "electric": 5272,
-      "water": 874,
-      "prop": "נתן הנביא 42"
-    },
-    {
-      "arnona": 0,
-      "month": "2025-12",
-      "water": 0,
-      "prop": "לבנדה 32",
-      "pph": 1250,
-      "income": 86650,
-      "tenants": 0,
-      "rent": 105000,
-      "electric": 0,
-      "other": 0
-    },
-    {
-      "other": 0,
-      "rent": 18000,
-      "arnona": 0,
-      "tenants": 21,
-      "prop": "עזאי 38",
-      "pph": 0,
-      "water": 1500,
-      "income": 28500,
-      "month": "2026-01",
-      "electric": 1750
-    },
-    {
-      "prop": "נתן הנביא 42",
-      "other": 0,
-      "income": 73400,
-      "water": 0,
-      "electric": 0,
-      "rent": 39000,
-      "month": "2026-01",
-      "arnona": 2714,
-      "tenants": 65,
-      "pph": 0
-    },
-    {
-      "income": 106650,
-      "pph": 1250,
-      "month": "2026-01",
-      "rent": 133250,
-      "water": 0,
-      "other": 0,
-      "arnona": 0,
-      "electric": 0,
-      "tenants": 0,
-      "prop": "לבנדה 32"
-    },
-    {
-      "prop": "עזאי 38",
-      "tenants": 21,
-      "pph": 0,
-      "income": 28500,
-      "other": 0,
-      "month": "2026-02",
-      "water": 1750,
-      "rent": 18000,
-      "arnona": 0,
-      "electric": 2350
-    },
-    {
-      "prop": "נתן הנביא 42",
-      "other": 0,
-      "electric": 0,
-      "tenants": 65,
-      "income": 73400,
-      "water": 0,
-      "rent": 39000,
-      "month": "2026-02",
-      "arnona": 2714,
-      "pph": 0
-    },
-    {
-      "arnona": 0,
-      "water": 0,
-      "month": "2026-02",
-      "prop": "לבנדה 32",
-      "electric": 0,
-      "pph": 1250,
-      "rent": 105000,
-      "income": 70400,
-      "tenants": 0,
-      "other": 0
-    },
-    {
-      "tenants": 22,
-      "prop": "הירקון 41 ב\"ב",
-      "electric": 0,
-      "arnona": 0,
-      "other": 0,
-      "water": 0,
-      "rent": 25500,
-      "month": "2026-02",
-      "pph": 1250,
-      "income": 31885
-    }
-  ],
-  "_savedAt": "2026-10-11T09:14:12.884Z",
-  "GENERAL_EXPENSES": [
-    {
-      "extra": [],
-      "month": "2025-11",
-      "accountant": 1500,
-      "lawyer": 1054.75,
-      "yoad": 12000
-    },
-    {
-      "yoad": 12000,
-      "lawyer": 1054.75,
-      "month": "2025-12",
-      "accountant": 1500,
-      "extra": []
-    },
-    {
-      "yoad": 12000,
-      "month": "2026-01",
-      "accountant": 1500,
-      "lawyer": 1054.75,
-      "extra": []
-    },
-    {
-      "month": "2026-02",
-      "yoad": 12000,
-      "extra": [
-        {
-          "desc": "רואה חשבון",
-          "amount": 1500
-        }
-      ],
-      "lawyer": 1054.75,
-      "accountant": 1500
-    },
-    {
-      "month": "2026-05",
-      "accountant": 1500,
-      "extra": [
-        {
-          "desc": "מירי",
-          "amount": 1000
-        }
-      ],
-      "yoad": 12000,
-      "lawyer": 1054.75
-    },
-    {
-      "accountant": 1500,
-      "yoad": 14000,
-      "month": "2026-06",
-      "lawyer": 0,
-      "extra": []
-    }
-  ],
   "LEADS": [],
+  "MAP_DATA": {
+    "נתן הנביא 42": {
+      "floors": {
+        "1": [
+          {
+            "company": "סחלב (אמון) ניהול פרויקטים בע",
+            "note": "חדר ל4 איש ",
+            "r": 1,
+            "price": 1300,
+            "cost": 2000,
+            "people": 4
+          },
+          {
+            "company": "י.ע.ר 2023 עובדים זרים בע",
+            "note": "חדר ל6 איש ",
+            "cost": 3000,
+            "people": 6,
+            "r": 2,
+            "price": 1200
+          },
+          {
+            "r": 3,
+            "people": 4,
+            "cost": 2000,
+            "price": 1300,
+            "company": "תקומה תאגיד כוח אדם בע״מ",
+            "note": "חדר ל4 איש "
+          },
+          {
+            "note": "חדר ל6 איש ",
+            "price": 1200,
+            "company": "י.ע.ר 2023 עובדים זרים בע",
+            "people": 6,
+            "r": 4,
+            "cost": 3000
+          },
+          {
+            "note": "חדר ל6 איש ",
+            "company": "אגדאדי הנדסה ובניין בע",
+            "people": 4,
+            "r": 5,
+            "cost": 3000,
+            "price": 1250
+          },
+          {
+            "price": 1300,
+            "note": "חדר ל6 איש ",
+            "company": "סחלב (אמון) ניהול פרויקטים בע",
+            "r": 6,
+            "people": 6,
+            "cost": 3000
+          },
+          {
+            "people": 4,
+            "cost": 1500,
+            "company": "אריאל אינטרנשיונל כוח אדם לבניה בע",
+            "price": 1200,
+            "r": 7,
+            "note": "חדר ל3 איש "
+          },
+          {
+            "price": 1300,
+            "cost": 3000,
+            "company": "סחלב (אמון) ניהול פרויקטים בע",
+            "people": 6,
+            "note": "חדר ל6 איש ",
+            "r": 8
+          },
+          {
+            "note": "חדר ל6 איש ",
+            "r": 9,
+            "price": 1200,
+            "company": "י.ע.ר 2023 עובדים זרים בע",
+            "cost": 3000,
+            "people": 6
+          },
+          {
+            "cost": 1500,
+            "company": "האיקלי אריאל כ",
+            "people": 2,
+            "price": 1275,
+            "note": "חדר ל 2 איש ",
+            "r": 10
+          },
+          {
+            "people": 4,
+            "price": 1200,
+            "r": 11,
+            "cost": 3000,
+            "company": "י.ע.ר 2023 עובדים זרים בע",
+            "note": "חדר ל6 איש "
+          },
+          {
+            "note": "חדר ל6 איש ",
+            "people": 4,
+            "r": 12,
+            "cost": 3000,
+            "company": "אריאל אינטרנשיונל כוח אדם לבניה בע",
+            "price": 1200
+          },
+          {
+            "company": "האיקלי אריאל כ",
+            "price": 1275,
+            "r": 13,
+            "cost": 1000,
+            "people": 3,
+            "note": "חדר ל2 איש "
+          },
+          {
+            "cost": 2000,
+            "people": 4,
+            "company": "סחלב (אמון) ניהול פרויקטים בע",
+            "r": 14,
+            "note": "חדר ל4 איש",
+            "price": 1300
+          },
+          {
+            "note": "חדר ל6 איש ",
+            "r": 15,
+            "price": 1250,
+            "company": "אחד עשרה כוח אדם בע",
+            "people": 2,
+            "cost": 3000
+          },
+          {
+            "cost": 0,
+            "company": "שירות",
+            "price": 0,
+            "note": "",
+            "people": 0,
+            "r": 16
+          },
+          {
+            "cost": 2000,
+            "price": 1300,
+            "r": 17,
+            "company": "סחלב (אמון) ניהול פרויקטים בע",
+            "people": 4,
+            "note": "חדר ל4 איש "
+          }
+        ]
+      }
+    },
+    "לבנדה 32": {
+      "floors": {
+        "2": [
+          {
+            "note": "",
+            "company": "בינה עובדים זרים לבניין בע",
+            "price": 1600,
+            "cost": 2730,
+            "people": 2,
+            "r": 1
+          },
+          {
+            "note": "",
+            "company": "אגדאדי הנדסה ובניין בע",
+            "price": 1250,
+            "r": 3,
+            "cost": 5350,
+            "people": 4
+          },
+          {
+            "people": 5,
+            "cost": 5350,
+            "r": 4,
+            "price": 1600,
+            "note": "נסגר מחיר פיקס פרייס עבור החדר 8000",
+            "company": "אריאל אינטרנשיונל כוח אדם לבניה בע"
+          },
+          {
+            "company": "שמרית שרותי עובדים 2023 בע",
+            "note": "",
+            "cost": 5350,
+            "price": 1000,
+            "r": 5,
+            "people": 5
+          },
+          {
+            "note": "",
+            "cost": 5350,
+            "company": "י.ע.ר 2023 עובדים זרים בע",
+            "r": 6,
+            "people": 6,
+            "price": 1050
+          },
+          {
+            "cost": 5350,
+            "r": 7,
+            "note": "",
+            "company": "י.ע.ר 2023 עובדים זרים בע",
+            "price": 1050,
+            "people": 6
+          },
+          {
+            "people": 5,
+            "r": 8,
+            "price": 1400,
+            "note": "",
+            "company": "שמרית שרותי עובדים 2023 בע",
+            "cost": 5350
+          },
+          {
+            "cost": 5350,
+            "company": "י.ע.ר 2023 עובדים זרים בע",
+            "r": 9,
+            "note": "",
+            "price": 1050,
+            "people": 6
+          },
+          {
+            "people": 6,
+            "note": "",
+            "company": "י.ע.ר 2023 עובדים זרים בע",
+            "cost": 5350,
+            "price": 1050,
+            "r": 10
+          },
+          {
+            "company": "י.ע.ר 2023 עובדים זרים בע",
+            "r": 11,
+            "cost": 5350,
+            "price": 1050,
+            "people": 6,
+            "note": ""
+          },
+          {
+            "r": 12,
+            "note": "",
+            "company": "י.ע.ר 2023 עובדים זרים בע",
+            "people": 6,
+            "cost": 5350,
+            "price": 1050
+          }
+        ],
+        "3": [
+          {
+            "people": 2,
+            "cost": 3000,
+            "company": "שיק סין 26 בע",
+            "price": 1550,
+            "note": "",
+            "r": 2
+          },
+          {
+            "company": "י.ע.ר 2023 עובדים זרים בע",
+            "people": 5,
+            "note": "",
+            "price": 1100,
+            "cost": 5350,
+            "r": 3
+          },
+          {
+            "note": "מטבח",
+            "company": "שירות",
+            "r": 4,
+            "price": 1250,
+            "people": 0,
+            "cost": 3000
+          },
+          {
+            "price": 1050,
+            "company": "י.ע.ר 2023 עובדים זרים בע",
+            "cost": 5350,
+            "people": 6,
+            "note": "",
+            "r": 5
+          },
+          {
+            "r": 6,
+            "cost": 5350,
+            "note": "",
+            "price": 1250,
+            "people": 3,
+            "company": "מגיק פאוור בע"
+          },
+          {
+            "note": "",
+            "r": 7,
+            "people": 6,
+            "company": "מגיק פאוור בע",
+            "cost": 5350,
+            "price": 1250
+          },
+          {
+            "note": "",
+            "people": 5,
+            "price": 1200,
+            "r": 8,
+            "cost": 5350,
+            "company": "משביר יעקב בע"
+          },
+          {
+            "people": 6,
+            "price": 1250,
+            "cost": 5350,
+            "company": "י.ע.ר 2023 עובדים זרים בע",
+            "r": 9,
+            "note": ""
+          },
+          {
+            "r": 10,
+            "people": 2,
+            "note": "",
+            "price": 1280,
+            "company": "י.ע.ר 2023 עובדים זרים בע",
+            "cost": 5350
+          },
+          {
+            "note": "",
+            "company": "י.ע.ר 2023 עובדים זרים בע",
+            "people": 6,
+            "price": 1250,
+            "cost": 5350,
+            "r": 11
+          },
+          {
+            "company": "משביר יעקב בע",
+            "cost": 5350,
+            "price": 1200,
+            "r": 13,
+            "people": 6,
+            "note": ""
+          }
+        ],
+        "1": [
+          {
+            "cost": 5350,
+            "people": 6,
+            "company": "י.ע.ר 2023 עובדים זרים בע",
+            "note": "",
+            "price": 1050,
+            "r": 1
+          },
+          {
+            "people": 6,
+            "r": 3,
+            "cost": 5350,
+            "price": 1050,
+            "company": "י.ע.ר 2023 עובדים זרים בע",
+            "note": ""
+          },
+          {
+            "cost": 5350,
+            "price": 1050,
+            "company": "י.ע.ר 2023 עובדים זרים בע",
+            "people": 6,
+            "r": 4,
+            "note": ""
+          },
+          {
+            "note": "חדר שירות — יער",
+            "people": 1,
+            "r": 5,
+            "price": 4840,
+            "cost": 2730,
+            "company": "י.ע.ר 2023 עובדים זרים בע"
+          }
+        ]
+      }
+    },
+    "עזאי 38": {
+      "floors": {
+        "4": [],
+        "1": [
+          {
+            "r": 1,
+            "note": "מתאים ל6 איש ",
+            "company": "סחלב (אמון) ניהול פרויקטים בע",
+            "people": 6,
+            "cost": 3600,
+            "price": 1300
+          }
+        ],
+        "3": [
+          {
+            "people": 6,
+            "cost": 3600,
+            "price": 1300,
+            "r": 1,
+            "company": "סחלב (אמון) ניהול פרויקטים בע",
+            "note": "מתאים ל6 איש "
+          }
+        ],
+        "2": [
+          {
+            "r": 1,
+            "cost": 3600,
+            "note": "מתאים ל6 איש ",
+            "price": 1300,
+            "people": 6,
+            "company": "סחלב (אמון) ניהול פרויקטים בע"
+          }
+        ],
+        "-1": [
+          {
+            "cost": 2400,
+            "price": 1300,
+            "r": 1,
+            "company": "סחלב (אמון) ניהול פרויקטים בע",
+            "people": 4,
+            "note": "מרתף ימני מתאים ל4 איש "
+          },
+          {
+            "note": "מרתף אמצעי — מטבח מתאים ל4",
+            "price": 1300,
+            "r": 2,
+            "people": 4,
+            "company": "סחלב (אמון) ניהול פרויקטים בע",
+            "cost": 2400
+          },
+          {
+            "people": 0,
+            "price": 0,
+            "note": "מרתף שמאלי-מתאים ל4 ",
+            "r": 3,
+            "cost": 2400,
+            "company": ""
+          }
+        ]
+      }
+    },
+    "חיים בר לב 104": {
+      "floors": {
+        "1": [
+          {
+            "people": 1,
+            "price": 500,
+            "r": 1,
+            "cost": 0,
+            "company": "פסגת ליאם כ״א בע״מ",
+            "note": "500 ליום"
+          }
+        ]
+      }
+    },
+    "הירקון 41 ב\"ב": {
+      "floors": {
+        "2": [
+          {
+            "people": 5,
+            "cost": 4322,
+            "price": 1200,
+            "company": "אריאל אינטרנשיונל כוח אדם לבניה בע",
+            "r": 5,
+            "note": "תאילנדים"
+          },
+          {
+            "note": "חדר שירות ומטבח: 2 מכונות כביסה+מטבח+פינת ישיבה+מחסן ",
+            "people": 0,
+            "r": 6,
+            "price": 1500,
+            "cost": 1271,
+            "company": ""
+          },
+          {
+            "r": 7,
+            "cost": 4322,
+            "people": 4,
+            "note": "תאילנדים",
+            "price": 1375,
+            "company": "אריאל אינטרנשיונל כוח אדם לבניה בע"
+          },
+          {
+            "note": "",
+            "people": 5,
+            "company": "סחלב (אמון) ניהול פרויקטים בע",
+            "price": 1250,
+            "cost": 4322,
+            "r": 9
+          },
+          {
+            "r": 10,
+            "cost": 4322,
+            "people": 5,
+            "note": "",
+            "price": 1250,
+            "company": "סחלב (אמון) ניהול פרויקטים בע"
+          },
+          {
+            "people": 5,
+            "company": "סחלב (אמון) ניהול פרויקטים בע",
+            "note": "",
+            "r": 11,
+            "price": 1250,
+            "cost": 4322
+          },
+          {
+            "cost": 4322,
+            "company": "סחלב (אמון) ניהול פרויקטים בע",
+            "note": "",
+            "price": 1250,
+            "people": 5,
+            "r": 14
+          },
+          {
+            "r": 12,
+            "people": 5,
+            "company": "סחלב (אמון) ניהול פרויקטים בע",
+            "cost": 4322,
+            "price": 1250,
+            "note": ""
+          }
+        ]
+      }
+    }
+  },
   "VISITS": [
     {
       "floor": "",
@@ -864,7 +1157,1174 @@
       "floor": "1"
     }
   ],
-  "DUDU_TASKS": [],
+  "nextId": 177,
+  "OPS_TASKS": [
+    {
+      "due": "",
+      "id": 34,
+      "who": "",
+      "desc": "ניקיון החדר",
+      "floor": "",
+      "handler": "taagid",
+      "taagid": "",
+      "fromVisit": 1779176535105,
+      "priority": "normal",
+      "room": "6",
+      "createdAt": "2026-05-19T07:42:15.105Z",
+      "status": "open",
+      "prop": "נתן הנביא 42"
+    },
+    {
+      "priority": "normal",
+      "desc": "ארונית אמבטיה חדשה",
+      "due": "",
+      "who": "יועד",
+      "createdAt": "2026-05-19T07:28:00.512Z",
+      "room": "2",
+      "fromVisit": 1779175680510,
+      "floor": "1",
+      "handler": "yoad",
+      "prop": "נתן הנביא 42",
+      "id": 33,
+      "taagid": "",
+      "closedAt": "2026-07-01",
+      "status": "done"
+    },
+    {
+      "room": "5",
+      "taagid": "",
+      "fromVisit": 1779173565236,
+      "floor": "2",
+      "createdAt": "2026-05-19T06:52:45.253Z",
+      "status": "done",
+      "prop": "לבנדה 32",
+      "who": "",
+      "due": "",
+      "closedAt": "2026-07-01",
+      "id": 32,
+      "desc": "ניקיון וסדר החדר",
+      "priority": "normal",
+      "handler": "taagid"
+    },
+    {
+      "due": "",
+      "who": "יועד",
+      "handler": "yoad",
+      "desc": "רטיבות בתקרה הבעלים לקח אחריות עדיין לא טופל לטיפולם של צביקה אוהד רועי",
+      "priority": "normal",
+      "taagid": "",
+      "createdAt": "2026-05-19T06:52:45.253Z",
+      "status": "open",
+      "fromVisit": 1779173565236,
+      "prop": "לבנדה 32",
+      "floor": "2",
+      "room": "5",
+      "id": 31
+    },
+    {
+      "room": "4",
+      "priority": "normal",
+      "prop": "לבנדה 32",
+      "taagid": "",
+      "status": "open",
+      "desc": "ניקיון לחדר",
+      "floor": "1",
+      "who": "",
+      "createdAt": "2026-05-19T06:49:24.153Z",
+      "due": "",
+      "id": 30,
+      "fromVisit": 1779173364153,
+      "handler": "taagid"
+    },
+    {
+      "room": "4",
+      "taagid": "",
+      "floor": "1",
+      "status": "done",
+      "prop": "לבנדה 32",
+      "priority": "normal",
+      "who": "יועד",
+      "due": "2026-05-19",
+      "id": 29,
+      "desc": "טיפול למזגן",
+      "createdAt": "2026-05-19T06:49:24.153Z",
+      "handler": "yoad",
+      "closedAt": "2026-06-02",
+      "fromVisit": 1779173364153
+    },
+    {
+      "status": "open",
+      "createdAt": "2026-05-18T09:51:10.116Z",
+      "fromVisit": 1,
+      "taagid": "קורל ב. פרויקטים בע",
+      "priority": "urgent",
+      "desc": "לכלוך",
+      "handler": "taagid",
+      "id": 28,
+      "room": "10",
+      "floor": "2",
+      "who": "קורל ב. פרויקטים בע",
+      "prop": "הירקון 41 ב\"ב",
+      "due": ""
+    },
+    {
+      "id": 27,
+      "desc": "ניקיון חדר",
+      "floor": "3",
+      "taagid": "",
+      "priority": "normal",
+      "handler": "taagid",
+      "status": "open",
+      "room": "9",
+      "prop": "לבנדה 32",
+      "createdAt": "2026-05-18T09:34:08.875Z",
+      "due": "",
+      "fromVisit": 4,
+      "who": ""
+    },
+    {
+      "createdAt": "2026-05-18T09:30:22.844Z",
+      "floor": "3",
+      "fromVisit": 2,
+      "taagid": "",
+      "desc": "ניקיון לחדר",
+      "status": "open",
+      "handler": "taagid",
+      "id": 26,
+      "priority": "normal",
+      "room": "7",
+      "due": "",
+      "prop": "לבנדה 32",
+      "who": ""
+    },
+    {
+      "due": "",
+      "who": "דודו",
+      "floor": "3",
+      "handler": "dudu",
+      "createdAt": "2026-05-18T09:30:22.844Z",
+      "closedAt": "2026-07-01",
+      "prop": "לבנדה 32",
+      "fromVisit": 2,
+      "room": "7",
+      "status": "done",
+      "taagid": "",
+      "priority": "normal",
+      "id": 25,
+      "desc": "תיקון חלון נמשך כבר יותר מידי זמן"
+    },
+    {
+      "who": "",
+      "due": "",
+      "desc": "ניקיון לחדר",
+      "fromVisit": 1,
+      "handler": "taagid",
+      "createdAt": "2026-05-18T09:27:24.213Z",
+      "prop": "לבנדה 32",
+      "room": "3",
+      "status": "open",
+      "floor": "3",
+      "priority": "normal",
+      "taagid": "",
+      "id": 24
+    },
+    {
+      "id": 23,
+      "closedAt": "2026-07-01",
+      "status": "done",
+      "room": "12",
+      "floor": "2",
+      "prop": "לבנדה 32",
+      "due": "",
+      "taagid": "",
+      "handler": "yoad",
+      "who": "יועד",
+      "priority": "normal",
+      "fromVisit": 13,
+      "desc": "נזילה בשירותים",
+      "createdAt": "2026-05-18T09:20:44.925Z"
+    },
+    {
+      "floor": "2",
+      "handler": "dudu",
+      "createdAt": "2026-05-18T09:19:12.274Z",
+      "id": 22,
+      "desc": "ריצוף מקלחת שבור גורם לנזילות",
+      "fromVisit": 12,
+      "closedAt": "2026-07-01",
+      "taagid": "",
+      "priority": "normal",
+      "status": "done",
+      "due": "",
+      "room": "11",
+      "who": "דודו",
+      "prop": "לבנדה 32"
+    },
+    {
+      "room": "11",
+      "priority": "normal",
+      "prop": "לבנדה 32",
+      "id": 21,
+      "floor": "2",
+      "fromVisit": 12,
+      "taagid": "",
+      "status": "done",
+      "createdAt": "2026-05-18T09:19:12.274Z",
+      "desc": "מזגן נוזל ולא מקרר",
+      "closedAt": "2026-07-01",
+      "who": "דודו",
+      "handler": "dudu",
+      "due": ""
+    },
+    {
+      "floor": "2",
+      "closedAt": "2026-06-02",
+      "desc": "מזגן נוזל ולא מקרר",
+      "createdAt": "2026-05-18T09:17:47.725Z",
+      "fromVisit": 11,
+      "id": 20,
+      "handler": "dudu",
+      "room": "11",
+      "taagid": "",
+      "priority": "normal",
+      "due": "",
+      "prop": "לבנדה 32",
+      "status": "done",
+      "who": "דודו"
+    },
+    {
+      "fromVisit": 10,
+      "createdAt": "2026-05-18T09:13:48.900Z",
+      "status": "done",
+      "priority": "normal",
+      "taagid": "",
+      "id": 19,
+      "desc": "מזגן נוזל",
+      "who": "דודו",
+      "due": "",
+      "closedAt": "2026-06-02",
+      "handler": "dudu",
+      "floor": "2",
+      "prop": "לבנדה 32",
+      "room": "10"
+    },
+    {
+      "floor": "2",
+      "fromVisit": 10,
+      "prop": "לבנדה 32",
+      "createdAt": "2026-05-18T09:13:48.900Z",
+      "room": "10",
+      "priority": "normal",
+      "closedAt": "2026-07-01",
+      "who": "",
+      "due": "",
+      "id": 18,
+      "taagid": "",
+      "status": "done",
+      "desc": "ניקיון וסדר",
+      "handler": "taagid"
+    },
+    {
+      "room": "10",
+      "priority": "normal",
+      "floor": "2",
+      "prop": "לבנדה 32",
+      "who": "יועד",
+      "due": "",
+      "id": 17,
+      "createdAt": "2026-05-18T09:13:48.900Z",
+      "handler": "yoad",
+      "desc": "חסר דוש במקלחת",
+      "taagid": "",
+      "fromVisit": 10,
+      "status": "done",
+      "closedAt": "2026-07-01"
+    },
+    {
+      "who": "",
+      "due": "",
+      "closedAt": "2026-07-01",
+      "createdAt": "2026-05-18T09:10:35.369Z",
+      "floor": "2",
+      "desc": "ניקוי דחוף של החדר",
+      "fromVisit": 9,
+      "handler": "taagid",
+      "priority": "normal",
+      "id": 16,
+      "status": "done",
+      "prop": "לבנדה 32",
+      "room": "9",
+      "taagid": ""
+    },
+    {
+      "floor": "2",
+      "closedAt": "2026-06-02",
+      "who": "דודו",
+      "due": "",
+      "prop": "לבנדה 32",
+      "room": "9",
+      "createdAt": "2026-05-18T09:10:35.369Z",
+      "fromVisit": 9,
+      "id": 15,
+      "taagid": "",
+      "status": "done",
+      "desc": "מזגן לא מקרר",
+      "priority": "normal",
+      "handler": "dudu"
+    },
+    {
+      "taagid": "",
+      "floor": "2",
+      "closedAt": "2026-07-01",
+      "status": "done",
+      "room": "8",
+      "prop": "לבנדה 32",
+      "id": 14,
+      "createdAt": "2026-05-18T09:06:12.874Z",
+      "fromVisit": 8,
+      "who": "יועד",
+      "due": "",
+      "desc": "נזילה שירותים",
+      "handler": "yoad",
+      "priority": "normal"
+    },
+    {
+      "who": "דודו",
+      "due": "",
+      "prop": "לבנדה 32",
+      "room": "7",
+      "taagid": "",
+      "closedAt": "2026-06-02",
+      "status": "done",
+      "priority": "normal",
+      "fromVisit": 7,
+      "floor": "",
+      "desc": "מזגן לא מקרר ומחמם",
+      "handler": "dudu",
+      "createdAt": "2026-05-18T09:03:31.220Z",
+      "id": 13
+    },
+    {
+      "who": "",
+      "closedAt": "2026-07-01",
+      "due": "",
+      "prop": "לבנדה 32",
+      "room": "6",
+      "floor": "2",
+      "createdAt": "2026-05-18T09:01:08.412Z",
+      "fromVisit": 6,
+      "taagid": "",
+      "status": "done",
+      "priority": "normal",
+      "id": 12,
+      "desc": "ניקיון וסדר לחדר החדר מלוכלך מאוד",
+      "handler": "taagid"
+    },
+    {
+      "room": "4",
+      "prop": "לבנדה 32",
+      "due": "",
+      "closedAt": "2026-07-01",
+      "createdAt": "2026-05-18T08:54:46.159Z",
+      "who": "",
+      "status": "done",
+      "id": 11,
+      "fromVisit": 4,
+      "taagid": "",
+      "desc": "סדר וניקיון",
+      "priority": "normal",
+      "handler": "taagid",
+      "floor": "2"
+    },
+    {
+      "priority": "urgent",
+      "fromVisit": 3,
+      "handler": "dudu",
+      "createdAt": "2026-05-18T08:49:28.388Z",
+      "due": "",
+      "who": "דודו",
+      "room": "1",
+      "prop": "לבנדה 32",
+      "id": 10,
+      "status": "done",
+      "floor": "2",
+      "desc": "מזגן שבור לא עובד",
+      "closedAt": "2026-07-01",
+      "taagid": ""
+    },
+    {
+      "handler": "taagid",
+      "closedAt": "2026-07-01",
+      "desc": "חדר חייב ניקיון דחוף",
+      "status": "done",
+      "fromVisit": 1,
+      "id": 9,
+      "taagid": "",
+      "createdAt": "2026-05-18T08:44:15.361Z",
+      "who": "",
+      "prop": "לבנדה 32",
+      "due": "",
+      "room": "3",
+      "priority": "normal",
+      "floor": "1"
+    },
+    {
+      "priority": "normal",
+      "who": "יועד",
+      "due": "",
+      "desc": "נזילה בשירותים",
+      "status": "done",
+      "taagid": "",
+      "id": 8,
+      "prop": "לבנדה 32",
+      "handler": "yoad",
+      "room": "3",
+      "createdAt": "2026-05-18T08:44:15.361Z",
+      "floor": "1",
+      "closedAt": "2026-07-01",
+      "fromVisit": 1
+    },
+    {
+      "room": "3",
+      "closedAt": "2026-07-01",
+      "status": "done",
+      "id": 7,
+      "prop": "לבנדה 32",
+      "taagid": "",
+      "fromVisit": 1,
+      "handler": "dudu",
+      "due": "",
+      "createdAt": "2026-05-18T08:44:15.361Z",
+      "who": "דודו",
+      "desc": "מקלחת שבורה",
+      "priority": "normal",
+      "floor": "1"
+    },
+    {
+      "handler": "yoad",
+      "prop": "לבנדה 32",
+      "status": "open",
+      "room": "3",
+      "taagid": "",
+      "priority": "normal",
+      "id": 6,
+      "fromVisit": 1,
+      "due": "",
+      "desc": "תליית בית מנורה",
+      "who": "יועד",
+      "createdAt": "2026-05-18T08:44:15.361Z",
+      "floor": "1"
+    },
+    {
+      "room": "",
+      "desc": "עיגגעגכ",
+      "priority": "normal",
+      "id": 5,
+      "prop": "לבנדה 32",
+      "createdAt": "2026-05-18T08:34:14.834Z",
+      "closedAt": "2026-06-02",
+      "status": "done",
+      "who": "יועד",
+      "fromVisit": 1,
+      "due": "2026-05-18",
+      "floor": ""
+    },
+    {
+      "room": "3",
+      "desc": "נזילה בשירותים- יועד",
+      "createdAt": "2026-05-18T07:58:38.387Z",
+      "status": "open",
+      "fromVisit": 1,
+      "prop": "לבנדה 32",
+      "id": 4,
+      "priority": "normal",
+      "who": "יועד",
+      "due": "",
+      "floor": "1"
+    },
+    {
+      "priority": "normal",
+      "id": 3,
+      "createdAt": "2026-05-18T07:58:38.387Z",
+      "fromVisit": 1,
+      "desc": "מקלחת שבורה- דודו",
+      "room": "3",
+      "status": "open",
+      "floor": "1",
+      "prop": "לבנדה 32",
+      "due": "",
+      "who": "יועד"
+    },
+    {
+      "who": "יועד",
+      "due": "2026-05-18",
+      "status": "open",
+      "prop": "לבנדה 32",
+      "desc": "מנורה תלושה- יועד",
+      "room": "3",
+      "priority": "normal",
+      "fromVisit": 1,
+      "floor": "1",
+      "createdAt": "2026-05-18T07:58:38.387Z",
+      "id": 2
+    },
+    {
+      "desc": "חשמלאי",
+      "room": "3",
+      "priority": "normal",
+      "id": 1,
+      "prop": "לבנדה 32",
+      "status": "open",
+      "floor": "1",
+      "fromVisit": 1,
+      "who": "אוהד",
+      "createdAt": "2026-05-18T07:57:52.854Z",
+      "due": ""
+    }
+  ],
+  "INVOICE_TRACK": [
+    {
+      "issued": true,
+      "client": "י.ע.ר 2023",
+      "paidDate": "",
+      "amount": 117300,
+      "month": "2026-06",
+      "paid": false,
+      "issuedDate": "2026-06-21",
+      "paidAmount": 0
+    },
+    {
+      "paidDate": "",
+      "amount": 3200,
+      "paidAmount": 0,
+      "issuedDate": "2026-06-21",
+      "issued": true,
+      "month": "2026-06",
+      "client": "בינה",
+      "paid": false
+    },
+    {
+      "paid": false,
+      "month": "2026-06",
+      "amount": 12000,
+      "paidDate": "",
+      "client": "שמרית",
+      "paidAmount": 0,
+      "issuedDate": "2026-06-21",
+      "issued": true
+    },
+    {
+      "amount": 8725,
+      "issued": true,
+      "client": "שיק סין",
+      "issuedDate": "2026-06-21",
+      "paidAmount": 0,
+      "paidDate": "",
+      "paid": false,
+      "month": "2026-06"
+    },
+    {
+      "amount": 14500,
+      "issuedDate": "2026-06-21",
+      "paidAmount": 0,
+      "issued": true,
+      "client": "ח.ח.א",
+      "paidDate": "",
+      "paid": false,
+      "month": "2026-06"
+    },
+    {
+      "paidDate": "",
+      "amount": 13167,
+      "issuedDate": "2026-06-21",
+      "paidAmount": 0,
+      "issued": true,
+      "paid": false,
+      "month": "2026-06",
+      "client": "ניו פאוור / מגיק"
+    },
+    {
+      "month": "2026-06",
+      "issued": true,
+      "paid": false,
+      "client": "משביר יעקב",
+      "paidDate": "",
+      "amount": 13200,
+      "issuedDate": "2026-06-21",
+      "paidAmount": 0
+    },
+    {
+      "month": "2026-06",
+      "paid": false,
+      "issuedDate": "2026-06-21",
+      "paidAmount": 0,
+      "client": "קורל — תיווך עובדים",
+      "issued": true,
+      "paidDate": "",
+      "amount": 7400
+    },
+    {
+      "paidDate": "",
+      "month": "2026-06",
+      "paid": false,
+      "client": "אגדאדי הנדסה ובניין בע",
+      "issuedDate": "",
+      "issued": false,
+      "paidAmount": 0,
+      "amount": 10000
+    },
+    {
+      "client": "עזאי 38 (פיקס)",
+      "month": "2026-07",
+      "issued": false,
+      "paid": false,
+      "issuedDate": "",
+      "paidAmount": 0,
+      "amount": 28500,
+      "paidDate": ""
+    },
+    {
+      "paid": false,
+      "paidDate": "",
+      "paidAmount": 0,
+      "issuedDate": "",
+      "month": "2026-07",
+      "amount": 73400,
+      "client": "נתן הנביא 42 (פיקס)",
+      "issued": false
+    },
+    {
+      "paid": false,
+      "month": "2026-07",
+      "client": "י.ע.ר 2023",
+      "issued": false,
+      "amount": 85400,
+      "issuedDate": "",
+      "paidAmount": 0,
+      "paidDate": ""
+    },
+    {
+      "month": "2026-07",
+      "issued": false,
+      "paid": false,
+      "client": "בינה",
+      "issuedDate": "",
+      "paidAmount": 0,
+      "amount": 3200,
+      "paidDate": ""
+    },
+    {
+      "month": "2026-07",
+      "issuedDate": "",
+      "paidAmount": 0,
+      "paid": false,
+      "paidDate": "",
+      "client": "אגדאדי הנדסה ובניין בע",
+      "issued": false,
+      "amount": 10000
+    },
+    {
+      "amount": 19500,
+      "issued": false,
+      "client": "קורל — שכירות",
+      "paid": false,
+      "paidAmount": 0,
+      "issuedDate": "",
+      "paidDate": "",
+      "month": "2026-07"
+    },
+    {
+      "manualAmount": true,
+      "paidAmount": 12000,
+      "paidDate": "2026-07-20",
+      "note": "",
+      "issuedDate": "2026-07-20",
+      "paid": true,
+      "amount": 12000,
+      "client": "שמרית",
+      "issued": true,
+      "month": "2026-07"
+    },
+    {
+      "amount": 3100,
+      "client": "שיק סין",
+      "issued": false,
+      "paid": false,
+      "month": "2026-07",
+      "paidDate": "",
+      "paidAmount": 0,
+      "issuedDate": ""
+    },
+    {
+      "paidDate": "",
+      "month": "2026-07",
+      "issuedDate": "2026-07-20",
+      "paid": false,
+      "client": "ח.ח.א",
+      "issued": true,
+      "manualAmount": true,
+      "amount": 19750,
+      "note": "",
+      "paidAmount": 0
+    },
+    {
+      "paidDate": "",
+      "issuedDate": "",
+      "paidAmount": 0,
+      "paid": false,
+      "amount": 12903,
+      "month": "2026-07",
+      "client": "ניו פאוור / מגיק",
+      "issued": false
+    },
+    {
+      "paidAmount": 0,
+      "issuedDate": "",
+      "paid": false,
+      "amount": 13200,
+      "month": "2026-07",
+      "issued": false,
+      "paidDate": "",
+      "client": "משביר יעקב"
+    },
+    {
+      "issued": false,
+      "client": "ויינשטוק זהבי משרד עורכי דין",
+      "amount": 32500,
+      "paidDate": "",
+      "month": "2026-07",
+      "issuedDate": "",
+      "paidAmount": 0,
+      "paid": false
+    },
+    {
+      "client": "קורל — תיווך עובדים",
+      "issued": false,
+      "month": "2026-07",
+      "amount": 9200,
+      "paid": false,
+      "paidAmount": 0,
+      "issuedDate": "",
+      "paidDate": ""
+    },
+    {
+      "amount": 1613,
+      "paid": false,
+      "month": "2026-07",
+      "issued": false,
+      "paidDate": "",
+      "issuedDate": "",
+      "paidAmount": 0,
+      "client": "קורפו"
+    },
+    {
+      "issuedDate": "",
+      "issued": false,
+      "paidAmount": 0,
+      "client": "אריאל אינטרנשיונל כוח אדם לבניה בע",
+      "amount": 29100,
+      "month": "2026-06",
+      "paid": false,
+      "paidDate": ""
+    },
+    {
+      "amount": 5200,
+      "paid": false,
+      "client": "תקומה תאגיד כוח אדם בע״מ",
+      "issued": false,
+      "paidAmount": 0,
+      "issuedDate": "",
+      "month": "2026-06",
+      "paidDate": ""
+    },
+    {
+      "month": "2026-09",
+      "issued": false,
+      "paid": false,
+      "paidDate": "",
+      "client": "י.ע.ר 2023",
+      "amount": 117300,
+      "paidAmount": 0,
+      "issuedDate": ""
+    },
+    {
+      "client": "בינה",
+      "paid": false,
+      "issued": true,
+      "issuedDate": "2026-09-06",
+      "amount": 3200,
+      "month": "2026-09",
+      "paidDate": "",
+      "paidAmount": 0,
+      "note": "חן 0056",
+      "manualAmount": true
+    },
+    {
+      "paidDate": "",
+      "month": "2026-09",
+      "issued": false,
+      "client": "אגדאדי הנדסה ובניין בע",
+      "paid": false,
+      "amount": 15000,
+      "paidAmount": 0,
+      "issuedDate": ""
+    },
+    {
+      "month": "2026-09",
+      "paid": false,
+      "paidAmount": 0,
+      "manualAmount": true,
+      "note": "חן 0061",
+      "issued": true,
+      "client": "אריאל אינטרנשיונל כוח אדם לבניה בע",
+      "amount": 29100,
+      "issuedDate": "2026-09-06",
+      "paidDate": ""
+    },
+    {
+      "note": "חן 0055",
+      "manualAmount": true,
+      "paidAmount": 0,
+      "paid": false,
+      "amount": 12000,
+      "client": "שמרית",
+      "issued": true,
+      "month": "2026-09",
+      "issuedDate": "2026-09-06",
+      "paidDate": ""
+    },
+    {
+      "month": "2026-09",
+      "paid": false,
+      "manualAmount": true,
+      "issuedDate": "2026-09-06",
+      "note": "חן 0057",
+      "client": "שיק סין",
+      "issued": true,
+      "paidAmount": 0,
+      "paidDate": "",
+      "amount": 3100
+    },
+    {
+      "client": "ניו פאוור / מגיק",
+      "issued": true,
+      "paid": false,
+      "paidAmount": 0,
+      "amount": 12500,
+      "month": "2026-09",
+      "paidDate": "",
+      "issuedDate": "2026-09-06",
+      "note": "חן 0054",
+      "manualAmount": true
+    },
+    {
+      "paidAmount": 0,
+      "paidDate": "",
+      "paid": false,
+      "manualAmount": true,
+      "issued": true,
+      "client": "משביר יעקב",
+      "month": "2026-09",
+      "amount": 13200,
+      "issuedDate": "2026-09-06",
+      "note": "חן 0052"
+    },
+    {
+      "paid": false,
+      "month": "2026-09",
+      "amount": 126000,
+      "issuedDate": "",
+      "paidAmount": 0,
+      "paidDate": "",
+      "client": "ויינשטוק זהבי משרד עורכי דין",
+      "issued": false
+    },
+    {
+      "issuedDate": "2026-09-06",
+      "manualAmount": true,
+      "amount": 3900,
+      "note": "חן 0059",
+      "issued": true,
+      "month": "2026-09",
+      "client": "תקומה תאגיד כוח אדם בע״מ",
+      "paidDate": "",
+      "paidAmount": 0,
+      "paid": false
+    },
+    {
+      "paidAmount": 0,
+      "note": "חן 060",
+      "month": "2026-09",
+      "issuedDate": "2026-09-06",
+      "paidDate": "",
+      "amount": 3750,
+      "manualAmount": true,
+      "paid": false,
+      "issued": true,
+      "client": "פריוריטי כח אדם בע"
+    },
+    {
+      "amount": 15000,
+      "issued": true,
+      "client": "ח.ח.א",
+      "paidDate": "",
+      "note": "חן 0053",
+      "issuedDate": "2026-09-06",
+      "manualAmount": true,
+      "paid": false,
+      "month": "2026-09",
+      "paidAmount": 0
+    },
+    {
+      "paidDate": "",
+      "paid": false,
+      "paidAmount": 0,
+      "issuedDate": "",
+      "amount": 96250,
+      "month": "2026-06",
+      "issued": false,
+      "client": "סחלב (אמון) ניהול פרויקטים בע"
+    },
+    {
+      "amount": 6375,
+      "client": "האיקלי אריאל כ",
+      "paid": false,
+      "paidDate": "",
+      "issued": false,
+      "issuedDate": "",
+      "paidAmount": 0,
+      "month": "2026-06"
+    },
+    {
+      "paid": false,
+      "amount": 2500,
+      "client": "אחד עשרה כוח אדם בע",
+      "paidDate": "",
+      "issued": false,
+      "month": "2026-06",
+      "issuedDate": "",
+      "paidAmount": 0
+    },
+    {
+      "paidAmount": 0,
+      "manualAmount": true,
+      "paid": false,
+      "issuedDate": "2026-10-08",
+      "issued": true,
+      "client": "י.ע.ר 2023",
+      "amount": 117300,
+      "month": "2026-10",
+      "note": "הופקה חן עס 119444 + מעמ",
+      "paidDate": ""
+    },
+    {
+      "issuedDate": "2026-10-08",
+      "paidDate": "",
+      "note": "",
+      "manualAmount": true,
+      "amount": 3200,
+      "paidAmount": 0,
+      "issued": true,
+      "client": "בינה",
+      "paid": false,
+      "month": "2026-10"
+    },
+    {
+      "paid": false,
+      "paidAmount": 0,
+      "issuedDate": "",
+      "amount": 10000,
+      "client": "אגדאדי הנדסה ובניין בע",
+      "issued": false,
+      "month": "2026-10",
+      "paidDate": ""
+    },
+    {
+      "month": "2026-10",
+      "paidDate": "",
+      "paid": false,
+      "paidAmount": 0,
+      "note": "",
+      "manualAmount": true,
+      "issuedDate": "2026-10-08",
+      "client": "אריאל אינטרנשיונל כוח אדם לבניה בע",
+      "issued": true,
+      "amount": 29100
+    },
+    {
+      "manualAmount": true,
+      "paidAmount": 0,
+      "paid": false,
+      "issued": true,
+      "client": "שמרית",
+      "issuedDate": "2026-10-08",
+      "amount": 12000,
+      "month": "2026-10",
+      "paidDate": "",
+      "note": ""
+    },
+    {
+      "paid": false,
+      "month": "2026-10",
+      "client": "שיק סין",
+      "issued": true,
+      "amount": 3100,
+      "issuedDate": "2026-10-08",
+      "paidDate": "",
+      "manualAmount": true,
+      "note": "",
+      "paidAmount": 0
+    },
+    {
+      "issuedDate": "2026-10-08",
+      "paidDate": "",
+      "note": "",
+      "amount": 12500,
+      "issued": true,
+      "manualAmount": true,
+      "paidAmount": 0,
+      "client": "ניו פאוור / מגיק",
+      "paid": false,
+      "month": "2026-10"
+    },
+    {
+      "client": "משביר יעקב",
+      "issued": true,
+      "paid": false,
+      "amount": 13200,
+      "paidAmount": 0,
+      "note": "",
+      "month": "2026-10",
+      "manualAmount": true,
+      "paidDate": "",
+      "issuedDate": "2026-10-08"
+    },
+    {
+      "amount": 96250,
+      "paidAmount": 0,
+      "paidDate": "",
+      "issued": true,
+      "client": "סחלב (אמון) ניהול פרויקטים בע",
+      "note": "",
+      "manualAmount": true,
+      "issuedDate": "2026-10-08",
+      "paid": false,
+      "month": "2026-10"
+    },
+    {
+      "paid": false,
+      "paidAmount": 0,
+      "manualAmount": true,
+      "paidDate": "",
+      "client": "תקומה תאגיד כוח אדם בע״מ",
+      "month": "2026-10",
+      "issued": true,
+      "amount": 5200,
+      "note": "",
+      "issuedDate": "2026-10-08"
+    },
+    {
+      "paidAmount": 0,
+      "manualAmount": true,
+      "paidDate": "",
+      "note": "",
+      "month": "2026-10",
+      "issuedDate": "2026-10-08",
+      "amount": 6375,
+      "paid": false,
+      "issued": true,
+      "client": "האיקלי אריאל כ"
+    },
+    {
+      "note": "",
+      "paidDate": "",
+      "month": "2026-10",
+      "amount": 2500,
+      "issuedDate": "2026-10-08",
+      "client": "אחד עשרה כוח אדם בע",
+      "issued": true,
+      "paid": false,
+      "manualAmount": true,
+      "paidAmount": 0
+    },
+    {
+      "issued": false,
+      "client": "ח.ח.א",
+      "month": "2026-10",
+      "amount": 14500,
+      "paid": false,
+      "paidDate": "",
+      "paidAmount": 0,
+      "issuedDate": ""
+    },
+    {
+      "issuedDate": "2026-10-08",
+      "month": "2026-10",
+      "manualAmount": true,
+      "issued": true,
+      "client": "פריוריטי כח אדם בע",
+      "paid": false,
+      "amount": 40,
+      "paidAmount": 0,
+      "note": "",
+      "paidDate": ""
+    }
+  ],
+  "GENERAL_EXPENSES": [
+    {
+      "extra": [],
+      "month": "2025-11",
+      "accountant": 1500,
+      "lawyer": 1054.75,
+      "yoad": 12000
+    },
+    {
+      "yoad": 12000,
+      "lawyer": 1054.75,
+      "month": "2025-12",
+      "accountant": 1500,
+      "extra": []
+    },
+    {
+      "yoad": 12000,
+      "month": "2026-01",
+      "accountant": 1500,
+      "lawyer": 1054.75,
+      "extra": []
+    },
+    {
+      "month": "2026-02",
+      "yoad": 12000,
+      "extra": [
+        {
+          "desc": "רואה חשבון",
+          "amount": 1500
+        }
+      ],
+      "lawyer": 1054.75,
+      "accountant": 1500
+    },
+    {
+      "month": "2026-05",
+      "accountant": 1500,
+      "extra": [
+        {
+          "desc": "מירי",
+          "amount": 1000
+        }
+      ],
+      "yoad": 12000,
+      "lawyer": 1054.75
+    },
+    {
+      "accountant": 1500,
+      "yoad": 14000,
+      "month": "2026-06",
+      "lawyer": 0,
+      "extra": []
+    }
+  ],
+  "_savedAt": "2026-10-11T09:14:12.884Z",
   "TASKS": [
     {
       "desc": "נזילת מים מהמזגן + אריח שבור בחדר הרחצה — חדר 1 קומה 1",
@@ -1019,7 +2479,707 @@
       "done": false
     }
   ],
-  "nextId": 177,
+  "DUDU_TASKS": [],
+  "MGMT_TASKS": [],
+  "EXPENSES": [
+    {
+      "id": 1,
+      "prop": "כללי",
+      "total": 169.9,
+      "invoice": "4002002615",
+      "date": "2025-12-08",
+      "desc": "ציוד כללי"
+    },
+    {
+      "prop": "כללי",
+      "id": 2,
+      "date": "2026-01-01",
+      "invoice": "264019554",
+      "desc": "תשלום שונות",
+      "total": 815
+    },
+    {
+      "total": 383,
+      "prop": "לבנדה 32",
+      "invoice": "13919",
+      "id": 3,
+      "date": "2026-01-07",
+      "desc": "שיפוץ"
+    },
+    {
+      "total": 6500,
+      "date": "2026-01-14",
+      "desc": "ציוד ורהיטים",
+      "id": 4,
+      "invoice": "977",
+      "prop": "לבנדה 32"
+    },
+    {
+      "total": 1577.5,
+      "date": "2026-02-03",
+      "desc": "אחזקה כללית",
+      "invoice": "266018062",
+      "id": 5,
+      "prop": "כללי"
+    },
+    {
+      "date": "2026-02-02",
+      "id": 6,
+      "total": 550,
+      "desc": "ניקוי",
+      "invoice": "מזומן",
+      "prop": "הירקון 41 ב\"ב"
+    },
+    {
+      "invoice": "מזומן",
+      "prop": "לבנדה 32",
+      "date": "2026-02-03",
+      "id": 7,
+      "desc": "שיפוץ חדר 1 קומה 2",
+      "total": 450
+    },
+    {
+      "id": 8,
+      "prop": "לבנדה 32",
+      "invoice": "26502896",
+      "date": "2026-02-11",
+      "desc": "תיקונים שונים",
+      "total": 2200
+    },
+    {
+      "invoice": "מזומן",
+      "prop": "כללי",
+      "total": 5000,
+      "id": 9,
+      "desc": "טיפול+ביטוח+טסט לטוסטוס",
+      "date": "2026-03-09"
+    },
+    {
+      "total": 7000,
+      "date": "2026-03-16",
+      "desc": "דמי תיווך — חודש ראשון",
+      "invoice": "",
+      "id": 10,
+      "prop": "חיים בר לב 104"
+    },
+    {
+      "prop": "חיים בר לב 104",
+      "id": 11,
+      "invoice": "ביטחון",
+      "date": "2026-03-16",
+      "total": 7000,
+      "desc": "צ׳ק ביטחון"
+    },
+    {
+      "id": 100,
+      "prop": "הירקון 41 ב\"ב",
+      "date": "2026-05-10",
+      "invoice": "000303006692",
+      "total": 445,
+      "desc": "חומרי ניקוי וריסוס לירקון חדר 10"
+    },
+    {
+      "id": 101,
+      "prop": "הירקון 41 ב\"ב",
+      "total": 600,
+      "desc": "תשלום יומי לנועם אלקסלסי ",
+      "date": "2026-05-10",
+      "invoice": ""
+    },
+    {
+      "date": "2026-05-19",
+      "id": 113,
+      "invoice": "RAV0260008104",
+      "desc": "טלפון סלולר SAMSUNG GALAXY A16 שחור, כיסוי אחורי BAROS A16 SAMSUNG שקוף",
+      "total": 594,
+      "prop": "כללי"
+    },
+    {
+      "prop": "חיים בר לב 104",
+      "date": "2026-06-20",
+      "desc": "אקדח, דבק, מסר",
+      "id": 118,
+      "invoice": "271516",
+      "total": 78
+    },
+    {
+      "id": 119,
+      "date": "2026-06-20",
+      "desc": "דלוג תפוח",
+      "total": 280,
+      "prop": "כללי",
+      "invoice": "51639642"
+    }
+  ],
+  "MOVEMENTS": [
+    {
+      "id": 176,
+      "type": "exit",
+      "prop": "לבנדה 32",
+      "floor": 3,
+      "room": 6,
+      "company": "מגיק פאוור בע",
+      "people": 1,
+      "date": "2026-10-09",
+      "note": "יציאה של פועל 1 "
+    },
+    {
+      "prop": "חיים בר לב 104",
+      "company": "פסגת ליאם כ״א בע״מ",
+      "floor": 1,
+      "date": "2026-10-05",
+      "room": 1,
+      "people": 1,
+      "id": 175,
+      "type": "entry",
+      "note": "500 יומי"
+    },
+    {
+      "date": "2026-09-29",
+      "room": 3,
+      "floor": 2,
+      "prop": "לבנדה 32",
+      "note": "",
+      "type": "entry",
+      "people": 2,
+      "company": "אגדאדי הנדסה ובניין בע",
+      "id": 174
+    },
+    {
+      "people": 1,
+      "type": "exit",
+      "note": "",
+      "floor": 1,
+      "id": 173,
+      "prop": "נתן הנביא 42",
+      "company": "פריוריטי כח אדם בע",
+      "date": "2026-10-01",
+      "room": 15
+    },
+    {
+      "prop": "נתן הנביא 42",
+      "floor": 1,
+      "date": "2026-09-24",
+      "room": 10,
+      "people": 2,
+      "company": "האיקלי אריאל כ",
+      "id": 171,
+      "note": "",
+      "type": "entry"
+    },
+    {
+      "id": 167,
+      "room": 3,
+      "date": "2026-09-22",
+      "people": 1,
+      "prop": "נתן הנביא 42",
+      "floor": 1,
+      "type": "entry",
+      "note": "",
+      "company": "תקומה תאגיד כוח אדם בע״מ"
+    },
+    {
+      "company": "בס",
+      "note": "סינים מחיר קבוע של 11500",
+      "floor": 1,
+      "type": "entry",
+      "people": 8,
+      "date": "2026-09-22",
+      "room": 1,
+      "id": 165,
+      "prop": "חיים בר לב 104"
+    },
+    {
+      "prop": "עזאי 38",
+      "date": "2026-09-07",
+      "room": 1,
+      "company": "סחלב (אמון) ניהול פרויקטים בע",
+      "floor": 1,
+      "people": 26,
+      "note": "כניסה של 26 פועלים של סחלב ",
+      "id": 160,
+      "type": "entry"
+    },
+    {
+      "people": 11,
+      "company": "ח.ח.א",
+      "type": "exit",
+      "note": "",
+      "floor": 1,
+      "prop": "חיים בר לב 104",
+      "id": 155,
+      "date": "2026-09-06",
+      "room": 1
+    },
+    {
+      "people": 25,
+      "floor": 1,
+      "type": "entry",
+      "note": "כניסה של 25 איש עבור סחלב ",
+      "company": "ויינשטוק זהבי משרד עורכי דין",
+      "date": "2026-09-03",
+      "id": 148,
+      "room": 1,
+      "prop": "נתן הנביא 42"
+    },
+    {
+      "prop": "נתן הנביא 42",
+      "floor": 1,
+      "date": "2026-09-04",
+      "room": 15,
+      "id": 143,
+      "people": 1,
+      "company": "פריוריטי כח אדם בע",
+      "type": "entry",
+      "note": ""
+    },
+    {
+      "type": "entry",
+      "note": "",
+      "id": 142,
+      "company": "פריוריטי כח אדם בע",
+      "floor": 1,
+      "room": 15,
+      "people": 2,
+      "date": "2026-09-01",
+      "prop": "נתן הנביא 42"
+    },
+    {
+      "type": "entry",
+      "company": "אגדאדי הנדסה ובניין בע",
+      "floor": 1,
+      "note": "זמני עד סוף החודש ואז עוברים ללבנדה ",
+      "date": "2026-07-12",
+      "people": 6,
+      "room": 16,
+      "id": 129,
+      "prop": "נתן הנביא 42"
+    },
+    {
+      "people": 4,
+      "floor": 2,
+      "note": "יקחו בתחילת חודש אוגוסט את חדר 3 קומה 3 ויכניסו לשם עוד 6 איש ",
+      "id": 128,
+      "type": "entry",
+      "company": "אגדאדי הנדסה ובניין בע",
+      "prop": "לבנדה 32",
+      "room": 3,
+      "date": "2026-07-11"
+    },
+    {
+      "id": 126,
+      "prop": "לבנדה 32",
+      "room": 3,
+      "date": "2026-07-10",
+      "people": 4,
+      "type": "exit",
+      "floor": 2,
+      "company": "קורפו בניה בע",
+      "note": "יציאה של קורפו "
+    },
+    {
+      "room": 7,
+      "date": "2026-07-10",
+      "id": 125,
+      "prop": "לבנדה 32",
+      "floor": 3,
+      "type": "exit",
+      "note": "יציאת פועל 1",
+      "company": "מגיק פאוור בע",
+      "people": 1
+    },
+    {
+      "type": "entry",
+      "company": "י.ע.ר 2023 עובדים זרים בע",
+      "floor": 3,
+      "note": "כניסה של יער& יציאה של שיק צין",
+      "date": "2026-06-28",
+      "people": 6,
+      "id": 124,
+      "room": 9,
+      "prop": "לבנדה 32"
+    },
+    {
+      "company": "י.ע.ר 2023 עובדים זרים בע",
+      "note": "כניסה של פועלי יער",
+      "type": "entry",
+      "id": 123,
+      "floor": 3,
+      "prop": "לבנדה 32",
+      "people": 6,
+      "room": 11,
+      "date": "2026-06-23"
+    },
+    {
+      "prop": "לבנדה 32",
+      "room": 9,
+      "date": "2026-06-27",
+      "id": 122,
+      "company": "שיק סין 26 בע",
+      "note": "הדירה תהיה ריקה",
+      "type": "exit",
+      "floor": 3,
+      "people": 5
+    },
+    {
+      "company": "מגיק פאוור בע",
+      "prop": "לבנדה 32",
+      "date": "2026-06-16",
+      "room": 7,
+      "floor": 3,
+      "id": 121,
+      "people": 1,
+      "note": "יציאת עובד בודד מגיק פאוור מהחדר של ה8 אנשים ",
+      "type": "exit"
+    },
+    {
+      "room": 7,
+      "people": 4,
+      "date": "2026-05-31",
+      "id": 117,
+      "prop": "הירקון 41 ב\"ב",
+      "company": "קורל ב. פרויקטים בע",
+      "floor": 2,
+      "note": "כניסת הפועלים מחדר 6 אל חדר 7 ",
+      "type": "entry"
+    },
+    {
+      "prop": "הירקון 41 ב\"ב",
+      "people": 4,
+      "floor": 2,
+      "date": "2026-05-31",
+      "room": 6,
+      "id": 116,
+      "type": "exit",
+      "company": "קורל ב. פרויקטים בע",
+      "note": "מעבר אל חדר 7 מחדר 6 אשר נהיה כחדר שירות "
+    },
+    {
+      "type": "exit",
+      "note": "",
+      "people": 3,
+      "id": 115,
+      "floor": 2,
+      "company": "שמרית שרותי עובדים 2023 בע",
+      "room": 7,
+      "date": "2026-05-30",
+      "prop": "הירקון 41 ב\"ב"
+    },
+    {
+      "prop": "לבנדה 32",
+      "id": 114,
+      "people": 5,
+      "room": 8,
+      "floor": 3,
+      "date": "2026-05-21",
+      "company": "משביר יעקב בע",
+      "type": "entry",
+      "note": ""
+    },
+    {
+      "type": "exit",
+      "note": "",
+      "company": "ח.ח.א",
+      "people": 5,
+      "date": "2026-05-07",
+      "floor": 2,
+      "room": 10,
+      "id": 111,
+      "prop": "הירקון 41 ב\"ב"
+    },
+    {
+      "note": "נאפלים",
+      "type": "entry",
+      "people": 2,
+      "id": 108,
+      "room": 12,
+      "floor": 2,
+      "date": "2026-05-15",
+      "company": "ויינשטוק זהבי משרד עורכי דין",
+      "prop": "הירקון 41 ב\"ב"
+    },
+    {
+      "prop": "הירקון 41 ב\"ב",
+      "id": 106,
+      "company": "ויינשטוק זהבי משרד עורכי דין",
+      "room": 14,
+      "date": "2026-05-15",
+      "type": "entry",
+      "floor": 2,
+      "note": "נאפלים",
+      "people": 6
+    },
+    {
+      "company": "ויינשטוק זהבי משרד עורכי דין",
+      "note": "נאפלים",
+      "type": "entry",
+      "date": "2026-05-15",
+      "room": 10,
+      "floor": 2,
+      "id": 105,
+      "people": 6,
+      "prop": "הירקון 41 ב\"ב"
+    },
+    {
+      "room": 9,
+      "id": 103,
+      "date": "2026-05-15",
+      "prop": "הירקון 41 ב\"ב",
+      "people": 6,
+      "type": "entry",
+      "note": "נאפלים",
+      "company": "ויינשטוק זהבי משרד עורכי דין",
+      "floor": 2
+    },
+    {
+      "id": 102,
+      "room": 11,
+      "date": "2026-05-08",
+      "company": "ויינשטוק זהבי משרד עורכי דין",
+      "prop": "הירקון 41 ב\"ב",
+      "floor": 2,
+      "type": "entry",
+      "note": "נאפלים",
+      "people": 6
+    },
+    {
+      "people": 4,
+      "floor": 2,
+      "type": "entry",
+      "note": "",
+      "id": 1,
+      "prop": "לבנדה 32",
+      "date": "2026-01-28",
+      "company": "משביר יעקב",
+      "room": 4
+    },
+    {
+      "note": "",
+      "company": "שמרית",
+      "type": "entry",
+      "id": 2,
+      "room": 8,
+      "floor": 2,
+      "date": "2026-01-31",
+      "people": 3,
+      "prop": "לבנדה 32"
+    },
+    {
+      "type": "entry",
+      "people": 3,
+      "note": "",
+      "id": 3,
+      "floor": 2,
+      "room": 5,
+      "date": "2026-01-18",
+      "prop": "הירקון 41 ב\"ב",
+      "company": "שיק צין"
+    },
+    {
+      "date": "2026-02-19",
+      "room": 10,
+      "people": 5,
+      "floor": 2,
+      "prop": "הירקון 41 ב\"ב",
+      "note": "",
+      "type": "entry",
+      "id": 4,
+      "company": "ח.ח.א"
+    },
+    {
+      "room": 1,
+      "date": "2026-02-18",
+      "id": 5,
+      "prop": "לבנדה 32",
+      "floor": 2,
+      "note": "תוספת מולדובני",
+      "type": "entry",
+      "people": 1,
+      "company": "בינה"
+    }
+  ],
+  "BROKERAGE": [
+    {
+      "workers": 46,
+      "month": "2026-07",
+      "note": "",
+      "rate": 200,
+      "total": 9200
+    },
+    {
+      "month": "2026-06",
+      "rate": 200,
+      "note": "",
+      "total": 7400,
+      "workers": 37
+    },
+    {
+      "month": "2026-04",
+      "note": "",
+      "total": 5200,
+      "rate": 200,
+      "workers": 26
+    }
+  ],
+  "HISTORY": [
+    {
+      "prop": "עזאי 38",
+      "other": 0,
+      "arnona": 0,
+      "electric": 1251,
+      "rent": 18000,
+      "water": 1500,
+      "tenants": 21,
+      "month": "2025-11",
+      "pph": 0,
+      "income": 28500
+    },
+    {
+      "water": 726,
+      "prop": "נתן הנביא 42",
+      "month": "2025-11",
+      "income": 73400,
+      "tenants": 65,
+      "electric": 5272,
+      "arnona": 2826,
+      "rent": 39000,
+      "other": 0,
+      "pph": 0
+    },
+    {
+      "arnona": 0,
+      "prop": "לבנדה 32",
+      "water": 0,
+      "electric": 0,
+      "tenants": 0,
+      "month": "2025-11",
+      "rent": 105000,
+      "income": 80200,
+      "other": 0,
+      "pph": 1250
+    },
+    {
+      "prop": "עזאי 38",
+      "arnona": 0,
+      "other": 0,
+      "rent": 18000,
+      "water": 1500,
+      "tenants": 21,
+      "month": "2025-12",
+      "pph": 0,
+      "electric": 1500,
+      "income": 28500
+    },
+    {
+      "pph": 0,
+      "other": 0,
+      "rent": 39000,
+      "arnona": 2826,
+      "tenants": 65,
+      "month": "2025-12",
+      "income": 73400,
+      "electric": 5272,
+      "water": 874,
+      "prop": "נתן הנביא 42"
+    },
+    {
+      "arnona": 0,
+      "month": "2025-12",
+      "water": 0,
+      "prop": "לבנדה 32",
+      "pph": 1250,
+      "income": 86650,
+      "tenants": 0,
+      "rent": 105000,
+      "electric": 0,
+      "other": 0
+    },
+    {
+      "other": 0,
+      "rent": 18000,
+      "arnona": 0,
+      "tenants": 21,
+      "prop": "עזאי 38",
+      "pph": 0,
+      "water": 1500,
+      "income": 28500,
+      "month": "2026-01",
+      "electric": 1750
+    },
+    {
+      "prop": "נתן הנביא 42",
+      "other": 0,
+      "income": 73400,
+      "water": 0,
+      "electric": 0,
+      "rent": 39000,
+      "month": "2026-01",
+      "arnona": 2714,
+      "tenants": 65,
+      "pph": 0
+    },
+    {
+      "income": 106650,
+      "pph": 1250,
+      "month": "2026-01",
+      "rent": 133250,
+      "water": 0,
+      "other": 0,
+      "arnona": 0,
+      "electric": 0,
+      "tenants": 0,
+      "prop": "לבנדה 32"
+    },
+    {
+      "prop": "עזאי 38",
+      "tenants": 21,
+      "pph": 0,
+      "income": 28500,
+      "other": 0,
+      "month": "2026-02",
+      "water": 1750,
+      "rent": 18000,
+      "arnona": 0,
+      "electric": 2350
+    },
+    {
+      "prop": "נתן הנביא 42",
+      "other": 0,
+      "electric": 0,
+      "tenants": 65,
+      "income": 73400,
+      "water": 0,
+      "rent": 39000,
+      "month": "2026-02",
+      "arnona": 2714,
+      "pph": 0
+    },
+    {
+      "arnona": 0,
+      "water": 0,
+      "month": "2026-02",
+      "prop": "לבנדה 32",
+      "electric": 0,
+      "pph": 1250,
+      "rent": 105000,
+      "income": 70400,
+      "tenants": 0,
+      "other": 0
+    },
+    {
+      "tenants": 22,
+      "prop": "הירקון 41 ב\"ב",
+      "electric": 0,
+      "arnona": 0,
+      "other": 0,
+      "water": 0,
+      "rent": 25500,
+      "month": "2026-02",
+      "pph": 1250,
+      "income": 31885
+    }
+  ],
+  "clientNextId": 19,
   "CLIENTS": [
     {
       "address": "דרך מנחם בגין 144 תל אביב",
@@ -3380,538 +5540,6 @@
       "accName": ""
     }
   ],
-  "FIXED_COSTS": {},
-  "BROKERAGE": [
-    {
-      "workers": 46,
-      "month": "2026-07",
-      "note": "",
-      "rate": 200,
-      "total": 9200
-    },
-    {
-      "month": "2026-06",
-      "rate": 200,
-      "note": "",
-      "total": 7400,
-      "workers": 37
-    },
-    {
-      "month": "2026-04",
-      "note": "",
-      "total": 5200,
-      "rate": 200,
-      "workers": 26
-    }
-  ],
-  "clientNextId": 19,
-  "MAP_DATA": {
-    "חיים בר לב 104": {
-      "floors": {
-        "1": [
-          {
-            "people": 1,
-            "price": 500,
-            "r": 1,
-            "cost": 0,
-            "company": "פסגת ליאם כ״א בע״מ",
-            "note": "500 ליום"
-          }
-        ]
-      }
-    },
-    "לבנדה 32": {
-      "floors": {
-        "3": [
-          {
-            "people": 2,
-            "cost": 3000,
-            "company": "שיק סין 26 בע",
-            "price": 1550,
-            "note": "",
-            "r": 2
-          },
-          {
-            "company": "י.ע.ר 2023 עובדים זרים בע",
-            "people": 5,
-            "note": "",
-            "price": 1100,
-            "cost": 5350,
-            "r": 3
-          },
-          {
-            "note": "מטבח",
-            "company": "שירות",
-            "r": 4,
-            "price": 1250,
-            "people": 0,
-            "cost": 3000
-          },
-          {
-            "price": 1050,
-            "company": "י.ע.ר 2023 עובדים זרים בע",
-            "cost": 5350,
-            "people": 6,
-            "note": "",
-            "r": 5
-          },
-          {
-            "r": 6,
-            "cost": 5350,
-            "note": "",
-            "price": 1250,
-            "people": 3,
-            "company": "מגיק פאוור בע"
-          },
-          {
-            "note": "",
-            "r": 7,
-            "people": 6,
-            "company": "מגיק פאוור בע",
-            "cost": 5350,
-            "price": 1250
-          },
-          {
-            "note": "",
-            "people": 5,
-            "price": 1200,
-            "r": 8,
-            "cost": 5350,
-            "company": "משביר יעקב בע"
-          },
-          {
-            "people": 6,
-            "price": 1250,
-            "cost": 5350,
-            "company": "י.ע.ר 2023 עובדים זרים בע",
-            "r": 9,
-            "note": ""
-          },
-          {
-            "r": 10,
-            "people": 2,
-            "note": "",
-            "price": 1280,
-            "company": "י.ע.ר 2023 עובדים זרים בע",
-            "cost": 5350
-          },
-          {
-            "note": "",
-            "company": "י.ע.ר 2023 עובדים זרים בע",
-            "people": 6,
-            "price": 1250,
-            "cost": 5350,
-            "r": 11
-          },
-          {
-            "company": "משביר יעקב בע",
-            "cost": 5350,
-            "price": 1200,
-            "r": 13,
-            "people": 6,
-            "note": ""
-          }
-        ],
-        "2": [
-          {
-            "note": "",
-            "company": "בינה עובדים זרים לבניין בע",
-            "price": 1600,
-            "cost": 2730,
-            "people": 2,
-            "r": 1
-          },
-          {
-            "note": "",
-            "company": "אגדאדי הנדסה ובניין בע",
-            "price": 1250,
-            "r": 3,
-            "cost": 5350,
-            "people": 4
-          },
-          {
-            "people": 5,
-            "cost": 5350,
-            "r": 4,
-            "price": 1600,
-            "note": "נסגר מחיר פיקס פרייס עבור החדר 8000",
-            "company": "אריאל אינטרנשיונל כוח אדם לבניה בע"
-          },
-          {
-            "company": "שמרית שרותי עובדים 2023 בע",
-            "note": "",
-            "cost": 5350,
-            "price": 1000,
-            "r": 5,
-            "people": 5
-          },
-          {
-            "note": "",
-            "cost": 5350,
-            "company": "י.ע.ר 2023 עובדים זרים בע",
-            "r": 6,
-            "people": 6,
-            "price": 1050
-          },
-          {
-            "cost": 5350,
-            "r": 7,
-            "note": "",
-            "company": "י.ע.ר 2023 עובדים זרים בע",
-            "price": 1050,
-            "people": 6
-          },
-          {
-            "people": 5,
-            "r": 8,
-            "price": 1400,
-            "note": "",
-            "company": "שמרית שרותי עובדים 2023 בע",
-            "cost": 5350
-          },
-          {
-            "cost": 5350,
-            "company": "י.ע.ר 2023 עובדים זרים בע",
-            "r": 9,
-            "note": "",
-            "price": 1050,
-            "people": 6
-          },
-          {
-            "people": 6,
-            "note": "",
-            "company": "י.ע.ר 2023 עובדים זרים בע",
-            "cost": 5350,
-            "price": 1050,
-            "r": 10
-          },
-          {
-            "company": "י.ע.ר 2023 עובדים זרים בע",
-            "r": 11,
-            "cost": 5350,
-            "price": 1050,
-            "people": 6,
-            "note": ""
-          },
-          {
-            "r": 12,
-            "note": "",
-            "company": "י.ע.ר 2023 עובדים זרים בע",
-            "people": 6,
-            "cost": 5350,
-            "price": 1050
-          }
-        ],
-        "1": [
-          {
-            "cost": 5350,
-            "people": 6,
-            "company": "י.ע.ר 2023 עובדים זרים בע",
-            "note": "",
-            "price": 1050,
-            "r": 1
-          },
-          {
-            "people": 6,
-            "r": 3,
-            "cost": 5350,
-            "price": 1050,
-            "company": "י.ע.ר 2023 עובדים זרים בע",
-            "note": ""
-          },
-          {
-            "cost": 5350,
-            "price": 1050,
-            "company": "י.ע.ר 2023 עובדים זרים בע",
-            "people": 6,
-            "r": 4,
-            "note": ""
-          },
-          {
-            "note": "חדר שירות — יער",
-            "people": 1,
-            "r": 5,
-            "price": 4840,
-            "cost": 2730,
-            "company": "י.ע.ר 2023 עובדים זרים בע"
-          }
-        ]
-      }
-    },
-    "הירקון 41 ב\"ב": {
-      "floors": {
-        "2": [
-          {
-            "people": 5,
-            "cost": 4322,
-            "price": 1200,
-            "company": "אריאל אינטרנשיונל כוח אדם לבניה בע",
-            "r": 5,
-            "note": "תאילנדים"
-          },
-          {
-            "note": "חדר שירות ומטבח: 2 מכונות כביסה+מטבח+פינת ישיבה+מחסן ",
-            "people": 0,
-            "r": 6,
-            "price": 1500,
-            "cost": 1271,
-            "company": ""
-          },
-          {
-            "r": 7,
-            "cost": 4322,
-            "people": 4,
-            "note": "תאילנדים",
-            "price": 1375,
-            "company": "אריאל אינטרנשיונל כוח אדם לבניה בע"
-          },
-          {
-            "note": "",
-            "people": 5,
-            "company": "סחלב (אמון) ניהול פרויקטים בע",
-            "price": 1250,
-            "cost": 4322,
-            "r": 9
-          },
-          {
-            "r": 10,
-            "cost": 4322,
-            "people": 5,
-            "note": "",
-            "price": 1250,
-            "company": "סחלב (אמון) ניהול פרויקטים בע"
-          },
-          {
-            "people": 5,
-            "company": "סחלב (אמון) ניהול פרויקטים בע",
-            "note": "",
-            "r": 11,
-            "price": 1250,
-            "cost": 4322
-          },
-          {
-            "cost": 4322,
-            "company": "סחלב (אמון) ניהול פרויקטים בע",
-            "note": "",
-            "price": 1250,
-            "people": 5,
-            "r": 14
-          },
-          {
-            "r": 12,
-            "people": 5,
-            "company": "סחלב (אמון) ניהול פרויקטים בע",
-            "cost": 4322,
-            "price": 1250,
-            "note": ""
-          }
-        ]
-      }
-    },
-    "עזאי 38": {
-      "floors": {
-        "3": [
-          {
-            "people": 6,
-            "cost": 3600,
-            "price": 1300,
-            "r": 1,
-            "company": "סחלב (אמון) ניהול פרויקטים בע",
-            "note": "מתאים ל6 איש "
-          }
-        ],
-        "1": [
-          {
-            "r": 1,
-            "note": "מתאים ל6 איש ",
-            "company": "סחלב (אמון) ניהול פרויקטים בע",
-            "people": 6,
-            "cost": 3600,
-            "price": 1300
-          }
-        ],
-        "2": [
-          {
-            "r": 1,
-            "cost": 3600,
-            "note": "מתאים ל6 איש ",
-            "price": 1300,
-            "people": 6,
-            "company": "סחלב (אמון) ניהול פרויקטים בע"
-          }
-        ],
-        "-1": [
-          {
-            "cost": 2400,
-            "price": 1300,
-            "r": 1,
-            "company": "סחלב (אמון) ניהול פרויקטים בע",
-            "people": 4,
-            "note": "מרתף ימני מתאים ל4 איש "
-          },
-          {
-            "note": "מרתף אמצעי — מטבח מתאים ל4",
-            "price": 1300,
-            "r": 2,
-            "people": 4,
-            "company": "סחלב (אמון) ניהול פרויקטים בע",
-            "cost": 2400
-          },
-          {
-            "people": 0,
-            "price": 0,
-            "note": "מרתף שמאלי-מתאים ל4 ",
-            "r": 3,
-            "cost": 2400,
-            "company": ""
-          }
-        ],
-        "4": []
-      }
-    },
-    "נתן הנביא 42": {
-      "floors": {
-        "1": [
-          {
-            "company": "סחלב (אמון) ניהול פרויקטים בע",
-            "note": "חדר ל4 איש ",
-            "r": 1,
-            "price": 1300,
-            "cost": 2000,
-            "people": 4
-          },
-          {
-            "company": "י.ע.ר 2023 עובדים זרים בע",
-            "note": "חדר ל6 איש ",
-            "cost": 3000,
-            "people": 6,
-            "r": 2,
-            "price": 1200
-          },
-          {
-            "r": 3,
-            "people": 4,
-            "cost": 2000,
-            "price": 1300,
-            "company": "תקומה תאגיד כוח אדם בע״מ",
-            "note": "חדר ל4 איש "
-          },
-          {
-            "note": "חדר ל6 איש ",
-            "price": 1200,
-            "company": "י.ע.ר 2023 עובדים זרים בע",
-            "people": 6,
-            "r": 4,
-            "cost": 3000
-          },
-          {
-            "note": "חדר ל6 איש ",
-            "company": "אגדאדי הנדסה ובניין בע",
-            "people": 4,
-            "r": 5,
-            "cost": 3000,
-            "price": 1250
-          },
-          {
-            "price": 1300,
-            "note": "חדר ל6 איש ",
-            "company": "סחלב (אמון) ניהול פרויקטים בע",
-            "r": 6,
-            "people": 6,
-            "cost": 3000
-          },
-          {
-            "people": 4,
-            "cost": 1500,
-            "company": "אריאל אינטרנשיונל כוח אדם לבניה בע",
-            "price": 1200,
-            "r": 7,
-            "note": "חדר ל3 איש "
-          },
-          {
-            "price": 1300,
-            "cost": 3000,
-            "company": "סחלב (אמון) ניהול פרויקטים בע",
-            "people": 6,
-            "note": "חדר ל6 איש ",
-            "r": 8
-          },
-          {
-            "note": "חדר ל6 איש ",
-            "r": 9,
-            "price": 1200,
-            "company": "י.ע.ר 2023 עובדים זרים בע",
-            "cost": 3000,
-            "people": 6
-          },
-          {
-            "cost": 1500,
-            "company": "האיקלי אריאל כ",
-            "people": 2,
-            "price": 1275,
-            "note": "חדר ל 2 איש ",
-            "r": 10
-          },
-          {
-            "people": 4,
-            "price": 1200,
-            "r": 11,
-            "cost": 3000,
-            "company": "י.ע.ר 2023 עובדים זרים בע",
-            "note": "חדר ל6 איש "
-          },
-          {
-            "note": "חדר ל6 איש ",
-            "people": 4,
-            "r": 12,
-            "cost": 3000,
-            "company": "אריאל אינטרנשיונל כוח אדם לבניה בע",
-            "price": 1200
-          },
-          {
-            "company": "האיקלי אריאל כ",
-            "price": 1275,
-            "r": 13,
-            "cost": 1000,
-            "people": 3,
-            "note": "חדר ל2 איש "
-          },
-          {
-            "cost": 2000,
-            "people": 4,
-            "company": "סחלב (אמון) ניהול פרויקטים בע",
-            "r": 14,
-            "note": "חדר ל4 איש",
-            "price": 1300
-          },
-          {
-            "note": "חדר ל6 איש ",
-            "r": 15,
-            "price": 1250,
-            "company": "אחד עשרה כוח אדם בע",
-            "people": 2,
-            "cost": 3000
-          },
-          {
-            "cost": 0,
-            "company": "שירות",
-            "price": 0,
-            "note": "",
-            "people": 0,
-            "r": 16
-          },
-          {
-            "cost": 2000,
-            "price": 1300,
-            "r": 17,
-            "company": "סחלב (אמון) ניהול פרויקטים בע",
-            "people": 4,
-            "note": "חדר ל4 איש "
-          }
-        ]
-      }
-    }
-  },
   "TENANTS": [
     {
       "floor": 1,
@@ -4464,1634 +6092,6 @@
       "from": "2026-09-22"
     }
   ],
-  "MOVEMENTS": [
-    {
-      "id": 176,
-      "type": "exit",
-      "prop": "לבנדה 32",
-      "floor": 3,
-      "room": 6,
-      "company": "מגיק פאוור בע",
-      "people": 1,
-      "date": "2026-10-09",
-      "note": "יציאה של פועל 1 "
-    },
-    {
-      "prop": "חיים בר לב 104",
-      "company": "פסגת ליאם כ״א בע״מ",
-      "floor": 1,
-      "date": "2026-10-05",
-      "room": 1,
-      "people": 1,
-      "id": 175,
-      "type": "entry",
-      "note": "500 יומי"
-    },
-    {
-      "date": "2026-09-29",
-      "room": 3,
-      "floor": 2,
-      "prop": "לבנדה 32",
-      "note": "",
-      "type": "entry",
-      "people": 2,
-      "company": "אגדאדי הנדסה ובניין בע",
-      "id": 174
-    },
-    {
-      "people": 1,
-      "type": "exit",
-      "note": "",
-      "floor": 1,
-      "id": 173,
-      "prop": "נתן הנביא 42",
-      "company": "פריוריטי כח אדם בע",
-      "date": "2026-10-01",
-      "room": 15
-    },
-    {
-      "prop": "נתן הנביא 42",
-      "floor": 1,
-      "date": "2026-09-24",
-      "room": 10,
-      "people": 2,
-      "company": "האיקלי אריאל כ",
-      "id": 171,
-      "note": "",
-      "type": "entry"
-    },
-    {
-      "id": 167,
-      "room": 3,
-      "date": "2026-09-22",
-      "people": 1,
-      "prop": "נתן הנביא 42",
-      "floor": 1,
-      "type": "entry",
-      "note": "",
-      "company": "תקומה תאגיד כוח אדם בע״מ"
-    },
-    {
-      "company": "בס",
-      "note": "סינים מחיר קבוע של 11500",
-      "floor": 1,
-      "type": "entry",
-      "people": 8,
-      "date": "2026-09-22",
-      "room": 1,
-      "id": 165,
-      "prop": "חיים בר לב 104"
-    },
-    {
-      "prop": "עזאי 38",
-      "date": "2026-09-07",
-      "room": 1,
-      "company": "סחלב (אמון) ניהול פרויקטים בע",
-      "floor": 1,
-      "people": 26,
-      "note": "כניסה של 26 פועלים של סחלב ",
-      "id": 160,
-      "type": "entry"
-    },
-    {
-      "people": 11,
-      "company": "ח.ח.א",
-      "type": "exit",
-      "note": "",
-      "floor": 1,
-      "prop": "חיים בר לב 104",
-      "id": 155,
-      "date": "2026-09-06",
-      "room": 1
-    },
-    {
-      "people": 25,
-      "floor": 1,
-      "type": "entry",
-      "note": "כניסה של 25 איש עבור סחלב ",
-      "company": "ויינשטוק זהבי משרד עורכי דין",
-      "date": "2026-09-03",
-      "id": 148,
-      "room": 1,
-      "prop": "נתן הנביא 42"
-    },
-    {
-      "prop": "נתן הנביא 42",
-      "floor": 1,
-      "date": "2026-09-04",
-      "room": 15,
-      "id": 143,
-      "people": 1,
-      "company": "פריוריטי כח אדם בע",
-      "type": "entry",
-      "note": ""
-    },
-    {
-      "type": "entry",
-      "note": "",
-      "id": 142,
-      "company": "פריוריטי כח אדם בע",
-      "floor": 1,
-      "room": 15,
-      "people": 2,
-      "date": "2026-09-01",
-      "prop": "נתן הנביא 42"
-    },
-    {
-      "type": "entry",
-      "company": "אגדאדי הנדסה ובניין בע",
-      "floor": 1,
-      "note": "זמני עד סוף החודש ואז עוברים ללבנדה ",
-      "date": "2026-07-12",
-      "people": 6,
-      "room": 16,
-      "id": 129,
-      "prop": "נתן הנביא 42"
-    },
-    {
-      "people": 4,
-      "floor": 2,
-      "note": "יקחו בתחילת חודש אוגוסט את חדר 3 קומה 3 ויכניסו לשם עוד 6 איש ",
-      "id": 128,
-      "type": "entry",
-      "company": "אגדאדי הנדסה ובניין בע",
-      "prop": "לבנדה 32",
-      "room": 3,
-      "date": "2026-07-11"
-    },
-    {
-      "id": 126,
-      "prop": "לבנדה 32",
-      "room": 3,
-      "date": "2026-07-10",
-      "people": 4,
-      "type": "exit",
-      "floor": 2,
-      "company": "קורפו בניה בע",
-      "note": "יציאה של קורפו "
-    },
-    {
-      "room": 7,
-      "date": "2026-07-10",
-      "id": 125,
-      "prop": "לבנדה 32",
-      "floor": 3,
-      "type": "exit",
-      "note": "יציאת פועל 1",
-      "company": "מגיק פאוור בע",
-      "people": 1
-    },
-    {
-      "type": "entry",
-      "company": "י.ע.ר 2023 עובדים זרים בע",
-      "floor": 3,
-      "note": "כניסה של יער& יציאה של שיק צין",
-      "date": "2026-06-28",
-      "people": 6,
-      "id": 124,
-      "room": 9,
-      "prop": "לבנדה 32"
-    },
-    {
-      "company": "י.ע.ר 2023 עובדים זרים בע",
-      "note": "כניסה של פועלי יער",
-      "type": "entry",
-      "id": 123,
-      "floor": 3,
-      "prop": "לבנדה 32",
-      "people": 6,
-      "room": 11,
-      "date": "2026-06-23"
-    },
-    {
-      "prop": "לבנדה 32",
-      "room": 9,
-      "date": "2026-06-27",
-      "id": 122,
-      "company": "שיק סין 26 בע",
-      "note": "הדירה תהיה ריקה",
-      "type": "exit",
-      "floor": 3,
-      "people": 5
-    },
-    {
-      "company": "מגיק פאוור בע",
-      "prop": "לבנדה 32",
-      "date": "2026-06-16",
-      "room": 7,
-      "floor": 3,
-      "id": 121,
-      "people": 1,
-      "note": "יציאת עובד בודד מגיק פאוור מהחדר של ה8 אנשים ",
-      "type": "exit"
-    },
-    {
-      "room": 7,
-      "people": 4,
-      "date": "2026-05-31",
-      "id": 117,
-      "prop": "הירקון 41 ב\"ב",
-      "company": "קורל ב. פרויקטים בע",
-      "floor": 2,
-      "note": "כניסת הפועלים מחדר 6 אל חדר 7 ",
-      "type": "entry"
-    },
-    {
-      "prop": "הירקון 41 ב\"ב",
-      "people": 4,
-      "floor": 2,
-      "date": "2026-05-31",
-      "room": 6,
-      "id": 116,
-      "type": "exit",
-      "company": "קורל ב. פרויקטים בע",
-      "note": "מעבר אל חדר 7 מחדר 6 אשר נהיה כחדר שירות "
-    },
-    {
-      "type": "exit",
-      "note": "",
-      "people": 3,
-      "id": 115,
-      "floor": 2,
-      "company": "שמרית שרותי עובדים 2023 בע",
-      "room": 7,
-      "date": "2026-05-30",
-      "prop": "הירקון 41 ב\"ב"
-    },
-    {
-      "prop": "לבנדה 32",
-      "id": 114,
-      "people": 5,
-      "room": 8,
-      "floor": 3,
-      "date": "2026-05-21",
-      "company": "משביר יעקב בע",
-      "type": "entry",
-      "note": ""
-    },
-    {
-      "type": "exit",
-      "note": "",
-      "company": "ח.ח.א",
-      "people": 5,
-      "date": "2026-05-07",
-      "floor": 2,
-      "room": 10,
-      "id": 111,
-      "prop": "הירקון 41 ב\"ב"
-    },
-    {
-      "note": "נאפלים",
-      "type": "entry",
-      "people": 2,
-      "id": 108,
-      "room": 12,
-      "floor": 2,
-      "date": "2026-05-15",
-      "company": "ויינשטוק זהבי משרד עורכי דין",
-      "prop": "הירקון 41 ב\"ב"
-    },
-    {
-      "prop": "הירקון 41 ב\"ב",
-      "id": 106,
-      "company": "ויינשטוק זהבי משרד עורכי דין",
-      "room": 14,
-      "date": "2026-05-15",
-      "type": "entry",
-      "floor": 2,
-      "note": "נאפלים",
-      "people": 6
-    },
-    {
-      "company": "ויינשטוק זהבי משרד עורכי דין",
-      "note": "נאפלים",
-      "type": "entry",
-      "date": "2026-05-15",
-      "room": 10,
-      "floor": 2,
-      "id": 105,
-      "people": 6,
-      "prop": "הירקון 41 ב\"ב"
-    },
-    {
-      "room": 9,
-      "id": 103,
-      "date": "2026-05-15",
-      "prop": "הירקון 41 ב\"ב",
-      "people": 6,
-      "type": "entry",
-      "note": "נאפלים",
-      "company": "ויינשטוק זהבי משרד עורכי דין",
-      "floor": 2
-    },
-    {
-      "id": 102,
-      "room": 11,
-      "date": "2026-05-08",
-      "company": "ויינשטוק זהבי משרד עורכי דין",
-      "prop": "הירקון 41 ב\"ב",
-      "floor": 2,
-      "type": "entry",
-      "note": "נאפלים",
-      "people": 6
-    },
-    {
-      "people": 4,
-      "floor": 2,
-      "type": "entry",
-      "note": "",
-      "id": 1,
-      "prop": "לבנדה 32",
-      "date": "2026-01-28",
-      "company": "משביר יעקב",
-      "room": 4
-    },
-    {
-      "note": "",
-      "company": "שמרית",
-      "type": "entry",
-      "id": 2,
-      "room": 8,
-      "floor": 2,
-      "date": "2026-01-31",
-      "people": 3,
-      "prop": "לבנדה 32"
-    },
-    {
-      "type": "entry",
-      "people": 3,
-      "note": "",
-      "id": 3,
-      "floor": 2,
-      "room": 5,
-      "date": "2026-01-18",
-      "prop": "הירקון 41 ב\"ב",
-      "company": "שיק צין"
-    },
-    {
-      "date": "2026-02-19",
-      "room": 10,
-      "people": 5,
-      "floor": 2,
-      "prop": "הירקון 41 ב\"ב",
-      "note": "",
-      "type": "entry",
-      "id": 4,
-      "company": "ח.ח.א"
-    },
-    {
-      "room": 1,
-      "date": "2026-02-18",
-      "id": 5,
-      "prop": "לבנדה 32",
-      "floor": 2,
-      "note": "תוספת מולדובני",
-      "type": "entry",
-      "people": 1,
-      "company": "בינה"
-    }
-  ],
-  "EXPENSES": [
-    {
-      "id": 1,
-      "prop": "כללי",
-      "total": 169.9,
-      "invoice": "4002002615",
-      "date": "2025-12-08",
-      "desc": "ציוד כללי"
-    },
-    {
-      "prop": "כללי",
-      "id": 2,
-      "date": "2026-01-01",
-      "invoice": "264019554",
-      "desc": "תשלום שונות",
-      "total": 815
-    },
-    {
-      "total": 383,
-      "prop": "לבנדה 32",
-      "invoice": "13919",
-      "id": 3,
-      "date": "2026-01-07",
-      "desc": "שיפוץ"
-    },
-    {
-      "total": 6500,
-      "date": "2026-01-14",
-      "desc": "ציוד ורהיטים",
-      "id": 4,
-      "invoice": "977",
-      "prop": "לבנדה 32"
-    },
-    {
-      "total": 1577.5,
-      "date": "2026-02-03",
-      "desc": "אחזקה כללית",
-      "invoice": "266018062",
-      "id": 5,
-      "prop": "כללי"
-    },
-    {
-      "date": "2026-02-02",
-      "id": 6,
-      "total": 550,
-      "desc": "ניקוי",
-      "invoice": "מזומן",
-      "prop": "הירקון 41 ב\"ב"
-    },
-    {
-      "invoice": "מזומן",
-      "prop": "לבנדה 32",
-      "date": "2026-02-03",
-      "id": 7,
-      "desc": "שיפוץ חדר 1 קומה 2",
-      "total": 450
-    },
-    {
-      "id": 8,
-      "prop": "לבנדה 32",
-      "invoice": "26502896",
-      "date": "2026-02-11",
-      "desc": "תיקונים שונים",
-      "total": 2200
-    },
-    {
-      "invoice": "מזומן",
-      "prop": "כללי",
-      "total": 5000,
-      "id": 9,
-      "desc": "טיפול+ביטוח+טסט לטוסטוס",
-      "date": "2026-03-09"
-    },
-    {
-      "total": 7000,
-      "date": "2026-03-16",
-      "desc": "דמי תיווך — חודש ראשון",
-      "invoice": "",
-      "id": 10,
-      "prop": "חיים בר לב 104"
-    },
-    {
-      "prop": "חיים בר לב 104",
-      "id": 11,
-      "invoice": "ביטחון",
-      "date": "2026-03-16",
-      "total": 7000,
-      "desc": "צ׳ק ביטחון"
-    },
-    {
-      "id": 100,
-      "prop": "הירקון 41 ב\"ב",
-      "date": "2026-05-10",
-      "invoice": "000303006692",
-      "total": 445,
-      "desc": "חומרי ניקוי וריסוס לירקון חדר 10"
-    },
-    {
-      "id": 101,
-      "prop": "הירקון 41 ב\"ב",
-      "total": 600,
-      "desc": "תשלום יומי לנועם אלקסלסי ",
-      "date": "2026-05-10",
-      "invoice": ""
-    },
-    {
-      "date": "2026-05-19",
-      "id": 113,
-      "invoice": "RAV0260008104",
-      "desc": "טלפון סלולר SAMSUNG GALAXY A16 שחור, כיסוי אחורי BAROS A16 SAMSUNG שקוף",
-      "total": 594,
-      "prop": "כללי"
-    },
-    {
-      "prop": "חיים בר לב 104",
-      "date": "2026-06-20",
-      "desc": "אקדח, דבק, מסר",
-      "id": 118,
-      "invoice": "271516",
-      "total": 78
-    },
-    {
-      "id": 119,
-      "date": "2026-06-20",
-      "desc": "דלוג תפוח",
-      "total": 280,
-      "prop": "כללי",
-      "invoice": "51639642"
-    }
-  ],
-  "INVOICE_TRACK": [
-    {
-      "issued": true,
-      "client": "י.ע.ר 2023",
-      "paidDate": "",
-      "amount": 117300,
-      "month": "2026-06",
-      "paid": false,
-      "issuedDate": "2026-06-21",
-      "paidAmount": 0
-    },
-    {
-      "paidDate": "",
-      "amount": 3200,
-      "paidAmount": 0,
-      "issuedDate": "2026-06-21",
-      "issued": true,
-      "month": "2026-06",
-      "client": "בינה",
-      "paid": false
-    },
-    {
-      "paid": false,
-      "month": "2026-06",
-      "amount": 12000,
-      "paidDate": "",
-      "client": "שמרית",
-      "paidAmount": 0,
-      "issuedDate": "2026-06-21",
-      "issued": true
-    },
-    {
-      "amount": 8725,
-      "issued": true,
-      "client": "שיק סין",
-      "issuedDate": "2026-06-21",
-      "paidAmount": 0,
-      "paidDate": "",
-      "paid": false,
-      "month": "2026-06"
-    },
-    {
-      "amount": 14500,
-      "issuedDate": "2026-06-21",
-      "paidAmount": 0,
-      "issued": true,
-      "client": "ח.ח.א",
-      "paidDate": "",
-      "paid": false,
-      "month": "2026-06"
-    },
-    {
-      "paidDate": "",
-      "amount": 13167,
-      "issuedDate": "2026-06-21",
-      "paidAmount": 0,
-      "issued": true,
-      "paid": false,
-      "month": "2026-06",
-      "client": "ניו פאוור / מגיק"
-    },
-    {
-      "month": "2026-06",
-      "issued": true,
-      "paid": false,
-      "client": "משביר יעקב",
-      "paidDate": "",
-      "amount": 13200,
-      "issuedDate": "2026-06-21",
-      "paidAmount": 0
-    },
-    {
-      "month": "2026-06",
-      "paid": false,
-      "issuedDate": "2026-06-21",
-      "paidAmount": 0,
-      "client": "קורל — תיווך עובדים",
-      "issued": true,
-      "paidDate": "",
-      "amount": 7400
-    },
-    {
-      "paidDate": "",
-      "month": "2026-06",
-      "paid": false,
-      "client": "אגדאדי הנדסה ובניין בע",
-      "issuedDate": "",
-      "issued": false,
-      "paidAmount": 0,
-      "amount": 10000
-    },
-    {
-      "client": "עזאי 38 (פיקס)",
-      "month": "2026-07",
-      "issued": false,
-      "paid": false,
-      "issuedDate": "",
-      "paidAmount": 0,
-      "amount": 28500,
-      "paidDate": ""
-    },
-    {
-      "paid": false,
-      "paidDate": "",
-      "paidAmount": 0,
-      "issuedDate": "",
-      "month": "2026-07",
-      "amount": 73400,
-      "client": "נתן הנביא 42 (פיקס)",
-      "issued": false
-    },
-    {
-      "paid": false,
-      "month": "2026-07",
-      "client": "י.ע.ר 2023",
-      "issued": false,
-      "amount": 85400,
-      "issuedDate": "",
-      "paidAmount": 0,
-      "paidDate": ""
-    },
-    {
-      "month": "2026-07",
-      "issued": false,
-      "paid": false,
-      "client": "בינה",
-      "issuedDate": "",
-      "paidAmount": 0,
-      "amount": 3200,
-      "paidDate": ""
-    },
-    {
-      "month": "2026-07",
-      "issuedDate": "",
-      "paidAmount": 0,
-      "paid": false,
-      "paidDate": "",
-      "client": "אגדאדי הנדסה ובניין בע",
-      "issued": false,
-      "amount": 10000
-    },
-    {
-      "amount": 19500,
-      "issued": false,
-      "client": "קורל — שכירות",
-      "paid": false,
-      "paidAmount": 0,
-      "issuedDate": "",
-      "paidDate": "",
-      "month": "2026-07"
-    },
-    {
-      "manualAmount": true,
-      "paidAmount": 12000,
-      "paidDate": "2026-07-20",
-      "note": "",
-      "issuedDate": "2026-07-20",
-      "paid": true,
-      "amount": 12000,
-      "client": "שמרית",
-      "issued": true,
-      "month": "2026-07"
-    },
-    {
-      "amount": 3100,
-      "client": "שיק סין",
-      "issued": false,
-      "paid": false,
-      "month": "2026-07",
-      "paidDate": "",
-      "paidAmount": 0,
-      "issuedDate": ""
-    },
-    {
-      "paidDate": "",
-      "month": "2026-07",
-      "issuedDate": "2026-07-20",
-      "paid": false,
-      "client": "ח.ח.א",
-      "issued": true,
-      "manualAmount": true,
-      "amount": 19750,
-      "note": "",
-      "paidAmount": 0
-    },
-    {
-      "paidDate": "",
-      "issuedDate": "",
-      "paidAmount": 0,
-      "paid": false,
-      "amount": 12903,
-      "month": "2026-07",
-      "client": "ניו פאוור / מגיק",
-      "issued": false
-    },
-    {
-      "paidAmount": 0,
-      "issuedDate": "",
-      "paid": false,
-      "amount": 13200,
-      "month": "2026-07",
-      "issued": false,
-      "paidDate": "",
-      "client": "משביר יעקב"
-    },
-    {
-      "issued": false,
-      "client": "ויינשטוק זהבי משרד עורכי דין",
-      "amount": 32500,
-      "paidDate": "",
-      "month": "2026-07",
-      "issuedDate": "",
-      "paidAmount": 0,
-      "paid": false
-    },
-    {
-      "client": "קורל — תיווך עובדים",
-      "issued": false,
-      "month": "2026-07",
-      "amount": 9200,
-      "paid": false,
-      "paidAmount": 0,
-      "issuedDate": "",
-      "paidDate": ""
-    },
-    {
-      "amount": 1613,
-      "paid": false,
-      "month": "2026-07",
-      "issued": false,
-      "paidDate": "",
-      "issuedDate": "",
-      "paidAmount": 0,
-      "client": "קורפו"
-    },
-    {
-      "issuedDate": "",
-      "issued": false,
-      "paidAmount": 0,
-      "client": "אריאל אינטרנשיונל כוח אדם לבניה בע",
-      "amount": 29100,
-      "month": "2026-06",
-      "paid": false,
-      "paidDate": ""
-    },
-    {
-      "amount": 5200,
-      "paid": false,
-      "client": "תקומה תאגיד כוח אדם בע״מ",
-      "issued": false,
-      "paidAmount": 0,
-      "issuedDate": "",
-      "month": "2026-06",
-      "paidDate": ""
-    },
-    {
-      "month": "2026-09",
-      "issued": false,
-      "paid": false,
-      "paidDate": "",
-      "client": "י.ע.ר 2023",
-      "amount": 117300,
-      "paidAmount": 0,
-      "issuedDate": ""
-    },
-    {
-      "client": "בינה",
-      "paid": false,
-      "issued": true,
-      "issuedDate": "2026-09-06",
-      "amount": 3200,
-      "month": "2026-09",
-      "paidDate": "",
-      "paidAmount": 0,
-      "note": "חן 0056",
-      "manualAmount": true
-    },
-    {
-      "paidDate": "",
-      "month": "2026-09",
-      "issued": false,
-      "client": "אגדאדי הנדסה ובניין בע",
-      "paid": false,
-      "amount": 15000,
-      "paidAmount": 0,
-      "issuedDate": ""
-    },
-    {
-      "month": "2026-09",
-      "paid": false,
-      "paidAmount": 0,
-      "manualAmount": true,
-      "note": "חן 0061",
-      "issued": true,
-      "client": "אריאל אינטרנשיונל כוח אדם לבניה בע",
-      "amount": 29100,
-      "issuedDate": "2026-09-06",
-      "paidDate": ""
-    },
-    {
-      "note": "חן 0055",
-      "manualAmount": true,
-      "paidAmount": 0,
-      "paid": false,
-      "amount": 12000,
-      "client": "שמרית",
-      "issued": true,
-      "month": "2026-09",
-      "issuedDate": "2026-09-06",
-      "paidDate": ""
-    },
-    {
-      "month": "2026-09",
-      "paid": false,
-      "manualAmount": true,
-      "issuedDate": "2026-09-06",
-      "note": "חן 0057",
-      "client": "שיק סין",
-      "issued": true,
-      "paidAmount": 0,
-      "paidDate": "",
-      "amount": 3100
-    },
-    {
-      "client": "ניו פאוור / מגיק",
-      "issued": true,
-      "paid": false,
-      "paidAmount": 0,
-      "amount": 12500,
-      "month": "2026-09",
-      "paidDate": "",
-      "issuedDate": "2026-09-06",
-      "note": "חן 0054",
-      "manualAmount": true
-    },
-    {
-      "paidAmount": 0,
-      "paidDate": "",
-      "paid": false,
-      "manualAmount": true,
-      "issued": true,
-      "client": "משביר יעקב",
-      "month": "2026-09",
-      "amount": 13200,
-      "issuedDate": "2026-09-06",
-      "note": "חן 0052"
-    },
-    {
-      "paid": false,
-      "month": "2026-09",
-      "amount": 126000,
-      "issuedDate": "",
-      "paidAmount": 0,
-      "paidDate": "",
-      "client": "ויינשטוק זהבי משרד עורכי דין",
-      "issued": false
-    },
-    {
-      "issuedDate": "2026-09-06",
-      "manualAmount": true,
-      "amount": 3900,
-      "note": "חן 0059",
-      "issued": true,
-      "month": "2026-09",
-      "client": "תקומה תאגיד כוח אדם בע״מ",
-      "paidDate": "",
-      "paidAmount": 0,
-      "paid": false
-    },
-    {
-      "paidAmount": 0,
-      "note": "חן 060",
-      "month": "2026-09",
-      "issuedDate": "2026-09-06",
-      "paidDate": "",
-      "amount": 3750,
-      "manualAmount": true,
-      "paid": false,
-      "issued": true,
-      "client": "פריוריטי כח אדם בע"
-    },
-    {
-      "amount": 15000,
-      "issued": true,
-      "client": "ח.ח.א",
-      "paidDate": "",
-      "note": "חן 0053",
-      "issuedDate": "2026-09-06",
-      "manualAmount": true,
-      "paid": false,
-      "month": "2026-09",
-      "paidAmount": 0
-    },
-    {
-      "paidDate": "",
-      "paid": false,
-      "paidAmount": 0,
-      "issuedDate": "",
-      "amount": 96250,
-      "month": "2026-06",
-      "issued": false,
-      "client": "סחלב (אמון) ניהול פרויקטים בע"
-    },
-    {
-      "amount": 6375,
-      "client": "האיקלי אריאל כ",
-      "paid": false,
-      "paidDate": "",
-      "issued": false,
-      "issuedDate": "",
-      "paidAmount": 0,
-      "month": "2026-06"
-    },
-    {
-      "paid": false,
-      "amount": 2500,
-      "client": "אחד עשרה כוח אדם בע",
-      "paidDate": "",
-      "issued": false,
-      "month": "2026-06",
-      "issuedDate": "",
-      "paidAmount": 0
-    },
-    {
-      "paidAmount": 0,
-      "manualAmount": true,
-      "paid": false,
-      "issuedDate": "2026-10-08",
-      "issued": true,
-      "client": "י.ע.ר 2023",
-      "amount": 117300,
-      "month": "2026-10",
-      "note": "הופקה חן עס 119444 + מעמ",
-      "paidDate": ""
-    },
-    {
-      "issuedDate": "2026-10-08",
-      "paidDate": "",
-      "note": "",
-      "manualAmount": true,
-      "amount": 3200,
-      "paidAmount": 0,
-      "issued": true,
-      "client": "בינה",
-      "paid": false,
-      "month": "2026-10"
-    },
-    {
-      "paid": false,
-      "paidAmount": 0,
-      "issuedDate": "",
-      "amount": 10000,
-      "client": "אגדאדי הנדסה ובניין בע",
-      "issued": false,
-      "month": "2026-10",
-      "paidDate": ""
-    },
-    {
-      "month": "2026-10",
-      "paidDate": "",
-      "paid": false,
-      "paidAmount": 0,
-      "note": "",
-      "manualAmount": true,
-      "issuedDate": "2026-10-08",
-      "client": "אריאל אינטרנשיונל כוח אדם לבניה בע",
-      "issued": true,
-      "amount": 29100
-    },
-    {
-      "manualAmount": true,
-      "paidAmount": 0,
-      "paid": false,
-      "issued": true,
-      "client": "שמרית",
-      "issuedDate": "2026-10-08",
-      "amount": 12000,
-      "month": "2026-10",
-      "paidDate": "",
-      "note": ""
-    },
-    {
-      "paid": false,
-      "month": "2026-10",
-      "client": "שיק סין",
-      "issued": true,
-      "amount": 3100,
-      "issuedDate": "2026-10-08",
-      "paidDate": "",
-      "manualAmount": true,
-      "note": "",
-      "paidAmount": 0
-    },
-    {
-      "issuedDate": "2026-10-08",
-      "paidDate": "",
-      "note": "",
-      "amount": 12500,
-      "issued": true,
-      "manualAmount": true,
-      "paidAmount": 0,
-      "client": "ניו פאוור / מגיק",
-      "paid": false,
-      "month": "2026-10"
-    },
-    {
-      "client": "משביר יעקב",
-      "issued": true,
-      "paid": false,
-      "amount": 13200,
-      "paidAmount": 0,
-      "note": "",
-      "month": "2026-10",
-      "manualAmount": true,
-      "paidDate": "",
-      "issuedDate": "2026-10-08"
-    },
-    {
-      "amount": 96250,
-      "paidAmount": 0,
-      "paidDate": "",
-      "issued": true,
-      "client": "סחלב (אמון) ניהול פרויקטים בע",
-      "note": "",
-      "manualAmount": true,
-      "issuedDate": "2026-10-08",
-      "paid": false,
-      "month": "2026-10"
-    },
-    {
-      "paid": false,
-      "paidAmount": 0,
-      "manualAmount": true,
-      "paidDate": "",
-      "client": "תקומה תאגיד כוח אדם בע״מ",
-      "month": "2026-10",
-      "issued": true,
-      "amount": 5200,
-      "note": "",
-      "issuedDate": "2026-10-08"
-    },
-    {
-      "paidAmount": 0,
-      "manualAmount": true,
-      "paidDate": "",
-      "note": "",
-      "month": "2026-10",
-      "issuedDate": "2026-10-08",
-      "amount": 6375,
-      "paid": false,
-      "issued": true,
-      "client": "האיקלי אריאל כ"
-    },
-    {
-      "note": "",
-      "paidDate": "",
-      "month": "2026-10",
-      "amount": 2500,
-      "issuedDate": "2026-10-08",
-      "client": "אחד עשרה כוח אדם בע",
-      "issued": true,
-      "paid": false,
-      "manualAmount": true,
-      "paidAmount": 0
-    },
-    {
-      "issued": false,
-      "client": "ח.ח.א",
-      "month": "2026-10",
-      "amount": 14500,
-      "paid": false,
-      "paidDate": "",
-      "paidAmount": 0,
-      "issuedDate": ""
-    },
-    {
-      "issuedDate": "2026-10-08",
-      "month": "2026-10",
-      "manualAmount": true,
-      "issued": true,
-      "client": "פריוריטי כח אדם בע",
-      "paid": false,
-      "amount": 40,
-      "paidAmount": 0,
-      "note": "",
-      "paidDate": ""
-    }
-  ],
-  "OPS_TASKS": [
-    {
-      "due": "",
-      "id": 34,
-      "who": "",
-      "desc": "ניקיון החדר",
-      "floor": "",
-      "handler": "taagid",
-      "taagid": "",
-      "fromVisit": 1779176535105,
-      "priority": "normal",
-      "room": "6",
-      "createdAt": "2026-05-19T07:42:15.105Z",
-      "status": "open",
-      "prop": "נתן הנביא 42"
-    },
-    {
-      "priority": "normal",
-      "desc": "ארונית אמבטיה חדשה",
-      "due": "",
-      "who": "יועד",
-      "createdAt": "2026-05-19T07:28:00.512Z",
-      "room": "2",
-      "fromVisit": 1779175680510,
-      "floor": "1",
-      "handler": "yoad",
-      "prop": "נתן הנביא 42",
-      "id": 33,
-      "taagid": "",
-      "closedAt": "2026-07-01",
-      "status": "done"
-    },
-    {
-      "room": "5",
-      "taagid": "",
-      "fromVisit": 1779173565236,
-      "floor": "2",
-      "createdAt": "2026-05-19T06:52:45.253Z",
-      "status": "done",
-      "prop": "לבנדה 32",
-      "who": "",
-      "due": "",
-      "closedAt": "2026-07-01",
-      "id": 32,
-      "desc": "ניקיון וסדר החדר",
-      "priority": "normal",
-      "handler": "taagid"
-    },
-    {
-      "due": "",
-      "who": "יועד",
-      "handler": "yoad",
-      "desc": "רטיבות בתקרה הבעלים לקח אחריות עדיין לא טופל לטיפולם של צביקה אוהד רועי",
-      "priority": "normal",
-      "taagid": "",
-      "createdAt": "2026-05-19T06:52:45.253Z",
-      "status": "open",
-      "fromVisit": 1779173565236,
-      "prop": "לבנדה 32",
-      "floor": "2",
-      "room": "5",
-      "id": 31
-    },
-    {
-      "room": "4",
-      "priority": "normal",
-      "prop": "לבנדה 32",
-      "taagid": "",
-      "status": "open",
-      "desc": "ניקיון לחדר",
-      "floor": "1",
-      "who": "",
-      "createdAt": "2026-05-19T06:49:24.153Z",
-      "due": "",
-      "id": 30,
-      "fromVisit": 1779173364153,
-      "handler": "taagid"
-    },
-    {
-      "room": "4",
-      "taagid": "",
-      "floor": "1",
-      "status": "done",
-      "prop": "לבנדה 32",
-      "priority": "normal",
-      "who": "יועד",
-      "due": "2026-05-19",
-      "id": 29,
-      "desc": "טיפול למזגן",
-      "createdAt": "2026-05-19T06:49:24.153Z",
-      "handler": "yoad",
-      "closedAt": "2026-06-02",
-      "fromVisit": 1779173364153
-    },
-    {
-      "status": "open",
-      "createdAt": "2026-05-18T09:51:10.116Z",
-      "fromVisit": 1,
-      "taagid": "קורל ב. פרויקטים בע",
-      "priority": "urgent",
-      "desc": "לכלוך",
-      "handler": "taagid",
-      "id": 28,
-      "room": "10",
-      "floor": "2",
-      "who": "קורל ב. פרויקטים בע",
-      "prop": "הירקון 41 ב\"ב",
-      "due": ""
-    },
-    {
-      "id": 27,
-      "desc": "ניקיון חדר",
-      "floor": "3",
-      "taagid": "",
-      "priority": "normal",
-      "handler": "taagid",
-      "status": "open",
-      "room": "9",
-      "prop": "לבנדה 32",
-      "createdAt": "2026-05-18T09:34:08.875Z",
-      "due": "",
-      "fromVisit": 4,
-      "who": ""
-    },
-    {
-      "createdAt": "2026-05-18T09:30:22.844Z",
-      "floor": "3",
-      "fromVisit": 2,
-      "taagid": "",
-      "desc": "ניקיון לחדר",
-      "status": "open",
-      "handler": "taagid",
-      "id": 26,
-      "priority": "normal",
-      "room": "7",
-      "due": "",
-      "prop": "לבנדה 32",
-      "who": ""
-    },
-    {
-      "due": "",
-      "who": "דודו",
-      "floor": "3",
-      "handler": "dudu",
-      "createdAt": "2026-05-18T09:30:22.844Z",
-      "closedAt": "2026-07-01",
-      "prop": "לבנדה 32",
-      "fromVisit": 2,
-      "room": "7",
-      "status": "done",
-      "taagid": "",
-      "priority": "normal",
-      "id": 25,
-      "desc": "תיקון חלון נמשך כבר יותר מידי זמן"
-    },
-    {
-      "who": "",
-      "due": "",
-      "desc": "ניקיון לחדר",
-      "fromVisit": 1,
-      "handler": "taagid",
-      "createdAt": "2026-05-18T09:27:24.213Z",
-      "prop": "לבנדה 32",
-      "room": "3",
-      "status": "open",
-      "floor": "3",
-      "priority": "normal",
-      "taagid": "",
-      "id": 24
-    },
-    {
-      "id": 23,
-      "closedAt": "2026-07-01",
-      "status": "done",
-      "room": "12",
-      "floor": "2",
-      "prop": "לבנדה 32",
-      "due": "",
-      "taagid": "",
-      "handler": "yoad",
-      "who": "יועד",
-      "priority": "normal",
-      "fromVisit": 13,
-      "desc": "נזילה בשירותים",
-      "createdAt": "2026-05-18T09:20:44.925Z"
-    },
-    {
-      "floor": "2",
-      "handler": "dudu",
-      "createdAt": "2026-05-18T09:19:12.274Z",
-      "id": 22,
-      "desc": "ריצוף מקלחת שבור גורם לנזילות",
-      "fromVisit": 12,
-      "closedAt": "2026-07-01",
-      "taagid": "",
-      "priority": "normal",
-      "status": "done",
-      "due": "",
-      "room": "11",
-      "who": "דודו",
-      "prop": "לבנדה 32"
-    },
-    {
-      "room": "11",
-      "priority": "normal",
-      "prop": "לבנדה 32",
-      "id": 21,
-      "floor": "2",
-      "fromVisit": 12,
-      "taagid": "",
-      "status": "done",
-      "createdAt": "2026-05-18T09:19:12.274Z",
-      "desc": "מזגן נוזל ולא מקרר",
-      "closedAt": "2026-07-01",
-      "who": "דודו",
-      "handler": "dudu",
-      "due": ""
-    },
-    {
-      "floor": "2",
-      "closedAt": "2026-06-02",
-      "desc": "מזגן נוזל ולא מקרר",
-      "createdAt": "2026-05-18T09:17:47.725Z",
-      "fromVisit": 11,
-      "id": 20,
-      "handler": "dudu",
-      "room": "11",
-      "taagid": "",
-      "priority": "normal",
-      "due": "",
-      "prop": "לבנדה 32",
-      "status": "done",
-      "who": "דודו"
-    },
-    {
-      "fromVisit": 10,
-      "createdAt": "2026-05-18T09:13:48.900Z",
-      "status": "done",
-      "priority": "normal",
-      "taagid": "",
-      "id": 19,
-      "desc": "מזגן נוזל",
-      "who": "דודו",
-      "due": "",
-      "closedAt": "2026-06-02",
-      "handler": "dudu",
-      "floor": "2",
-      "prop": "לבנדה 32",
-      "room": "10"
-    },
-    {
-      "floor": "2",
-      "fromVisit": 10,
-      "prop": "לבנדה 32",
-      "createdAt": "2026-05-18T09:13:48.900Z",
-      "room": "10",
-      "priority": "normal",
-      "closedAt": "2026-07-01",
-      "who": "",
-      "due": "",
-      "id": 18,
-      "taagid": "",
-      "status": "done",
-      "desc": "ניקיון וסדר",
-      "handler": "taagid"
-    },
-    {
-      "room": "10",
-      "priority": "normal",
-      "floor": "2",
-      "prop": "לבנדה 32",
-      "who": "יועד",
-      "due": "",
-      "id": 17,
-      "createdAt": "2026-05-18T09:13:48.900Z",
-      "handler": "yoad",
-      "desc": "חסר דוש במקלחת",
-      "taagid": "",
-      "fromVisit": 10,
-      "status": "done",
-      "closedAt": "2026-07-01"
-    },
-    {
-      "who": "",
-      "due": "",
-      "closedAt": "2026-07-01",
-      "createdAt": "2026-05-18T09:10:35.369Z",
-      "floor": "2",
-      "desc": "ניקוי דחוף של החדר",
-      "fromVisit": 9,
-      "handler": "taagid",
-      "priority": "normal",
-      "id": 16,
-      "status": "done",
-      "prop": "לבנדה 32",
-      "room": "9",
-      "taagid": ""
-    },
-    {
-      "floor": "2",
-      "closedAt": "2026-06-02",
-      "who": "דודו",
-      "due": "",
-      "prop": "לבנדה 32",
-      "room": "9",
-      "createdAt": "2026-05-18T09:10:35.369Z",
-      "fromVisit": 9,
-      "id": 15,
-      "taagid": "",
-      "status": "done",
-      "desc": "מזגן לא מקרר",
-      "priority": "normal",
-      "handler": "dudu"
-    },
-    {
-      "taagid": "",
-      "floor": "2",
-      "closedAt": "2026-07-01",
-      "status": "done",
-      "room": "8",
-      "prop": "לבנדה 32",
-      "id": 14,
-      "createdAt": "2026-05-18T09:06:12.874Z",
-      "fromVisit": 8,
-      "who": "יועד",
-      "due": "",
-      "desc": "נזילה שירותים",
-      "handler": "yoad",
-      "priority": "normal"
-    },
-    {
-      "who": "דודו",
-      "due": "",
-      "prop": "לבנדה 32",
-      "room": "7",
-      "taagid": "",
-      "closedAt": "2026-06-02",
-      "status": "done",
-      "priority": "normal",
-      "fromVisit": 7,
-      "floor": "",
-      "desc": "מזגן לא מקרר ומחמם",
-      "handler": "dudu",
-      "createdAt": "2026-05-18T09:03:31.220Z",
-      "id": 13
-    },
-    {
-      "who": "",
-      "closedAt": "2026-07-01",
-      "due": "",
-      "prop": "לבנדה 32",
-      "room": "6",
-      "floor": "2",
-      "createdAt": "2026-05-18T09:01:08.412Z",
-      "fromVisit": 6,
-      "taagid": "",
-      "status": "done",
-      "priority": "normal",
-      "id": 12,
-      "desc": "ניקיון וסדר לחדר החדר מלוכלך מאוד",
-      "handler": "taagid"
-    },
-    {
-      "room": "4",
-      "prop": "לבנדה 32",
-      "due": "",
-      "closedAt": "2026-07-01",
-      "createdAt": "2026-05-18T08:54:46.159Z",
-      "who": "",
-      "status": "done",
-      "id": 11,
-      "fromVisit": 4,
-      "taagid": "",
-      "desc": "סדר וניקיון",
-      "priority": "normal",
-      "handler": "taagid",
-      "floor": "2"
-    },
-    {
-      "priority": "urgent",
-      "fromVisit": 3,
-      "handler": "dudu",
-      "createdAt": "2026-05-18T08:49:28.388Z",
-      "due": "",
-      "who": "דודו",
-      "room": "1",
-      "prop": "לבנדה 32",
-      "id": 10,
-      "status": "done",
-      "floor": "2",
-      "desc": "מזגן שבור לא עובד",
-      "closedAt": "2026-07-01",
-      "taagid": ""
-    },
-    {
-      "handler": "taagid",
-      "closedAt": "2026-07-01",
-      "desc": "חדר חייב ניקיון דחוף",
-      "status": "done",
-      "fromVisit": 1,
-      "id": 9,
-      "taagid": "",
-      "createdAt": "2026-05-18T08:44:15.361Z",
-      "who": "",
-      "prop": "לבנדה 32",
-      "due": "",
-      "room": "3",
-      "priority": "normal",
-      "floor": "1"
-    },
-    {
-      "priority": "normal",
-      "who": "יועד",
-      "due": "",
-      "desc": "נזילה בשירותים",
-      "status": "done",
-      "taagid": "",
-      "id": 8,
-      "prop": "לבנדה 32",
-      "handler": "yoad",
-      "room": "3",
-      "createdAt": "2026-05-18T08:44:15.361Z",
-      "floor": "1",
-      "closedAt": "2026-07-01",
-      "fromVisit": 1
-    },
-    {
-      "room": "3",
-      "closedAt": "2026-07-01",
-      "status": "done",
-      "id": 7,
-      "prop": "לבנדה 32",
-      "taagid": "",
-      "fromVisit": 1,
-      "handler": "dudu",
-      "due": "",
-      "createdAt": "2026-05-18T08:44:15.361Z",
-      "who": "דודו",
-      "desc": "מקלחת שבורה",
-      "priority": "normal",
-      "floor": "1"
-    },
-    {
-      "handler": "yoad",
-      "prop": "לבנדה 32",
-      "status": "open",
-      "room": "3",
-      "taagid": "",
-      "priority": "normal",
-      "id": 6,
-      "fromVisit": 1,
-      "due": "",
-      "desc": "תליית בית מנורה",
-      "who": "יועד",
-      "createdAt": "2026-05-18T08:44:15.361Z",
-      "floor": "1"
-    },
-    {
-      "room": "",
-      "desc": "עיגגעגכ",
-      "priority": "normal",
-      "id": 5,
-      "prop": "לבנדה 32",
-      "createdAt": "2026-05-18T08:34:14.834Z",
-      "closedAt": "2026-06-02",
-      "status": "done",
-      "who": "יועד",
-      "fromVisit": 1,
-      "due": "2026-05-18",
-      "floor": ""
-    },
-    {
-      "room": "3",
-      "desc": "נזילה בשירותים- יועד",
-      "createdAt": "2026-05-18T07:58:38.387Z",
-      "status": "open",
-      "fromVisit": 1,
-      "prop": "לבנדה 32",
-      "id": 4,
-      "priority": "normal",
-      "who": "יועד",
-      "due": "",
-      "floor": "1"
-    },
-    {
-      "priority": "normal",
-      "id": 3,
-      "createdAt": "2026-05-18T07:58:38.387Z",
-      "fromVisit": 1,
-      "desc": "מקלחת שבורה- דודו",
-      "room": "3",
-      "status": "open",
-      "floor": "1",
-      "prop": "לבנדה 32",
-      "due": "",
-      "who": "יועד"
-    },
-    {
-      "who": "יועד",
-      "due": "2026-05-18",
-      "status": "open",
-      "prop": "לבנדה 32",
-      "desc": "מנורה תלושה- יועד",
-      "room": "3",
-      "priority": "normal",
-      "fromVisit": 1,
-      "floor": "1",
-      "createdAt": "2026-05-18T07:58:38.387Z",
-      "id": 2
-    },
-    {
-      "desc": "חשמלאי",
-      "room": "3",
-      "priority": "normal",
-      "id": 1,
-      "prop": "לבנדה 32",
-      "status": "open",
-      "floor": "1",
-      "fromVisit": 1,
-      "who": "אוהד",
-      "createdAt": "2026-05-18T07:57:52.854Z",
-      "due": ""
-    }
-  ],
-  "_backup_time": "2026-10-18T15:28:34.678985"
+  "FIXED_COSTS": {},
+  "_backup_time": "2026-10-18T20:11:11.448091"
 }
